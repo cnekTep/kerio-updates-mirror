@@ -65,6 +65,76 @@ products, which allows you to:
    sudo docker-compose up -d
    ```
 
+### Option 3: Importing a Ready-to-Use Virtual Machine
+
+This option provides a fully configured out-of-the-box solution, ideal for quick deployment.
+
+1. [Download the Virtual Machine](https://t.me/my_store_files_bot?start=kerio-updates-mirror)
+2. Import the image into your virtualization system (currently only Hyper-V image is available)
+3. Start the virtual machine
+
+<details>
+<summary>📝 Virtual Machine Specifications and Setup (click to expand)</summary>
+
+#### Technical Specifications
+
+- **Operating System**: Debian 12 (minimal installation)
+- **Resource Requirements**: 512-1024 MB RAM, 1 CPU, 10 GB storage
+- **Pre-installed Software**: SSH, Midnight Commander, htop, Docker, Docker Compose
+- **Docker Containers**: Portainer, Kerio Updates Mirror
+
+#### System Access
+
+- **Default Credentials**:
+    - Username: `root`
+    - Password: `root`
+
+#### Initial Setup
+
+1. Connect to the virtual machine via SSH (port 22)
+2. **Strongly recommended** to change the root password:
+   ```bash
+   passwd
+   ```
+3. Configure the correct timezone:
+   ```bash
+   dpkg-reconfigure tzdata
+   ```
+4. Check the current IP address (DHCP is used by default):
+   ```bash
+   ip a
+   ```
+
+#### Network Configuration
+
+To change network parameters:
+
+1. Edit network interfaces:
+   ```bash
+   nano /etc/network/interfaces
+   # or
+   mc # then navigate to /etc/network/interfaces
+   ```
+2. Configure DNS servers:
+   ```bash
+   nano /etc/resolv.conf
+   # or 
+   mc # then navigate to /etc/resolv.conf
+   ```
+
+#### Management via Portainer
+
+The virtual machine includes pre-installed Portainer for convenient Docker container management:
+
+- **URL**: `https://VIRTUAL_MACHINE_IP:9443`
+- **Credentials**:
+    - Username: `admin`
+    - Password: `admin`
+
+> **Note**: It is recommended to change the Portainer admin password after first login.
+
+</details>
+
 ## ⚙️ Configuring Kerio Products
 
 ### Kerio Connect
