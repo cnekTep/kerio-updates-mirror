@@ -1,0 +1,12 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+#MyIgnore
+.idea
+_curl
+__images__
+__dockers__
+__temp__
+_mirrorKC
+docker-compose_dev.yml
+*.*~

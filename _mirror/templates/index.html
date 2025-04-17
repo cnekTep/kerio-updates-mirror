@@ -1,0 +1,232 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+	<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/favicon.ico" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Kerio Updates Mirror</title>
+	<script type="text/javascript">function custom_checkbox(){ document.getElementById('geo_github').onchange = function(){ if (!document.getElementById('IDSv4').checked) document.getElementById('geo_github').checked = false; }; document.getElementById('IDSv4').onchange = function(){ if (!document.getElementById('IDSv4').checked) document.getElementById('geo_github').checked = false; } }</script>
+	<script type="text/javascript">function AddClass(obj,cName){ KillClass(obj,cName); return obj && (obj.className+=(obj.className.length>0?' ':'')+cName); }</script>
+	<script type="text/javascript">function KillClass(obj,cName){ return obj && (obj.className=obj.className.replace(new RegExp("^"+cName+"\\b\\s*|\\s*\\b"+cName+"\\b",'g'),'')); }</script>
+	<script type="text/javascript">function HasClass(obj,cName){ return (!obj || !obj.className)?false:(new RegExp("\\b"+cName+"\\b")).test(obj.className) }</script>
+	<script type="text/javascript">function AttachEvent(obj,evt,fnc,useCapture){if (!useCapture) useCapture=false; if (obj.addEventListener){ obj.addEventListener(evt,fnc,useCapture); return true; } else if (obj.attachEvent) return obj.attachEvent("on"+evt,fnc); else{ MyAttachEvent(obj,evt,fnc); obj['on'+evt]=function(){ MyFireEvent(obj,evt) }; } }</script>
+	<script type="text/javascript">function MyAttachEvent(obj,evt,fnc){ if (!obj.myEvents) obj.myEvents={}; if (!obj.myEvents[evt]) obj.myEvents[evt]=[]; var evts = obj.myEvents[evt]; evts[evts.length]=fnc; }</script>
+	<script type="text/javascript">function MyFireEvent(obj,evt){ if (!obj || !obj.myEvents || !obj.myEvents[evt]) return; var evts = obj.myEvents[evt]; for (var i=0,len=evts.length;i<len;i++) evts[i](); }</script>
+	<script type="text/javascript">function AddStyleSheet(url,idx){ var css,before=null,head=document.getElementsByTagName("head")[0]; if (document.createElement){ if (url){ css = document.createElement('link'); css.rel  = 'stylesheet'; css.href = url; } else css = document.createElement('style'); css.media = 'all'; css.type  = 'text/css'; if (idx>=0){ for (var i=0,ct=0,len=head.childNodes.length;i<len;i++){ var el = head.childNodes[i]; if (!el.tagName) continue; var tagName = el.tagName.toLowerCase(); if (ct==idx){ before = el; break; } if (tagName=='style' || tagName=='link' && (el.rel && el.rel.toLowerCase()=='stylesheet' || el.type && el.type.toLowerCase()=='text/css') ) ct++; } } head.insertBefore(css,before); return document.styleSheets[before?idx:document.styleSheets.length-1]; } else return alert("I can't create a new stylesheet for you. Sorry."); }</script>
+	<script type="text/javascript">function AddRule(ss,selector,styles){ if (!ss) return false; if (ss.insertRule) return ss.insertRule(selector+' {'+styles+'}',ss.cssRules.length); if (ss.addRule){ ss.addRule(selector,styles); return true; } return false; }</script>
+	<script type="text/javascript">AttachEvent(window,'load',function(){
+		var tocTag='ul',tocClass='tabset_tabs',tabTag='a',contentClass='tabset_content';
+		function FindEl(tagName,evt){
+			if (!evt && window.event) evt=event;
+			if (!evt) return DebugOut("Can't find an event to handle in DLTabSet::SetTab",0);
+			var el=evt.currentTarget || evt.srcElement;
+			while (el && (!el.tagName || el.tagName.toLowerCase()!=tagName)) el=el.parentNode;
+			return el;
+		}
+		function SetTabActive(tab){
+			if (tab.tabTOC.activeTab){
+				if (tab.tabTOC.activeTab==tab) return;
+				KillClass(tab.tabTOC.activeTab,'active');
+				if (tab.tabTOC.activeTab.tabContent) KillClass(tab.tabTOC.activeTab.tabContent,'tabset_content_active');
+				if (tab.tabTOC.activeTab.prevTab) KillClass(tab.tabTOC.activeTab.previousTab,'preActive');
+				if (tab.tabTOC.activeTab.nextTab) KillClass(tab.tabTOC.activeTab.nextTab,'postActive');
+			}
+			AddClass(tab.tabTOC.activeTab=tab,'active');
+			if (tab.tabContent) AddClass(tab.tabContent,'tabset_content_active');				
+			if (tab.prevTab) AddClass(tab.prevTab,'preActive');
+			if (tab.nextTab) AddClass(tab.nextTab,'postActive');
+			var block = document.getElementsByTagName('p');
+			for (var i=0,len=block.length;i<len;i++){
+				block[i].scrollTop = block[i].scrollHeight;
+			}
+		}
+		function SetTabFromAnchor(evt){
+			SetTabActive(FindEl('a',evt).semanticTab);
+		}
+		function Init(){
+			window.everyTabThereIsById = {};
+			var anchorMatch = /#([a-z][\w.:-]*)$/i,match;
+			var activeTabs = [];
+			var tocs = document.getElementsByTagName(tocTag);
+			for (var i=0,len=tocs.length;i<len;i++){
+				var toc = tocs[i];
+				if (!HasClass(toc,tocClass)) continue;
+				var lastTab;
+				var tabs = toc.getElementsByTagName(tabTag);
+				for (var j=0,len2=tabs.length;j<len2;j++){
+					var tab = tabs[j];
+					if (!tab.href || !(match=anchorMatch.exec(tab.href))) continue;
+					if (lastTab){
+						tab.prevTab=lastTab;
+						lastTab.nextTab=tab;
+					}
+					tab.tabTOC=toc;
+					everyTabThereIsById[tab.tabID=match[1]]=tab;
+					tab.tabContent = document.getElementById(tab.tabID);
+					if (HasClass(tab,'active')) activeTabs[activeTabs.length]=tab;				
+					lastTab=tab;
+				}
+				AddClass(toc.getElementsByTagName('li')[0],'firstchild');
+			}
+			for (var i=0,len=activeTabs.length;i<len;i++){
+				SetTabActive(activeTabs[i]);
+			}
+			for (var i=0,len=document.links.length;i<len;i++){
+				var a = document.links[i];
+				if (!(match=anchorMatch.exec(a.href))) continue;
+				if (a.semanticTab = everyTabThereIsById[match[1]]) AttachEvent(a,'click',SetTabFromAnchor,false);
+			}
+			if ((match=anchorMatch.exec(location.href)) && (a=everyTabThereIsById[match[1]])) SetTabActive(a);
+		}
+		Init();
+	},false);</script>
+	<style media="screen" type="text/css">
+		body { font-family:'Trebuchet MS',serif; background-color:#eee }
+		.tabset_tabs { margin:0; padding:0; list-style-type:none; position:relative; z-index:3; white-space:nowrap }
+		.tabset_tabs li { margin:0; padding:0; display:inline }
+		.tabset_tabs a { color:#339 ! important; background-color:#def ! important; border:2px solid #99c; text-decoration:none; padding:0 0.6em; border-left-width:2px; border-bottom:none }
+		.tabset_tabs a:hover { color:#00c ! important; background-color:#eff ! important }
+		.tabset_tabs a.active { color:black ! important; background-color:white ! important; border-color:black; border-left-width:2px; cursor:default; border-bottom:white; padding-top:2px; padding-bottom:2px }
+		.tabset_tabs li.firstchild a { border-left-width:2px }
+		.tabset_content { border:2px solid black; background-color:white; position:relative; z-index:1; padding:0.5em 1em; display:none }
+		.tabset_content_active { display: block; position: absolute; height: 84%; width: 94% }
+		.system_log { font-size: smaller; position:absolute; height: 95%; width: 98%; word-break: break-all; overflow:auto; text-overflow: clip; white-space: pre }
+		.updates_log { font-family: monospace; font-size: smaller; position:absolute; height: 95%; width: 98%; word-break: break-all; overflow:auto; text-overflow: clip; white-space: pre }
+		.shadowbox { width: 80%; border: 1px solid #333; box-shadow: 8px 8px 5px #444; padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc) }
+		table { border: 0px; border-spacing: 0px; padding: 0px; border-collapse: collapse; display: inline-table; }
+	</style>
+	</head><body onload="custom_checkbox();">
+	<table width = 100%><tr>
+	<td><h3>Kerio Updates Mirror <span id="ver">v.1.0.0</span></h3></td><td>&nbsp;</td>
+	</tr></table>
+	<div id="pagecontent">
+		<ul class="tabset_tabs">
+			<li class="firstchild"><a class="preActive active" href="#system_log">System Log</a></li>
+			<li><a class="preActive postActive" href="#updates_log">Mirror Update Log</a></li>
+			<li><a class="preActive postActive" href="#settings">Settings</a></li>
+			<li><a class="preActive postActive" href="#information">Information</a></li>
+		</ul>
+		<div id="system_log" class="tabset_content tabset_content_active">
+			<p class="system_log">{{ system_log_content | e }}</p>
+		</div>
+		<div id="updates_log" class="tabset_content">
+			<p class="updates_log">{{ updates_log_content | e }}</p>
+		</div>
+		<div id="settings" class="tabset_content">
+			<h4>Select the services that you want to download updates for:</h4>
+			<div id="mirror_settings" class="shadowbox"><br />
+				<form action="/?action=save_settings" method="post">
+					<div>
+						<input type="checkbox" id="License" name="License" value="true" onclick="this.checked=true" checked>
+						<label for="License">Use a license:</label>
+						<input type="text" id="LicenseNo" name="LicenseNo" value="{{ license_number or '' }}">
+					</div>
+					<br />
+					<div>
+						<input type="checkbox" id="IDSv1" name="IDSv1" value="true" {% if update_ids_1 %}checked{% endif %}>
+						<label for="IDSv1">IDSv1 - IPS/IDS Snort (Windows versions)</label>
+					</div>
+					<div>
+						<input type="checkbox" id="IDSv3" name="IDSv3" value="true" {% if update_ids_3 %}checked{% endif %}>
+						<label for="IDSv3">IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)</label>
+					</div>
+					<div>
+						<input type="checkbox" id="IDSv5" name="IDSv5" value="true" {% if update_ids_5 %}checked{% endif %}>
+						<label for="IDSv5">IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)</label>
+					</div>
+					<div>
+						<input type="checkbox" id="IDSv2" name="IDSv2" value="true" {% if update_ids_2 %}checked{% endif %}>
+						<label for="IDSv2">IDSv2 - Lists of compromised addresses for blocking</label>
+					</div>
+					<div>
+						<input type="checkbox" id="IDSv4" name="IDSv4" value="true" {% if update_ids_4 %}checked{% endif %}>
+						<label for="IDSv4">IDSv4 - GeoIP databases for geolocation/visitor blocking</label>
+					</div>
+					<div style="margin-left:25px;">
+						<input type="checkbox" id="geo_github" name="geo_github" value="true" {% if geoip_github %}checked{% endif %}>
+						<label for="geo_github">Use GitHub as a source for GeoIP database updates</label>
+					</div>
+					<div>
+						<input type="checkbox" id="wfkey" name="wfkey" value="true" {% if update_web_filter_key %}checked{% endif %}>
+						<label for="wfkey">Kerio Control Web Filter Content Filtering Subsystem Key</label>
+					</div>
+					<div>
+						<input type="checkbox" id="avir" name="avir" onclick="this.checked=true" checked>
+						<label for="avir">Bitdefender antivirus and antispam (update support is always enabled)</label>
+					</div>
+					<div>
+						<input type="checkbox" id="avir_proxy" name="avir_proxy" value="true" {% if proxy %}checked{% endif %}>
+						<label for="avir_proxy">Use a proxy server to update Bitdefender:</label>
+					</div>
+					<br /><br />
+					<input type="submit" value="Apply">
+				</form>
+			</div>
+		</div>
+		<div id="information" class="tabset_content">
+			<h4>To manually start checking for new updates, <a href='/update_mirror'>click here</a> (it is not recommended to run the check more than once a day).<br />
+			</h4>
+			<div class="shadowbox"><br />
+				The update mirror is designed to update Kerio Control and Kerio Connect on the local network. It downloads updates for the services specified by the administrator from the Kerio update servers, after which updates can be distributed within the local network, which saves external traffic and automates the fight against vulnerabilities and bugs in software products, as well as allows centralized management of updates.<br /><br />
+				To work, you must specify the IP address of the Update Mirror for the following hosts in the DNS settings of Kerio products:<br />
+				<div style="margin-left:25px;">
+					<table><tr><td>
+					ids-update.kerio.com<br />
+					wf-activation.kerio.com<br />
+					prod-update.kerio.com<br />
+					</td><td>&nbsp;</td><td>
+					bdupdate.kerio.com<br />
+					bda-update.kerio.com<br />
+					update.kerio.com<br />
+					</td></tr></table>
+				</div><br />
+				Updates require a valid license:<br />
+				You can get a trial key <a target="_blank" rel="noopener noreferrer" href='https://gfi.ai/products-and-solutions/network-security-solutions/keriocontrol/free-trial'>here</a> (may not be available in your region).<br />
+				Check the key expiration date <a target="_blank" rel="noopener noreferrer" href='https://secure.kerio.com/reg/?lang=en'>here</a> (may not be available in your region).<br /><br />
+			</div>
+		</div>
+	</div>
+
+<script type="text/javascript">
+function updateLog(logId, logUrl, className) {
+    // Checking if the log tab is active.
+    if (document.getElementById(logId).className.indexOf('tabset_content_active') !== -1) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                // Updating the log content
+                var logElement = document.querySelector('#' + logId.replace('.', '\\.') + ' .' + className);
+                if (logElement) {
+                    logElement.innerHTML = xhr.responseText.replace(/&/g, '&amp;')
+                                                          .replace(/</g, '&lt;')
+                                                          .replace(/>/g, '&gt;');
+                    // Scroll to the end
+                    logElement.scrollTop = logElement.scrollHeight;
+                }
+            }
+        };
+        xhr.open('GET', logUrl, true);
+        xhr.send();
+    }
+}
+
+function updateLogs() {
+    // Updating the contents of both logs
+    updateLog('system_log', '/get_system_log', 'system_log');
+    updateLog('updates_log', '/get_updates_log', 'updates_log');
+}
+
+// Update the content every 2 seconds
+setInterval(updateLogs, 2000);
+
+// Also update them when switching to tabs with logs.
+document.addEventListener('DOMContentLoaded', function() {
+    var tabs = document.querySelectorAll('a[href="#system_log"], a[href="#updates_log"]');
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            // Immediately launch the update after the click
+            setTimeout(updateLogs, 100);
+        });
+    });
+});
+</script>
+
+</body></html>

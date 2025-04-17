@@ -1,0 +1,71 @@
+services:
+  tor:
+    image: "tor:v1.1.2"
+    stop_signal: SIGINT
+    restart: unless-stopped
+    build:
+      context: ./_tor
+    networks:
+      external:
+        ipv4_address: 172.222.0.5
+    ports:
+      - "8118:8118"
+    extra_hosts:
+      - "bdupdate.kerio.com:172.222.0.10"
+      - "bda-update.kerio.com:172.222.0.10"
+    volumes:
+      - ./_tor/configs/tor.config:/etc/tor/torrc:ro
+      - ./_tor/configs/bridges.config:/etc/tor/bridges
+      - ./_tor/configs/privoxy.config:/etc/privoxy/config:ro
+      - tor-data:/var/lib/tor
+    environment:
+      - USE_CHECK_TOR=true  # Use Tor availability check and search for new Bridges or not
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+
+  mirror:
+    image: "mirror:v1.0.0"
+    stop_signal: SIGINT
+    restart: unless-stopped
+    build:
+      context: ./_mirror
+    working_dir: "/usr/src/app/mirror"
+    volumes:
+      - ./_mirror:/usr/src/app/mirror
+    env_file:
+      - .env
+    environment:
+      - TZ=$TIME_ZONE
+    command: python3 -m app
+    networks:
+      external:
+        ipv4_address: 172.222.0.10
+    ports:
+      - "9980:80"
+#      - "80:80"
+#      - "443:443"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+
+volumes:
+  tor-data:
+    driver: local
+
+
+networks:
+  external:
+    driver: bridge
+    enable_ipv6: false
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.222.0.0/24
+          gateway: 172.222.0.1
