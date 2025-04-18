@@ -30,12 +30,32 @@
 				if (tab.tabTOC.activeTab.nextTab) KillClass(tab.tabTOC.activeTab.nextTab,'postActive');
 			}
 			AddClass(tab.tabTOC.activeTab=tab,'active');
-			if (tab.tabContent) AddClass(tab.tabContent,'tabset_content_active');				
+			if (tab.tabContent) AddClass(tab.tabContent,'tabset_content_active');
 			if (tab.prevTab) AddClass(tab.prevTab,'preActive');
 			if (tab.nextTab) AddClass(tab.nextTab,'postActive');
-			var block = document.getElementsByTagName('p');
-			for (var i=0,len=block.length;i<len;i++){
-				block[i].scrollTop = block[i].scrollHeight;
+
+			// Show or hide log settings depending on the active tab
+			var logControlsSystem = document.getElementById('system_log_controls');
+			var logControlsUpdates = document.getElementById('updates_log_controls');
+
+			if (tab.tabID === 'system_log') {
+				logControlsSystem.style.display = 'block';
+				logControlsUpdates.style.display = 'none';
+			} else if (tab.tabID === 'updates_log') {
+				logControlsSystem.style.display = 'none';
+				logControlsUpdates.style.display = 'block';
+			} else {
+				logControlsSystem.style.display = 'none';
+				logControlsUpdates.style.display = 'none';
+			}
+
+			// Scroll to the end of the logs if the auto-scroll checkbox is enabled
+			if ((tab.tabID === 'system_log' && document.getElementById('system_log_autoscroll').checked) ||
+			    (tab.tabID === 'updates_log' && document.getElementById('updates_log_autoscroll').checked)) {
+				var block = document.getElementsByTagName('p');
+				for (var i=0,len=block.length;i<len;i++){
+					block[i].scrollTop = block[i].scrollHeight;
+				}
 			}
 		}
 		function SetTabFromAnchor(evt){
@@ -61,7 +81,7 @@
 					tab.tabTOC=toc;
 					everyTabThereIsById[tab.tabID=match[1]]=tab;
 					tab.tabContent = document.getElementById(tab.tabID);
-					if (HasClass(tab,'active')) activeTabs[activeTabs.length]=tab;				
+					if (HasClass(tab,'active')) activeTabs[activeTabs.length]=tab;
 					lastTab=tab;
 				}
 				AddClass(toc.getElementsByTagName('li')[0],'firstchild');
@@ -75,6 +95,9 @@
 				if (a.semanticTab = everyTabThereIsById[match[1]]) AttachEvent(a,'click',SetTabFromAnchor,false);
 			}
 			if ((match=anchorMatch.exec(location.href)) && (a=everyTabThereIsById[match[1]])) SetTabActive(a);
+
+			// Initializing log settings from localStorage
+			initLogSettings();
 		}
 		Init();
 	},false);</script>
@@ -92,10 +115,21 @@
 		.updates_log { font-family: monospace; font-size: smaller; position:absolute; height: 95%; width: 98%; word-break: break-all; overflow:auto; text-overflow: clip; white-space: pre }
 		.shadowbox { width: 80%; border: 1px solid #333; box-shadow: 8px 8px 5px #444; padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc) }
 		table { border: 0px; border-spacing: 0px; padding: 0px; border-collapse: collapse; display: inline-table; }
+		.log_controls {
+			position: absolute;
+			top: 10px;
+			right: 15px;
+			z-index: 100;
+			background-color: rgba(255, 255, 255, 0.8);
+			padding: 5px 10px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			display: none;
+		}
 	</style>
 	</head><body onload="custom_checkbox();">
 	<table width = 100%><tr>
-	<td><h3>Kerio Updates Mirror <span id="ver">v.1.0.0</span></h3></td><td>&nbsp;</td>
+	<td><h3>Kerio Updates Mirror <span id="ver">v.1.0.1</span></h3></td><td>&nbsp;</td>
 	</tr></table>
 	<div id="pagecontent">
 		<ul class="tabset_tabs">
@@ -105,9 +139,21 @@
 			<li><a class="preActive postActive" href="#information">Information</a></li>
 		</ul>
 		<div id="system_log" class="tabset_content tabset_content_active">
+			<div id="system_log_controls" class="log_controls">
+				<input type="checkbox" id="system_log_autoupdate" checked>
+				<label for="system_log_autoupdate">Autoupdate</label>
+				<input type="checkbox" id="system_log_autoscroll" checked>
+				<label for="system_log_autoscroll">Autoscroll</label>
+			</div>
 			<p class="system_log">{{ system_log_content | e }}</p>
 		</div>
 		<div id="updates_log" class="tabset_content">
+			<div id="updates_log_controls" class="log_controls">
+				<input type="checkbox" id="updates_log_autoupdate" checked>
+				<label for="updates_log_autoupdate">Autoupdate</label>
+				<input type="checkbox" id="updates_log_autoscroll" checked>
+				<label for="updates_log_autoscroll">Autoscroll</label>
+			</div>
 			<p class="updates_log">{{ updates_log_content | e }}</p>
 		</div>
 		<div id="settings" class="tabset_content">
@@ -186,9 +232,46 @@
 	</div>
 
 <script type="text/javascript">
+// Function for saving log settings in localStorage
+function saveLogSettings() {
+    // Saving the System Log settings
+    localStorage.setItem('system_log_autoupdate', document.getElementById('system_log_autoupdate').checked);
+    localStorage.setItem('system_log_autoscroll', document.getElementById('system_log_autoscroll').checked);
+
+    // Saving the Updates Log settings
+    localStorage.setItem('updates_log_autoupdate', document.getElementById('updates_log_autoupdate').checked);
+    localStorage.setItem('updates_log_autoscroll', document.getElementById('updates_log_autoscroll').checked);
+}
+
+// Function for downloading log settings from localStorage
+function initLogSettings() {
+    // Initializing settings for the System Log
+    var systemLogAutoupdate = localStorage.getItem('system_log_autoupdate');
+    var systemLogAutoscroll = localStorage.getItem('system_log_autoscroll');
+
+    document.getElementById('system_log_autoupdate').checked = systemLogAutoupdate === null ? true : systemLogAutoupdate === 'true';
+    document.getElementById('system_log_autoscroll').checked = systemLogAutoscroll === null ? true : systemLogAutoscroll === 'true';
+
+    // Initializing settings for Updates Log
+    var updatesLogAutoupdate = localStorage.getItem('updates_log_autoupdate');
+    var updatesLogAutoscroll = localStorage.getItem('updates_log_autoscroll');
+
+    document.getElementById('updates_log_autoupdate').checked = updatesLogAutoupdate === null ? true : updatesLogAutoupdate === 'true';
+    document.getElementById('updates_log_autoscroll').checked = updatesLogAutoscroll === null ? true : updatesLogAutoscroll === 'true';
+
+    // Adding event handlers to save settings when changing
+    document.getElementById('system_log_autoupdate').addEventListener('change', saveLogSettings);
+    document.getElementById('system_log_autoscroll').addEventListener('change', saveLogSettings);
+    document.getElementById('updates_log_autoupdate').addEventListener('change', saveLogSettings);
+    document.getElementById('updates_log_autoscroll').addEventListener('change', saveLogSettings);
+}
+
 function updateLog(logId, logUrl, className) {
-    // Checking if the log tab is active.
-    if (document.getElementById(logId).className.indexOf('tabset_content_active') !== -1) {
+    // Checking whether the log tab is active and whether auto-update is enabled
+    var isActive = document.getElementById(logId).className.indexOf('tabset_content_active') !== -1;
+    var isAutoUpdateEnabled = document.getElementById(logId + '_autoupdate').checked;
+
+    if (isActive && isAutoUpdateEnabled) {
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -198,8 +281,11 @@ function updateLog(logId, logUrl, className) {
                     logElement.innerHTML = xhr.responseText.replace(/&/g, '&amp;')
                                                           .replace(/</g, '&lt;')
                                                           .replace(/>/g, '&gt;');
-                    // Scroll to the end
-                    logElement.scrollTop = logElement.scrollHeight;
+
+                    // Scroll to the end if auto-scrolling is enabled
+                    if (document.getElementById(logId + '_autoscroll').checked) {
+                        logElement.scrollTop = logElement.scrollHeight;
+                    }
                 }
             }
         };
@@ -226,6 +312,9 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(updateLogs, 100);
         });
     });
+
+    // Initializing the log settings
+    initLogSettings();
 });
 </script>
 
