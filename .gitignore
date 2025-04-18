@@ -6,6 +6,7 @@ __pycache__/
 _curl
 __images__
 __dockers__
+__VMs__
 __temp__
 _mirrorKC
 docker-compose_dev.yml

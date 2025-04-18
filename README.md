@@ -70,11 +70,59 @@ products, which allows you to:
 This option provides a fully configured out-of-the-box solution, ideal for quick deployment.
 
 1. [Download the Virtual Machine](https://t.me/my_store_files_bot?start=kerio-updates-mirror)
-2. Import the image into your virtualization system (currently only Hyper-V image is available)
+2. Import the image into your virtualization system (Hyper-V, VMWare - OVF Template)
 3. Start the virtual machine
 
 <details>
-<summary>📝 Virtual Machine Specifications and Setup (click to expand)</summary>
+<summary>📝 Hyper-V Import Instructions</summary>
+
+1. Open **Hyper-V Manager**
+2. In the **Action** menu, select **New** → **Virtual Machine**
+3. In the creation wizard:
+    - Enter a name for the virtual machine (for example, "Kerio Updates Mirror")
+    - If needed, change the VM file location
+    - Click **Next**
+4. **Important**: In the generation selection section, choose **Generation 1**
+5. Specify the amount of RAM (512-1024 MB recommended)
+6. Configure network connection (select an existing virtual switch)
+7. At the virtual hard disk configuration step:
+    - Select **Use an existing virtual hard disk**
+    - Click **Browse** and specify the path to the downloaded `.vhdx` file
+    - Click **Next**
+8. Review the parameter summary and click **Finish**
+
+</details>
+
+<details>
+<summary>📝 VMware Import Instructions</summary>
+
+#### Step-by-step import instructions for VMware Workstation/Player
+
+1. Launch VMware Workstation or VMware Player
+2. Select **File** → **Open**
+3. Find and select the `.ovf` file from the unpacked archive
+4. In the import dialog:
+    - Specify the virtual machine name (for example, "Kerio Updates Mirror")
+    - If needed, change the virtual machine location
+    - Click **Import**
+5. Wait for the import process to complete
+
+#### Step-by-step import instructions for VMware ESXi
+
+1. Log in to the VMware ESXi or vSphere web interface
+2. Navigate to the **Virtual Machines** section
+3. Click **Create/Register Virtual Machine**
+4. Select **Deploy a virtual machine from OVF or OVA file**
+5. Specify the virtual machine name
+6. Drag and drop the OVF and VMDK files to the upload area or use the file selection button
+7. Select storage for the VM placement
+8. Select a network for connection
+9. Click **Next** and then **Finish**
+
+</details>
+
+<details>
+<summary>📝 Virtual Machine Specifications and Setup</summary>
 
 #### Technical Specifications
 
