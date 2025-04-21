@@ -10,6 +10,7 @@ from handlers.log_content import get_system_log, get_updates_log
 from handlers.pages import save_settings, main_page, favicon
 from handlers.update_mirror import handler_update_mirror
 from handlers.webfilter import handle_webfilter
+from utils.ip_auth import check_ip
 from utils.logging import write_log, setup_logging
 from utils.schedulers import setup_scheduler
 
@@ -23,6 +24,7 @@ app.teardown_appcontext(close_connection)
 # Main router for all requests
 @app.route(rule="/", defaults={"path": ""}, methods=["GET", "POST"])
 @app.route(rule="/<path:path>", methods=["GET", "POST"])
+@check_ip()  # Decorator for IP verification
 def router(path: str) -> str | Response:
     """
     Unified router for all incoming requests.

@@ -39,6 +39,7 @@ class Config:
             "GEOIP4_URL": "https://raw.githubusercontent.com/wyot1/GeoLite2-Unwalled/downloads/COUNTRY/CSV/GeoLite2-Country-Blocks-IPv4.csv",
             "GEOIP6_URL": "https://raw.githubusercontent.com/wyot1/GeoLite2-Unwalled/downloads/COUNTRY/CSV/GeoLite2-Country-Blocks-IPv6.csv",
             "GEOLOC_URL": "https://raw.githubusercontent.com/wyot1/GeoLite2-Unwalled/downloads/COUNTRY/CSV/GeoLite2-Country-Locations-en.csv",
+            "ALLOWED_IPS": "",  # Comma-separated list of allowed IP addresses, e.g. "1.1.1.1.1, 8.8.8.8.8"
         }
 
         # Create .env file if it doesn't exist
