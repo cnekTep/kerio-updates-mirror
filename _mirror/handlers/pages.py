@@ -32,6 +32,7 @@ def main_page():
         "proxy_port": config.proxy_port,
         "proxy_login": config.proxy_login,
         "proxy_password": config.proxy_password,
+        "allowed_ips": config.allowed_ips,
     }
 
     return render_template(template_name_or_list="index.html", **template_data)
@@ -55,6 +56,9 @@ def save_settings():
     config.update_ids_5 = "IDSv5" in request.form
     config.geoip_github = "geo_github" in request.form
     config.update_web_filter_key = "wfkey" in request.form
+
+    # Update allowed IPs if enabled
+    config.allowed_ips = request.form.get("allowed_ips") if "allowed_ips_enabled" in request.form else ""
 
     # Update proxy settings if enabled
     config.proxy = "avir_proxy" in request.form
