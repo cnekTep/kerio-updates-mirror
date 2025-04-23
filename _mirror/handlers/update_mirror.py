@@ -55,31 +55,30 @@ def update_mirror():
         download_ids_update_files(version="3")
 
     if config.update_ids_4:  # Update GeoIP database files
-        if not config.geoip_github:
-            download_ids_update_files(version="4")
-            return
+        if config.geoip_github:
+            actual_version = get_ids(name=f"ids4")
+            if int(actual_version["version"]) < int(datetime.datetime.now().strftime("%Y%m%d")):
+                write_log(
+                    log_type="system",
+                    message=f"Downloading new version: 4.{datetime.datetime.now().strftime('%Y%m%d')}",
+                )
 
-        actual_version = get_ids(name=f"ids4")
-        if int(actual_version["version"]) < int(datetime.datetime.now().strftime("%Y%m%d")):
-            write_log(
-                log_type="system",
-                message=f"Downloading new version: 4.{datetime.datetime.now().strftime('%Y%m%d')}",
-            )
+                # Download and process all necessary geo files
+                download_and_process_geo(url=config.geoip4_url, output_filename=f"v4.csv", modify=True)
+                download_and_process_geo(url=config.geoip6_url, output_filename=f"v6.csv", modify=True)
+                download_and_process_geo(url=config.geoloc_url, output_filename=f"locations.csv", modify=False)
 
-            # Download and process all necessary geo files
-            download_and_process_geo(url=config.geoip4_url, output_filename=f"v4.csv", modify=True)
-            download_and_process_geo(url=config.geoip6_url, output_filename=f"v6.csv", modify=True)
-            download_and_process_geo(url=config.geoloc_url, output_filename=f"locations.csv", modify=False)
-
-            combine_and_compress_geo_files(
-                v4_filename="v4.csv",
-                v6_filename="v6.csv",
-            )
+                combine_and_compress_geo_files(
+                    v4_filename="v4.csv",
+                    v6_filename="v6.csv",
+                )
+            else:
+                write_log(
+                    log_type="updates",
+                    message=f"IDSv4: no new version available, current version: 4.{actual_version['version']}",
+                )
         else:
-            write_log(
-                log_type="updates",
-                message=f"IDSv4: no new version available, current version: 4.{actual_version['version']}",
-            )
+            download_ids_update_files(version="4")
 
     if config.update_ids_5:  # IPS/IDS Snort (Linux versions from 9.5)
         download_ids_update_files(version="5")

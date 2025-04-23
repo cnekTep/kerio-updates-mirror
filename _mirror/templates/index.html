@@ -151,7 +151,7 @@
 	</style>
 	</head><body onload="custom_checkbox();">
 	<table width = 100%><tr>
-		<td><h3>Kerio Updates Mirror <span id="ver">v.1.1.2</span></h3></td>
+		<td><h3>Kerio Updates Mirror <span id="ver">v.1.1.3</span></h3></td>
 		<td style="text-align: right;">
 			<div id="tor_status" class="tor-status" title="Click to check">
 				TOR: <span class="status-loading">CHECKING</span>
@@ -189,8 +189,7 @@
 			<div id="mirror_settings" class="shadowbox"><br />
 				<form action="/?action=save_settings" method="post">
 					<div>
-						<input type="checkbox" id="License" name="License" value="true" onclick="this.checked=true" checked>
-						<label for="License">Use a license:</label>
+						Use a license:
 						<input type="text" id="LicenseNo" name="LicenseNo" value="{{ license_number or '' }}">
 					</div>
 					<br />

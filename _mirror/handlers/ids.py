@@ -65,12 +65,22 @@ def handle_update():
     return Response(response="404 Not found", status=404, mimetype="text/plain")
 
 
-def download_ids_update_files(version: str):
-    """Downloads IDS update files from Kerio server"""
+def download_ids_update_files(version: str) -> None:
+    """
+    Downloads IDS update files from Kerio server
+
+    Args:
+        version: IDS version
+    """
     # Get current version number and download link
     target_host = "ids-update.kerio.com"
     url = f"https://ids-update.kerio.com/update.php?id={config.license_number}&version={version}.0&tag="
     headers = {"Host": target_host}
+
+    if not config.license_number:
+        write_log(log_type="updates", message=f"IDSv{version}: passing because license key is not configured")
+        write_log(log_type="system", message=f"IDSv{version}: passing because license key is not configured")
+        return
 
     # Try direct connection first, then proxy if available
     for use_proxy in [False, True]:
@@ -100,6 +110,11 @@ def download_ids_update_files(version: str):
                     result["version"] = int(value.split(".")[1])
                 elif key == "full":
                     result["download_link"] = value
+                else:
+                    write_log(log_type="updates", message=f"IDSv{version} error: {response.text.strip()}")
+                    write_log(log_type="system", message=f"IDSv{version} error: {response.text.strip()}")
+                    config.license_number = None
+                    return
 
             # Get current version from database
             actual_version = get_ids(name=f"ids{version}")

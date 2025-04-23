@@ -20,8 +20,13 @@ def handle_webfilter():
     return Response(response=webfilter_key, status=200)
 
 
-def update_web_filter_key():
+def update_web_filter_key() -> None:
     """Updates Web Filter key by fetching it from Kerio server"""
+    if not config.license_number:
+        write_log(log_type="system", message="Web Filter: passing because license key is not configured")
+        write_log(log_type="updates", message="Web Filter: passing because license key is not configured")
+        return
+
     webfilter_key = get_webfilter_key(lic_number=config.license_number)
 
     if webfilter_key:
@@ -45,7 +50,6 @@ def update_web_filter_key():
                 "url": url,
                 "headers": headers,
                 "timeout": 30,
-                # "verify": False,
             }
 
             # Add proxy configuration if needed
@@ -66,11 +70,13 @@ def update_web_filter_key():
             if "Invalid product license" in response.text:
                 write_log(log_type="system", message=f"Invalid license key: {config.license_number}")
                 write_log(log_type="updates", message=f"Web Filter: invalid license key. {config.license_number}")
+                config.license_number = None
                 return
 
             if "Product Software Maintenance expired" in response.text:
                 write_log(log_type="system", message=f"License key expired: {config.license_number}")
                 write_log(log_type="updates", message=f"Web Filter: license key expired. {config.license_number}")
+                config.license_number = None
                 return
 
             if response.ok:
