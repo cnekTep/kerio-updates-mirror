@@ -2,6 +2,7 @@ from flask import request, render_template, redirect, send_from_directory
 
 from config.config_env import config
 from utils.logging import write_log, read_last_lines
+from utils.tor_check import tor_checker
 
 
 def main_page():
@@ -33,6 +34,7 @@ def main_page():
         "proxy_login": config.proxy_login,
         "proxy_password": config.proxy_password,
         "allowed_ips": config.allowed_ips,
+        "tor_status": tor_checker.get_status(),
     }
 
     return render_template(template_name_or_list="index.html", **template_data)

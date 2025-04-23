@@ -13,6 +13,7 @@ from handlers.webfilter import handle_webfilter
 from utils.ip_auth import check_ip
 from utils.logging import write_log, setup_logging
 from utils.schedulers import setup_scheduler
+from utils.tor_check import tor_checker
 
 app = Flask(__name__)
 
@@ -51,6 +52,8 @@ def router(path: str) -> str | Response:
         return get_system_log()
     elif path == "get_updates_log":
         return get_updates_log()
+    elif path == "tor_status":
+        return tor_checker.check_connection()
     elif path == "update.php":
         return handle_update()
     elif path == "getkey.php":

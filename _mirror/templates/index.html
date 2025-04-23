@@ -126,11 +126,39 @@
 			border-radius: 4px;
 			display: none;
 		}
+		.tor-status {
+			font-size: 14px;
+			padding: 5px 10px;
+			border-radius: 4px;
+			display: inline-block;
+			cursor: pointer;
+		}
+		.tor-status:hover {
+			background-color: #f0f0f0;
+		}
+		.status-ok {
+			color: green;
+			font-weight: bold;
+		}
+		.status-error {
+			color: red;
+			font-weight: bold;
+		}
+		.status-loading {
+			color: orange;
+			font-weight: bold;
+		}
 	</style>
 	</head><body onload="custom_checkbox();">
 	<table width = 100%><tr>
-	<td><h3>Kerio Updates Mirror <span id="ver">v.1.1.1</span></h3></td><td>&nbsp;</td>
-	</tr></table>
+		<td><h3>Kerio Updates Mirror <span id="ver">v.1.1.2</span></h3></td>
+		<td style="text-align: right;">
+			<div id="tor_status" class="tor-status" title="Click to check">
+				TOR: <span class="status-loading">CHECKING</span>
+			</div>
+		</td>
+		</tr>
+	</table>
 	<div id="pagecontent">
 		<ul class="tabset_tabs">
 			<li class="firstchild"><a class="preActive active" href="#system_log">System Log</a></li>
@@ -232,6 +260,7 @@
 				Updates require a valid license:<br />
 				You can get a trial key <a target="_blank" rel="noopener noreferrer" href='https://gfi.ai/products-and-solutions/network-security-solutions/keriocontrol/free-trial'>here</a> (may not be available in your region).<br />
 				Check the key expiration date <a target="_blank" rel="noopener noreferrer" href='https://secure.kerio.com/reg/?lang=en'>here</a> (may not be available in your region).<br /><br />
+				<a target="_blank" rel="noopener noreferrer" href='https://github.com/cnekTep/kerio-updates-mirror'>GitHub</a>
 			</div>
 		</div>
 	</div>
@@ -273,7 +302,8 @@ function initLogSettings() {
 
 function updateLog(logId, logUrl, className) {
     // Checking whether the log tab is active and whether auto-update is enabled
-    var isActive = document.getElementById(logId).className.indexOf('tabset_content_active') !== -1;
+	var tabElement = document.getElementById(logId);
+    var isActive = tabElement && tabElement.classList.contains('tabset_content_active');
     var isAutoUpdateEnabled = document.getElementById(logId + '_autoupdate').checked;
 
     if (isActive && isAutoUpdateEnabled) {
@@ -321,6 +351,117 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initializing the log settings
     initLogSettings();
 });
+// A variable for storing the TOR status update interval
+let torStatusInterval = null;
+// A variable for storing the current interval
+let currentCheckInterval = null;
+// Check intervals in milliseconds
+const CHECK_INTERVAL_CONNECTED = 60000; // 1 minute if connected
+const CHECK_INTERVAL_DISCONNECTED = 15000; // 15 seconds if not connected
+
+// A function for updating the status of TOR
+function updateTorStatus() {
+	var statusElement = document.querySelector('#tor_status span');
+    // Set status "CHECKING" before sending the request
+    statusElement.classList.remove('status-ok', 'status-error');
+    statusElement.classList.add('status-loading');
+    statusElement.innerHTML = 'CHECKING';
+
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+			// Delete status "CHECKING" after receiving the response
+            statusElement.classList.remove('status-loading');
+
+            if (xhr.status === 200) {
+                try {
+                    var data = JSON.parse(xhr.responseText);
+
+                    // Delete previous status classes
+                    statusElement.classList.remove('status-ok', 'status-error');
+
+                    // Update status variable
+                    torConnected = data.status;
+
+                    if (data.status) {
+                        statusElement.innerHTML = 'CONNECTED';
+                        statusElement.classList.add('status-ok');
+
+                        // Add information about the last check
+                        let lastCheck = new Date(data.last_check * 1000).toLocaleTimeString();
+                        statusElement.title = 'Last check: ' + lastCheck +
+                                             '\nChecks completed: ' + data.check_count;
+
+                        // Update verification interval if it has changed
+                        updateCheckInterval();
+                    } else {
+                        statusElement.innerHTML = 'DISABLED';
+                        statusElement.classList.add('status-error');
+                        statusElement.title = 'Error: ' + data.error +
+                                             '\nLast check: ' +
+                                             new Date(data.last_check * 1000).toLocaleTimeString();
+
+                        // Update verification interval if it has changed
+                        updateCheckInterval();
+                    }
+                } catch (e) {
+                    statusElement.innerHTML = 'DATA ERROR';
+                    statusElement.classList.add('status-error');
+                    updateCheckInterval();
+                }
+            } else {
+                statusElement.innerHTML = 'REQUEST ERROR';
+                statusElement.classList.add('status-error');
+                updateCheckInterval();
+            }
+        }
+    };
+
+    xhr.open('GET', '/tor_status', true);
+    xhr.send();
+}
+
+// Function for updating check interval
+function updateCheckInterval() {
+    // Determine required interval based on the current status
+    const requiredInterval = torConnected ? CHECK_INTERVAL_CONNECTED : CHECK_INTERVAL_DISCONNECTED;
+
+    // If the interval hasn't changed, do nothing
+    if (currentCheckInterval === requiredInterval) return;
+
+    // Update value and restart timer
+    currentCheckInterval = requiredInterval;
+    clearInterval(torStatusInterval);
+    torStatusInterval = setInterval(updateTorStatus, currentCheckInterval);
+}
+
+// Function for managing TOR status checks
+function setupTorStatusChecks() {
+    // Perform initial check
+    updateTorStatus();
+
+    // Set initial interval
+    currentCheckInterval = CHECK_INTERVAL_DISCONNECTED;
+    torStatusInterval = setInterval(updateTorStatus, currentCheckInterval);
+
+    // Add handler for forced verification by click
+    document.querySelector('#tor_status').addEventListener('click', function() {
+        updateTorStatus();
+    });
+
+    // Stop checks when the page is inactive
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') {
+            clearInterval(torStatusInterval);
+        } else {
+            // When returning to the page, immediately check and start a new interval
+            updateTorStatus();
+        }
+    });
+}
+
+// Start TOR check settings when the page loads
+document.addEventListener('DOMContentLoaded', setupTorStatusChecks);
 </script>
 
 </body></html>
