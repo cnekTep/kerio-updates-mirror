@@ -28,7 +28,7 @@ services:
 
 
   mirror:
-    image: "mirror:v1.1.2"
+    image: "mirror:v1.2.0"
     stop_signal: SIGINT
     restart: unless-stopped
     build:

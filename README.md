@@ -39,7 +39,7 @@ products, which allows you to:
 2. Load images from archives:
    ```bash
    sudo docker load -i tor_v1.1.2.tar
-   sudo docker load -i mirror_v1.0.0.tar
+   sudo docker load -i mirror_v1.2.0.tar
    ```
 3. Download or clone the repository:
    ```bash

@@ -39,7 +39,7 @@ Kerio Connect, которое позволяет:
 2. Загрузите образы из архивов:
    ```bash
    sudo docker load -i tor_v1.1.2.tar
-   sudo docker load -i mirror_v1.0.0.tar
+   sudo docker load -i mirror_v1.2.0.tar
    ```
 3. Скачайте или клонируйте репозиторий:
    ```bash

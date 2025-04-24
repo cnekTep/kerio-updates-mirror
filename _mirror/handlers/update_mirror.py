@@ -2,6 +2,7 @@ import datetime
 import threading
 
 from flask import redirect, current_app
+from flask_babel import gettext as _
 
 from config.config_env import config
 from db.database import get_ids, get_all_ids_file_names
@@ -35,11 +36,13 @@ def update_mirror():
     Function to directly perform mirror update, suitable for calling from scheduler.
     This function does not require Flask context or return anything.
     """
-    write_log(log_type="system", message="Scheduled mirror update process started")
+    write_log(log_type="system", message=_("Scheduled mirror update process started"))
     write_log(log_type="updates", message="", date=False)
     write_log(log_type="updates", message="----------------------------------------------------------------")
-    write_log(log_type="updates", message="Starting scheduled mirror update...")
-    write_log(log_type="updates", message=f"Using license key: {config.license_number}")
+    write_log(log_type="updates", message=_("Starting scheduled mirror update..."))
+    write_log(
+        log_type="updates", message=_("Using license key: %(license_number)s", license_number=config.license_number)
+    )
     write_log(log_type="updates", message="----------------------------------------------------------------")
 
     if config.update_web_filter_key:  # Update Web Filter key
@@ -60,7 +63,9 @@ def update_mirror():
             if int(actual_version["version"]) < int(datetime.datetime.now().strftime("%Y%m%d")):
                 write_log(
                     log_type="system",
-                    message=f"Downloading new version: 4.{datetime.datetime.now().strftime('%Y%m%d')}",
+                    message=_(
+                        "Downloading new version: 4.%(version)s", version=datetime.datetime.now().strftime("%Y%m%d")
+                    ),
                 )
 
                 # Download and process all necessary geo files
@@ -75,7 +80,10 @@ def update_mirror():
             else:
                 write_log(
                     log_type="updates",
-                    message=f"IDSv4: no new version available, current version: 4.{actual_version['version']}",
+                    message=_(
+                        "IDSv4: no new version available, current version: 4.%(actual_version)s",
+                        actual_version=actual_version["version"],
+                    ),
                 )
         else:
             download_ids_update_files(version="4")
@@ -91,9 +99,9 @@ def update_mirror():
 
     clean_update_files(files_to_keep=files_to_keep)
 
-    write_log(log_type="updates", message=f"Update completed")
+    write_log(log_type="updates", message=_("Update completed"))
     write_log(log_type="updates", message="----------------------------------------------------------------")
-    write_log(log_type="system", message="Scheduled mirror update process completed")
+    write_log(log_type="system", message=_("Scheduled mirror update process completed"))
 
 
 def background_update_mirror(app):

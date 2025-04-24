@@ -4,3 +4,4 @@ cryptography==44.0.2
 dotenv==0.9.9
 APScheduler==3.11.0
 PySocks==1.7.1
+flask-babel==4.0.0

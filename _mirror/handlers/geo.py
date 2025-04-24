@@ -6,6 +6,7 @@ import time
 from io import StringIO
 
 import requests
+from flask_babel import gettext as _
 
 from db.database import update_ids
 from utils.logging import write_log
@@ -31,7 +32,7 @@ def download_and_process_geo(url: str, output_filename: str, modify: bool = True
         output_path = os.path.join(save_directory, output_filename)  # full path to save the processed file
 
         # Download the file
-        write_log(log_type="system", message=f"Download the file: {url}")
+        write_log(log_type="system", message=_("Downloading file: %(url)s", url=url))
         response = requests.get(url=url, stream=True)
         response.raise_for_status()  # Raise exception for HTTP errors
 
@@ -65,11 +66,14 @@ def download_and_process_geo(url: str, output_filename: str, modify: bool = True
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
 
-        write_log(log_type="system", message=f"File downloaded, processed and saved successfully at {output_path}")
+        write_log(
+            log_type="system",
+            message=_("File downloaded, processed and saved successfully at %(output_path)s", output_path=output_path),
+        )
         return output_path
 
     except requests.RequestException as err:
-        write_log(log_type="system", message=f"Error during file download and processing: {str(err)}")
+        write_log(log_type="system", message=_("Error during file download and processing: %(err)s", err=str(err)))
         return None
 
 
@@ -110,29 +114,44 @@ def combine_and_compress_geo_files(v4_filename: str, v6_filename: str) -> str or
             # Verify that the file was created and is non-empty
             if os.path.exists(output_gz_path) and os.path.getsize(output_gz_path) > 0:
                 file_size = os.path.getsize(output_gz_path)
-                write_log(log_type="system", message=f"File created successfully. Size: {file_size} bytes")
+                write_log(
+                    log_type="system",
+                    message=_("File created successfully. Size: %(file_size)s bytes", file_size=file_size),
+                )
             else:
-                raise FileNotFoundError(f"File {output_gz_path} was not created or is empty")
+                raise FileNotFoundError(
+                    _("File %(output_gz_path)s was not created or is empty", output_gz_path=output_gz_path)
+                )
 
             # Update version information in the database
             update_ids(name="ids4", version=int(file_version), file_name=f"full-4-{file_version}.gz")
-            write_log(log_type="updates", message=f"IDSv4: new version loaded (from GitHub) - 4.{file_version}")
-            write_log(log_type="system", message=f"IDSv4: new version loaded (from GitHub) - 4.{file_version}")
+            log_message = _("IDSv4: new version loaded (from GitHub) - 4.%(file_version)s", file_version=file_version)
+            write_log(log_type="updates", message=log_message)
+            write_log(log_type="system", message=log_message)
             return output_gz_path
 
         except Exception as e:
             write_log(
                 log_type="system",
-                message=f"Attempt {attempt + 1}/{max_attempts}: Error during file processing and compression: {str(e)}",
+                message=_(
+                    "Attempt %(attempt)s/%(max_attempts)s: error during file processing and compression: %(err)s",
+                    attempt=attempt + 1,
+                    max_attempts=max_attempts,
+                    err=str(e),
+                ),
             )
 
             if attempt == max_attempts - 1:  # If this is the last attempt
-                write_log(log_type="updates", message=f"IDSv4: error during download")
-                write_log(log_type="system", message=f"IDSv4: error during download")
+                log_message = _("IDSv4: error during download")
+                write_log(log_type="updates", message=log_message)
+                write_log(log_type="system", message=log_message)
                 return None
 
-            write_log(log_type="system", message=f"Pausing for {delay} seconds before the next attempt...")
+            write_log(
+                log_type="system", message=_("Pausing for %(delay)s seconds before the next attempt...", delay=delay)
+            )
             time.sleep(delay)
+    return None
 
 
 def _write_csv_rows_from_file(input_path: str, writer: csv.writer) -> None:
@@ -151,4 +170,6 @@ def _write_csv_rows_from_file(input_path: str, writer: csv.writer) -> None:
                 if len(row) >= 2:
                     writer.writerow(row[:2])
     else:
-        write_log(log_type="system", message=f"File {os.path.basename(input_path)} not found")
+        write_log(
+            log_type="system", message=_("File %(input_path)s not found", input_path=os.path.basename(input_path))
+        )

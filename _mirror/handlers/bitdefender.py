@@ -2,6 +2,7 @@ import base64
 
 import requests
 from flask import request, Response
+from flask_babel import gettext as _
 
 from config.config_env import config
 from utils.logging import write_log
@@ -22,11 +23,14 @@ def handle_bitdefender() -> Response:
 
     # Determine the type of request based on the Host header
     if "bdupdate.kerio.com" in host:
-        write_log(log_type="system", message=f"Received antivirus signatures request")
+        write_log(log_type="system", message=_("Received antivirus signatures request"))
     elif "bda-update.kerio.com" in host:
-        write_log(log_type="system", message=f"Received antispam signatures request")
+        write_log(log_type="system", message=_("Received antispam signatures request"))
     else:
-        write_log(log_type="system", message=f"Received unknown download request: {request.path}")
+        write_log(
+            log_type="system",
+            message=_("Received unknown download request: %(request_path)s", request_path=request.path),
+        )
         return Response("404 Not found", status=404, mimetype="text/plain")
 
     target_host = "upgrade.bitdefender.com"
@@ -66,7 +70,7 @@ def handle_bitdefender() -> Response:
             timeout=30,
             stream=True,
         )
-        write_log(log_type="system", message=f"Downloading file: {request.path}")
+        write_log(log_type="system", message=_("Downloading file: %(request_path)s", request_path=request.path))
 
         # Build response preserving the headers from the external response
         response_headers = dict(response.headers)
@@ -77,5 +81,8 @@ def handle_bitdefender() -> Response:
         )
         return flask_response
     except requests.RequestException as e:
-        write_log(log_type="system", message=f"Error '{str(e)}' while loading file {request.path}")
+        write_log(
+            log_type="system",
+            message=_("Error %(err)s while loading file %(request_path)s", err=str(e), request_path=request.path),
+        )
         return Response(response="404 Not found", status=404, mimetype="text/plain")

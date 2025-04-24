@@ -22,6 +22,7 @@ class Config:
 
         # Default values
         self._defaults = {
+            "LOCALE": "en",  # Locale
             "DB": "mirror.db",  # Database path
             "LICENSE_NUMBER": None,  # License number
             "PROXY": True,  # Use proxy or not

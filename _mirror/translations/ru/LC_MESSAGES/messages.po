@@ -1,0 +1,459 @@
+# Russian translations for kerio-updates-mirror
+msgid ""
+msgstr ""
+"Project-Id-Version:  1.2.0\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: app.py:64
+#, python-format
+msgid "Language changed to: %(lang)s"
+msgstr "Язык изменен на: %(lang)s"
+
+#: app.py:96
+#, python-format
+msgid "No handler for request: %(request_url)s"
+msgstr "Нет обработчика для запроса: %(request_url)s"
+
+#: app.py:115
+#, python-format
+msgid "%(protocol)s server started on port %(port)s"
+msgstr "%(protocol)s сервер запущен на порту %(port)s"
+
+#: app.py:158
+msgid "Server shutdown initiated"
+msgstr "Инициализировано завершение работы сервера"
+
+#: app.py:161
+#, fuzzy, python-format
+msgid "Critical error: %(error)s"
+msgstr "Критическая ошибка: %(error)s"
+
+#: handlers/bitdefender.py:26
+msgid "Received antivirus signatures request"
+msgstr "Получен запрос на антивирусные сигнатуры"
+
+#: handlers/bitdefender.py:28
+msgid "Received antispam signatures request"
+msgstr "Получен запрос на сигнатуры антиспама"
+
+#: handlers/bitdefender.py:32
+#, python-format
+msgid "Received unknown download request: %(request_path)s"
+msgstr "Получен неизвестный запрос на загрузку: %(request_path)s"
+
+#: handlers/bitdefender.py:73
+#, python-format
+msgid "Downloading file: %(request_path)s"
+msgstr "Загружается файл: %(request_path)s"
+
+#: handlers/bitdefender.py:86
+#, python-format
+msgid "Error %(err)s while loading file %(request_path)s"
+msgstr "Ошибка %(err)s при загрузке файла %(request_path)s"
+
+#: handlers/geo.py:35
+#, fuzzy, python-format
+msgid "Downloading file: %(url)s"
+msgstr "Загружается файл: %(url)s"
+
+#: handlers/geo.py:71
+#, python-format
+msgid "File downloaded, processed and saved successfully at %(output_path)s"
+msgstr "Файл загружен, обработан и успешно сохранён в %(output_path)s"
+
+#: handlers/geo.py:76
+#, python-format
+msgid "Error during file download and processing: %(err)s"
+msgstr "Ошибка при загрузке и обработке файла: %(err)s"
+
+#: handlers/geo.py:119
+#, python-format
+msgid "File created successfully. Size: %(file_size)s bytes"
+msgstr "Файл успешно создан. Размер: %(file_size)s байт"
+
+#: handlers/geo.py:123
+#, python-format
+msgid "File %(output_gz_path)s was not created or is empty"
+msgstr "Файл %(output_gz_path)s не был создан или является пустым"
+
+#: handlers/geo.py:128
+#, python-format
+msgid "IDSv4: new version loaded (from GitHub) - 4.%(file_version)s"
+msgstr "IDSv4: загружена новая версия (с GitHub) — 4.%(file_version)s"
+
+#: handlers/geo.py:137
+#, python-format
+msgid ""
+"Attempt %(attempt)s/%(max_attempts)s: error during file processing and "
+"compression: %(err)s"
+msgstr ""
+"Попытка %(attempt)s/%(max_attempts)s: ошибка при обработке и сжатии "
+"файла: %(err)s"
+
+#: handlers/geo.py:145
+msgid "IDSv4: error during download"
+msgstr "IDSv4: ошибка во время загрузки"
+
+#: handlers/geo.py:151
+#, python-format
+msgid "Pausing for %(delay)s seconds before the next attempt..."
+msgstr "Пауза на %(delay)s секунд перед следующей попыткой..."
+
+#: handlers/geo.py:174
+#, python-format
+msgid "File %(input_path)s not found"
+msgstr "Файл %(input_path)s не найден"
+
+#: handlers/ids.py:16
+#, python-format
+msgid "Received request for IDS update: %(request_path)s"
+msgstr "Получен запрос на обновление IDS: %(request_path)s"
+
+#: handlers/ids.py:37
+#, python-format
+msgid "Error processing URL %(request_url)s in update request"
+msgstr "Ошибка при обработке URL %(request_url)s в запросе на обновление"
+
+#: handlers/ids.py:41
+#, python-format
+msgid "Received update request for version: %(version)s"
+msgstr "Получен запрос на обновление версии: %(version)s"
+
+#: handlers/ids.py:47
+#, python-format
+msgid "Invalid version format: %(version)s"
+msgstr "Недопустимый формат версии: %(version)s"
+
+#: handlers/ids.py:70
+#, python-format
+msgid "Received unknown download request: %(version)s"
+msgstr "Получен неизвестный запрос на загрузку: %(version)s"
+
+#: handlers/ids.py:87
+#, python-format
+msgid "IDSv%(version)s: passing because license key is not configured"
+msgstr "IDSv%(version)s: пропуск, поскольку лицензионный ключ не настроен"
+
+#: handlers/ids.py:121
+#, python-format
+msgid "IDSv%(version)s error: %(err)s"
+msgstr "IDSv%(version)s ошибка: %(err)s"
+
+#: handlers/ids.py:132
+#, python-format
+msgid ""
+"IDSv%(version)s: no new version, current version: "
+"%(version)s.%(result_version)s"
+msgstr ""
+"IDSv%(version)s: нет новой версии, текущая версия: "
+"%(version)s.%(result_version)s"
+
+#: handlers/ids.py:144
+#, python-format
+msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
+msgstr "IDSv%(version)s: загрузка новой версии: %(version)s.%(result_version)s"
+
+#: handlers/ids.py:161
+#, python-format
+msgid "Failed to download main file for IDSv%(version)s"
+msgstr "Не удалось загрузить основной файл для IDSv%(version)s"
+
+#: handlers/ids.py:173
+#, python-format
+msgid "Failed to download signature file for IDSv%(version)s"
+msgstr "Не удалось загрузить файл подписи для IDSv%(version)s"
+
+#: handlers/ids.py:180
+#, python-format
+msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
+msgstr "IDSv%(version)s: загружена новая версия - %(version)s.%(result_version)s"
+
+#: handlers/ids.py:193
+#, python-format
+msgid "Error downloading IDSv%(version)s %(proxy_status)s: %(err)s"
+msgstr "Ошибка при загрузке IDSv%(version)s %(proxy_status)s: %(err)s"
+
+#: handlers/ids.py:201
+#, python-format
+msgid "IDSv%(version)s: error downloading update"
+msgstr "IDSv%(version)s: ошибка при загрузке обновления"
+
+#: handlers/pages.py:74
+msgid "Settings have been changed"
+msgstr "Настройки были изменены"
+
+#: handlers/update_mirror.py:39
+msgid "Scheduled mirror update process started"
+msgstr "Запущен запланированный процесс обновления зеркала"
+
+#: handlers/update_mirror.py:42
+msgid "Starting scheduled mirror update..."
+msgstr "Запуск запланированного зеркального обновления..."
+
+#: handlers/update_mirror.py:44
+#, python-format
+msgid "Using license key: %(license_number)s"
+msgstr "Используется лицензионный ключ: %(license_number)s"
+
+#: handlers/update_mirror.py:67
+#, python-format
+msgid "Downloading new version: 4.%(version)s"
+msgstr "Загрузка новой версии: 4.%(version)s"
+
+#: handlers/update_mirror.py:84
+#, python-format
+msgid "IDSv4: no new version available, current version: 4.%(actual_version)s"
+msgstr "IDSv4: новая версия недоступна, текущая версия: 4.%(actual_version)s"
+
+#: handlers/update_mirror.py:102
+msgid "Update completed"
+msgstr "Обновление завершено"
+
+#: handlers/update_mirror.py:104
+msgid "Scheduled mirror update process completed"
+msgstr "Завершен запланированный процесс обновления зеркала"
+
+#: handlers/webfilter.py:14
+msgid "Received request for Web Filter key"
+msgstr "Получен запрос на Web Filter ключ"
+
+#: handlers/webfilter.py:27
+msgid "Web Filter: passing because license key is not configured"
+msgstr "Web Filter: пропуск, поскольку лицензионный ключ не настроен"
+
+#: handlers/webfilter.py:35
+msgid "Web Filter: database already contains an actual Web Filter key"
+msgstr "Web Filter: база данных уже содержит актуальный Web Filter ключ"
+
+#: handlers/webfilter.py:40
+msgid "Fetching new Web Filter key from wf-activation.kerio.com server"
+msgstr "Получение нового Web Filter ключа с сервера wf-activation.kerio.com"
+
+#: handlers/webfilter.py:74
+#, python-format
+msgid "Web Filter: invalid license key. %(lic_number)s"
+msgstr "Web Filter: недействительный лицензионный ключ. %(lic_number)s"
+
+#: handlers/webfilter.py:81
+#, python-format
+msgid "Web Filter: license key expired. %(lic_number)s"
+msgstr "Web Filter: срок действия лицензионного ключа истек. %(lic_number)s"
+
+#: handlers/webfilter.py:89
+#, python-format
+msgid "Web Filter: received new key - %(key)s"
+msgstr "Web Filter: получен новый ключ - %(key)s"
+
+#: handlers/webfilter.py:98
+#, python-format
+msgid "Error fetching Web Filter key %(proxy_status)s: %(err)s"
+msgstr "Ошибка получения Web Filter ключа %(proxy_status)s: %(err)s"
+
+#: handlers/webfilter.py:104
+msgid "Web Filter: error fetching Web Filter key"
+msgstr "Web Filter: ошибка получения Web Filter ключа"
+
+#: templates/index.html:181 templates/index.html:391
+msgid "CHECKING"
+msgstr "ПРОВЕРКА"
+
+#: templates/index.html:188
+msgid "System Log"
+msgstr "Системный журнал"
+
+#: templates/index.html:189
+msgid "Mirror Update Log"
+msgstr "Журнал обновления"
+
+#: templates/index.html:190
+msgid "Settings"
+msgstr "Настройки"
+
+#: templates/index.html:191
+msgid "Information"
+msgstr "Информация"
+
+#: templates/index.html:196 templates/index.html:205
+msgid "Autoupdate"
+msgstr "Автообновление"
+
+#: templates/index.html:198 templates/index.html:207
+msgid "Autoscroll"
+msgstr "Автопрокрутка"
+
+#: templates/index.html:212
+msgid "Select the services that you want to download updates for:"
+msgstr "Выберите службы, для которых вы хотите загрузить обновления:"
+
+#: templates/index.html:216
+msgid "Use a license:"
+msgstr "Использовать лицензию:"
+
+#: templates/index.html:222
+msgid "IDSv1 - IPS/IDS Snort (Windows versions)"
+msgstr "IDSv1 - IPS/IDS Snort (Windows версия)"
+
+#: templates/index.html:226
+msgid "IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)"
+msgstr "IDSv3 - IPS/IDS Snort (версия для Linux до 9.5)"
+
+#: templates/index.html:230
+msgid "IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)"
+msgstr "IDSv5 - IPS/IDS Snort (версия для Linux начиная с 9.5)"
+
+#: templates/index.html:234
+msgid "IDSv2 - Lists of compromised addresses for blocking"
+msgstr "IDSv2 - Списки скомпрометированных адресов для блокировки"
+
+#: templates/index.html:238
+msgid "IDSv4 - GeoIP databases for geolocation/visitor blocking"
+msgstr "IDSv4 - Базы данных GeoIP для геолокации/блокировки посетителей"
+
+#: templates/index.html:242
+msgid "Use GitHub as a source for GeoIP database updates"
+msgstr "Использовать GitHub в качестве источника обновлений базы данных GeoIP"
+
+#: templates/index.html:246
+msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
+msgstr "Ключ подсистемы фильтрации контента Kerio Control Web Filter"
+
+#: templates/index.html:250
+msgid "Bitdefender antivirus and antispam (update support is always enabled)"
+msgstr ""
+"Антивирус и защита от спама Bitdefender (поддержка обновлений всегда "
+"включена)"
+
+#: templates/index.html:254
+msgid "Use a proxy server to update Bitdefender:"
+msgstr "Использовать прокси-сервер для обновления Bitdefender:"
+
+#: templates/index.html:258
+msgid "Allow access only from the following IP addresses:"
+msgstr "Разрешить доступ только со следующих IP-адресов:"
+
+#: templates/index.html:262
+msgid "Apply"
+msgstr "Применить"
+
+#: templates/index.html:267
+msgid ""
+"To manually start checking for new updates, <a "
+"href=\"/update_mirror\">click here</a> (it is not recommended to run the "
+"check more than once a day)."
+msgstr ""
+"Чтобы вручную начать проверку наличия новых обновлений, <a "
+"href=\"/update_mirror\">нажмите сюда</a> (не рекомендуется проводить "
+"проверку чаще одного раза в день)."
+
+#: templates/index.html:270
+msgid ""
+"The update mirror is designed to update Kerio Control and Kerio Connect "
+"on the local network. It downloads updates for the services specified by "
+"the administrator from the Kerio update servers, after which updates can "
+"be distributed within the local network, which saves external traffic and"
+" automates the fight against vulnerabilities and bugs in software "
+"products, as well as allows centralized management of updates."
+msgstr ""
+"Зеркало обновлений предназначено для обновления Kerio Control и Kerio "
+"Connect в локальной сети. Оно загружает обновления для сервисов, "
+"указанных администратором, с серверов обновлений Kerio, после чего "
+"обновления могут распространяться в локальной сети, что экономит внешний "
+"трафик и автоматизирует борьбу с уязвимостями и ошибками в программных "
+"продуктах, а также позволяет централизованно управлять обновлениями."
+
+#: templates/index.html:271
+msgid ""
+"To work, you must specify the IP address of the Update Mirror for the "
+"following hosts in the DNS settings of Kerio products:"
+msgstr ""
+"Для работы необходимо указать IP-адрес зеркала обновлений для следующих "
+"хостов в настройках DNS продуктов Kerio:"
+
+#: templates/index.html:283
+msgid "Updates require a valid license:"
+msgstr "Для обновления требуется действующая лицензия:"
+
+#: templates/index.html:284
+msgid ""
+"You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\" "
+"href=\"https://gfi.ai/products-and-solutions/network-security-"
+"solutions/keriocontrol/free-trial\">here</a> (may not be available in "
+"your region)."
+msgstr ""
+"Вы можете получить пробный ключ <a target=\"_blank\" rel=\"noopener "
+"noreferrer\" href=\"https://gfi.ai/products-and-solutions/network-"
+"security-solutions/keriocontrol/free-trial\">здесь</a> (может быть "
+"недоступен в вашем регионе)."
+
+#: templates/index.html:285
+msgid ""
+"Check the key expiration date <a target=\"_blank\" rel=\"noopener "
+"noreferrer\" href=\"https://secure.kerio.com/reg/?lang=en\">here</a> (may"
+" not be available in your region)."
+msgstr ""
+"Проверьте дату истечения срока действия ключа <a target=\"_blank\" "
+"rel=\"noopener noreferrer\" "
+"href=\"https://secure.kerio.com/reg/?lang=en\">здесь</a> (может быть "
+"недоступен в вашем регионе)."
+
+#: templates/index.html:410
+msgid "CONNECTED"
+msgstr "ПОДКЛЮЧЕН"
+
+#: templates/index.html:415 templates/index.html:424
+msgid "Last check:"
+msgstr "Последняя проверка:"
+
+#: templates/index.html:416
+msgid "Checks completed:"
+msgstr "Проверок завершено:"
+
+#: templates/index.html:421
+msgid "DISABLED"
+msgstr "ОТКЛЮЧЕН"
+
+#: templates/index.html:423
+msgid "Error:"
+msgstr "Ошибка:"
+
+#: templates/index.html:431
+msgid "DATA ERROR"
+msgstr "ОШИБКА ДАННЫХ"
+
+#: templates/index.html:436
+msgid "REQUEST ERROR"
+msgstr "ОШИБКА ЗАПРОСА"
+
+#: utils/ip_auth.py:41
+#, python-format
+msgid "Access is denied for IP: %(ip)s"
+msgstr "Доступ запрещен для IP-адреса: %(ip)s"
+
+#: utils/schedulers.py:19
+msgid "Launching a planned mirror update"
+msgstr "Запуск запланированного обновления зеркала"
+
+#: utils/schedulers.py:23
+msgid "The planned mirror update has been completed"
+msgstr "Запланированное обновление зеркала завершено"
+
+#: utils/schedulers.py:25
+#, python-format
+msgid "Error during a planned mirror update: %(err)s"
+msgstr "Ошибка во время запланированного обновления зеркала: %(err)s"
+
+#: utils/schedulers.py:54
+#, python-format
+msgid "Daily mirror updates are set up in %(hour)02d:%(minute)02d"
+msgstr "Ежедневное обновление зеркала настроено в %(hour)02d:%(minute)02d"
+
+#: utils/schedulers.py:72
+#, python-format
+msgid "Configured to update the mirror every %(interval_minutes)s minutes"
+msgstr "Настроено обновление зеркала каждые %(interval_minutes)s минут"
+

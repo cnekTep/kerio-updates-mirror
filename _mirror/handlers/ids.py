@@ -3,6 +3,7 @@ import os
 
 import requests
 from flask import request, Response, send_file
+from flask_babel import gettext as _
 
 from config.config_env import config
 from db.database import get_ids, update_ids
@@ -11,7 +12,9 @@ from utils.logging import write_log
 
 def handler_control_update():
     """Handler for providing IDS update files"""
-    write_log(log_type="system", message=f"Received request for IDS update: {request.path}")
+    write_log(
+        log_type="system", message=_("Received request for IDS update: %(request_path)s", request_path=request.path)
+    )
     request_path = request.path.replace("/control-update", "update_files")
 
     return send_file(path_or_file=request_path, as_attachment=True)
@@ -29,16 +32,19 @@ def handle_update():
     version = request.args.get("version")
 
     if not version:
-        write_log(log_type="system", message=f"Error processing URL {request.url} in update request")
+        write_log(
+            log_type="system",
+            message=_("Error processing URL %(request_url)s in update request", request_url=request.url),
+        )
         return Response(response="", status=400)
 
-    write_log(log_type="system", message=f"Received update request for version: {version}")
+    write_log(log_type="system", message=_("Received update request for version: %(version)s", version=version))
 
     # Parse major version number
     try:
         major_version = int(version.split(".")[0])
     except (ValueError, IndexError):
-        write_log(log_type="system", message=f"Invalid version format: {version}")
+        write_log(log_type="system", message=_("Invalid version format: %(version)s", version=version))
         return Response(response="400 Bad Request", status=400, mimetype="text/plain")
 
     # Special cases handling
@@ -61,7 +67,7 @@ def handle_update():
         return Response(response=response_text, status=200)
 
     # Unknown version
-    write_log(log_type="system", message=f"Received unknown download request: {version}")
+    write_log(log_type="system", message=_("Received unknown download request: %(version)s", version=version))
     return Response(response="404 Not found", status=404, mimetype="text/plain")
 
 
@@ -78,8 +84,9 @@ def download_ids_update_files(version: str) -> None:
     headers = {"Host": target_host}
 
     if not config.license_number:
-        write_log(log_type="updates", message=f"IDSv{version}: passing because license key is not configured")
-        write_log(log_type="system", message=f"IDSv{version}: passing because license key is not configured")
+        log_message = _("IDSv%(version)s: passing because license key is not configured", version=version)
+        write_log(log_type="updates", message=log_message)
+        write_log(log_type="system", message=log_message)
         return
 
     # Try direct connection first, then proxy if available
@@ -111,8 +118,9 @@ def download_ids_update_files(version: str) -> None:
                 elif key == "full":
                     result["download_link"] = value
                 else:
-                    write_log(log_type="updates", message=f"IDSv{version} error: {response.text.strip()}")
-                    write_log(log_type="system", message=f"IDSv{version} error: {response.text.strip()}")
+                    log_message = _("IDSv%(version)s error: %(err)s", version=version, err=response.text.strip())
+                    write_log(log_type="updates", message=log_message)
+                    write_log(log_type="system", message=log_message)
                     config.license_number = None
                     return
 
@@ -120,19 +128,23 @@ def download_ids_update_files(version: str) -> None:
             actual_version = get_ids(name=f"ids{version}")
 
             if actual_version["version"] >= result["version"]:
-                write_log(
-                    log_type="updates",
-                    message=f"IDSv{version}: no new version, current version: {version}.{result['version']}",
+                log_message = _(
+                    "IDSv%(version)s: no new version, current version: %(version)s.%(result_version)s",
+                    version=version,
+                    result_version=result["version"],
                 )
-                write_log(
-                    log_type="system",
-                    message=f"IDSv{version}: no new version, current version: {version}.{result['version']}",
-                )
+                write_log(log_type="updates", message=log_message)
+                write_log(log_type="system", message=log_message)
                 return
 
             # Download new version
             write_log(
-                log_type="system", message=f"IDSv{version}: downloading new version: {version}.{result['version']}"
+                log_type="system",
+                message=_(
+                    "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s",
+                    version=version,
+                    result_version=result["version"],
+                ),
             )
 
             # Create directory for saving files
@@ -145,7 +157,9 @@ def download_ids_update_files(version: str) -> None:
 
             # Download main file
             if not download_file(url=result["download_link"], save_path=save_path, use_proxy=use_proxy):
-                write_log(log_type="system", message=f"Failed to download main file for IDSv{version}")
+                write_log(
+                    log_type="system", message=_("Failed to download main file for IDSv%(version)s", version=version)
+                )
                 continue
 
             # Download signature file for certain versions
@@ -154,26 +168,39 @@ def download_ids_update_files(version: str) -> None:
                 if not download_file(
                     url=f"{result['download_link']}.sig", save_path=sig_save_path, use_proxy=use_proxy
                 ):
-                    write_log(log_type="system", message=f"Failed to download signature file for IDSv{version}")
+                    write_log(
+                        log_type="system",
+                        message=_("Failed to download signature file for IDSv%(version)s", version=version),
+                    )
                     continue
 
             # Update version information in database
             update_ids(name=f"ids{version}", version=int(result["version"]), file_name=filename)
-            write_log(
-                log_type="updates", message=f"IDSv{version}: downloaded new version - {version}.{result['version']}"
+            log_message = _(
+                "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s",
+                version=version,
+                result_version=result["version"],
             )
-            write_log(
-                log_type="system", message=f"IDSv{version}: downloaded new version - {version}.{result['version']}"
-            )
+            write_log(log_type="updates", message=log_message)
+            write_log(log_type="system", message=log_message)
             return
 
         except requests.RequestException as err:
             proxy_status = "with proxy" if use_proxy else "without proxy"
-            write_log(log_type="system", message=f"Error downloading IDSv{version} {proxy_status}: {str(err)}")
+            write_log(
+                log_type="system",
+                message=_(
+                    "Error downloading IDSv%(version)s %(proxy_status)s: %(err)s",
+                    version=version,
+                    proxy_status=proxy_status,
+                    err=str(err),
+                ),
+            )
 
     # If we get here, all attempts failed
-    write_log(log_type="updates", message=f"IDSv{version}: error downloading update")
-    write_log(log_type="system", message=f"IDSv{version}: error downloading update")
+    log_message = _("IDSv%(version)s: error downloading update", version=version)
+    write_log(log_type="updates", message=log_message)
+    write_log(log_type="system", message=log_message)
 
 
 def prepare_request_params(url: str, headers: dict = None, stream: bool = False) -> dict:

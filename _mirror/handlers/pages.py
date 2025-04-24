@@ -1,4 +1,5 @@
 from flask import request, render_template, redirect, send_from_directory
+from flask_babel import gettext as _
 
 from config.config_env import config
 from utils.logging import write_log, read_last_lines
@@ -70,7 +71,7 @@ def save_settings():
         config.proxy_login = request.form.get("avir_login") or None
         config.proxy_password = request.form.get("avir_passw") or None
 
-    write_log(log_type="system", message=f"Settings have been changed")
+    write_log(log_type="system", message=_("Settings have been changed"))
 
     return redirect("/#settings")
 

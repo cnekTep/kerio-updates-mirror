@@ -1,6 +1,7 @@
 from functools import wraps
 
 from flask import request, Response
+from flask_babel import gettext as _
 
 from config.config_env import config
 from utils.logging import write_log
@@ -37,7 +38,7 @@ def check_ip():
             client_ip = request.remote_addr
 
             if client_ip not in allowed_ips:
-                write_log(log_type="system", message=f"Access is denied for IP: {client_ip}")
+                write_log(log_type="updates", message=_("Access is denied for IP: %(ip)s", ip=client_ip))
                 return Response(response="403 Access denied", status=403, mimetype="text/plain")
 
             return f(*args, **kwargs)

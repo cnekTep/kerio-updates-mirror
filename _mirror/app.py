@@ -2,7 +2,11 @@ import threading
 from typing import Tuple
 
 from flask import Flask, request, Response
+from flask import redirect, url_for
+from flask_babel import Babel
+from flask_babel import gettext as _
 
+from config.config_env import config
 from db.database import close_connection
 from handlers.bitdefender import handle_bitdefender
 from handlers.ids import handler_control_update, handler_checknew, handle_update
@@ -15,7 +19,17 @@ from utils.logging import write_log, setup_logging
 from utils.schedulers import setup_scheduler
 from utils.tor_check import tor_checker
 
+
+def get_locale():
+    """Get current locale from configuration."""
+    return config.locale
+
+
 app = Flask(__name__)
+app.config["BABEL_DEFAULT_LOCALE"] = config.locale
+app.config["BABEL_TRANSLATION_DIRECTORIES"] = "translations"
+
+babel = Babel(app=app, locale_selector=get_locale)
 
 
 # Close database connection when request ends
@@ -42,6 +56,20 @@ def router(path: str) -> str | Response:
     if request.method == "POST" and request.args.get("action") == "save_settings":
         return save_settings()
 
+    # Handle language change
+    if path == "set_language" and request.args.get("lang"):
+        lang = request.args.get("lang")
+        if lang in ["en", "ru"]:  # Supported languages
+            config.locale = lang
+            write_log(log_type="system", message=_("Language changed to: %(lang)s", lang=lang))
+
+            # Checking if it was an AJAX request
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return {"status": "success", "language": lang}
+
+            # Otherwise, redirect to the previous page or to the main page
+            return redirect(request.referrer or url_for("router"))
+
     if path == "":
         return main_page()
     elif path == "favicon.ico":
@@ -65,7 +93,7 @@ def router(path: str) -> str | Response:
     elif "bdupdate.kerio.com" in host or "bda-update.kerio.com" in host:
         return handle_bitdefender()
     else:
-        write_log(log_type="system", message=f"No handler for request: {request.url}")
+        write_log(log_type="system", message=_("No handler for request: %(request_url)s", request_url=request.url))
         return Response(response="404 Not found", status=404, mimetype="text/plain")
 
 
@@ -77,13 +105,16 @@ def run_server(port: int, ssl: bool = False) -> None:
         port: Port number to listen on
         ssl: Whether to use SSL/HTTPS
     """
-    kwargs = {"port": port, "host": "0.0.0.0", "threaded": True}
-    if ssl:
-        kwargs["ssl_context"] = "adhoc"
+    with app.app_context():
+        kwargs = {"port": port, "host": "0.0.0.0", "threaded": True}
+        if ssl:
+            kwargs["ssl_context"] = "adhoc"
 
-    protocol = "HTTPS" if ssl else "HTTP"
-    write_log(log_type="system", message=f"{protocol} server started on port {port}")
-    app.run(**kwargs)
+        protocol = "HTTPS" if ssl else "HTTP"
+        write_log(
+            log_type="system", message=_("%(protocol)s server started on port %(port)s", protocol=protocol, port=port)
+        )
+        app.run(**kwargs)
 
 
 def start_servers(http_port: int = 80, https_port: int = 443) -> Tuple[threading.Thread, threading.Thread]:
@@ -116,11 +147,15 @@ if __name__ == "__main__":
     # Option 2: Run every 8 hours
     # scheduler = setup_scheduler(schedule_type="interval", interval_minutes=480)
 
-    http_thread, https_thread = start_servers()
-
     try:
+        http_thread, https_thread = start_servers()
+
         # Keep main thread alive until interrupted
         http_thread.join()
         https_thread.join()
     except KeyboardInterrupt:
-        write_log(log_type="system", message="Server shutdown initiated")
+        with app.app_context():
+            write_log(log_type="system", message=_("Server shutdown initiated"))
+    except Exception as e:
+        with app.app_context():
+            write_log(log_type="system", message=_("Critical error: %(error)s", error=str(e)))
