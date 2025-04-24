@@ -34,25 +34,25 @@ msgstr ""
 msgid "Critical error: %(error)s"
 msgstr ""
 
-#: handlers/bitdefender.py:26
+#: handlers/bitdefender.py:28
 msgid "Received antivirus signatures request"
 msgstr ""
 
-#: handlers/bitdefender.py:28
+#: handlers/bitdefender.py:34
 msgid "Received antispam signatures request"
 msgstr ""
 
-#: handlers/bitdefender.py:32
+#: handlers/bitdefender.py:40
 #, python-format
 msgid "Received unknown download request: %(request_path)s"
 msgstr ""
 
-#: handlers/bitdefender.py:73
+#: handlers/bitdefender.py:82
 #, python-format
 msgid "Downloading file: %(request_path)s"
 msgstr ""
 
-#: handlers/bitdefender.py:86
+#: handlers/bitdefender.py:95
 #, python-format
 msgid "Error %(err)s while loading file %(request_path)s"
 msgstr ""
@@ -87,100 +87,100 @@ msgstr ""
 msgid "IDSv4: new version loaded (from GitHub) - 4.%(file_version)s"
 msgstr ""
 
-#: handlers/geo.py:137
+#: handlers/geo.py:136
 #, python-format
 msgid ""
 "Attempt %(attempt)s/%(max_attempts)s: error during file processing and "
 "compression: %(err)s"
 msgstr ""
 
-#: handlers/geo.py:145
+#: handlers/geo.py:144
 msgid "IDSv4: error during download"
 msgstr ""
 
-#: handlers/geo.py:151
+#: handlers/geo.py:149
 #, python-format
 msgid "Pausing for %(delay)s seconds before the next attempt..."
 msgstr ""
 
-#: handlers/geo.py:174
+#: handlers/geo.py:172
 #, python-format
 msgid "File %(input_path)s not found"
 msgstr ""
 
-#: handlers/ids.py:16
+#: handlers/ids.py:17
 #, python-format
 msgid "Received request for IDS update: %(request_path)s"
 msgstr ""
 
-#: handlers/ids.py:37
+#: handlers/ids.py:39
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr ""
 
-#: handlers/ids.py:41
+#: handlers/ids.py:46
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:47
+#: handlers/ids.py:56
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:70
+#: handlers/ids.py:83
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:87
+#: handlers/ids.py:102
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr ""
 
-#: handlers/ids.py:121
+#: handlers/ids.py:135
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:132
+#: handlers/ids.py:145
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
 "%(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:144
+#: handlers/ids.py:156
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:161
+#: handlers/ids.py:173
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:173
+#: handlers/ids.py:185
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:180
+#: handlers/ids.py:192
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:193
+#: handlers/ids.py:204
 #, python-format
 msgid "Error downloading IDSv%(version)s %(proxy_status)s: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:201
+#: handlers/ids.py:212
 #, python-format
 msgid "IDSv%(version)s: error downloading update"
 msgstr ""
 
-#: handlers/pages.py:74
+#: handlers/pages.py:76
 msgid "Settings have been changed"
 msgstr ""
 
@@ -215,33 +215,33 @@ msgstr ""
 msgid "Scheduled mirror update process completed"
 msgstr ""
 
-#: handlers/webfilter.py:14
+#: handlers/webfilter.py:17
 msgid "Received request for Web Filter key"
 msgstr ""
 
-#: handlers/webfilter.py:27
+#: handlers/webfilter.py:32
 msgid "Web Filter: passing because license key is not configured"
 msgstr ""
 
-#: handlers/webfilter.py:35
+#: handlers/webfilter.py:39
 msgid "Web Filter: database already contains an actual Web Filter key"
 msgstr ""
 
-#: handlers/webfilter.py:40
+#: handlers/webfilter.py:43
 msgid "Fetching new Web Filter key from wf-activation.kerio.com server"
 msgstr ""
 
-#: handlers/webfilter.py:74
+#: handlers/webfilter.py:77
 #, python-format
 msgid "Web Filter: invalid license key. %(lic_number)s"
 msgstr ""
 
-#: handlers/webfilter.py:81
+#: handlers/webfilter.py:83
 #, python-format
 msgid "Web Filter: license key expired. %(lic_number)s"
 msgstr ""
 
-#: handlers/webfilter.py:89
+#: handlers/webfilter.py:90
 #, python-format
 msgid "Web Filter: received new key - %(key)s"
 msgstr ""
@@ -255,7 +255,7 @@ msgstr ""
 msgid "Web Filter: error fetching Web Filter key"
 msgstr ""
 
-#: templates/index.html:181 templates/index.html:391
+#: templates/index.html:181 templates/index.html:396
 msgid "CHECKING"
 msgstr ""
 
@@ -327,22 +327,26 @@ msgstr ""
 msgid "Use a proxy server to update Bitdefender:"
 msgstr ""
 
-#: templates/index.html:258
+#: templates/index.html:259
+msgid "Log client IP addresses in system logs"
+msgstr ""
+
+#: templates/index.html:263
 msgid "Allow access only from the following IP addresses:"
 msgstr ""
 
-#: templates/index.html:262
+#: templates/index.html:267
 msgid "Apply"
 msgstr ""
 
-#: templates/index.html:267
+#: templates/index.html:272
 msgid ""
 "To manually start checking for new updates, <a "
 "href=\"/update_mirror\">click here</a> (it is not recommended to run the "
 "check more than once a day)."
 msgstr ""
 
-#: templates/index.html:270
+#: templates/index.html:275
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local network. It downloads updates for the services specified by "
@@ -352,17 +356,17 @@ msgid ""
 "products, as well as allows centralized management of updates."
 msgstr ""
 
-#: templates/index.html:271
+#: templates/index.html:276
 msgid ""
 "To work, you must specify the IP address of the Update Mirror for the "
 "following hosts in the DNS settings of Kerio products:"
 msgstr ""
 
-#: templates/index.html:283
+#: templates/index.html:288
 msgid "Updates require a valid license:"
 msgstr ""
 
-#: templates/index.html:284
+#: templates/index.html:289
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\" "
 "href=\"https://gfi.ai/products-and-solutions/network-security-"
@@ -370,38 +374,38 @@ msgid ""
 "your region)."
 msgstr ""
 
-#: templates/index.html:285
+#: templates/index.html:290
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\" href=\"https://secure.kerio.com/reg/?lang=en\">here</a> (may"
 " not be available in your region)."
 msgstr ""
 
-#: templates/index.html:410
+#: templates/index.html:415
 msgid "CONNECTED"
 msgstr ""
 
-#: templates/index.html:415 templates/index.html:424
+#: templates/index.html:420 templates/index.html:429
 msgid "Last check:"
 msgstr ""
 
-#: templates/index.html:416
+#: templates/index.html:421
 msgid "Checks completed:"
 msgstr ""
 
-#: templates/index.html:421
+#: templates/index.html:426
 msgid "DISABLED"
 msgstr ""
 
-#: templates/index.html:423
+#: templates/index.html:428
 msgid "Error:"
 msgstr ""
 
-#: templates/index.html:431
+#: templates/index.html:436
 msgid "DATA ERROR"
 msgstr ""
 
-#: templates/index.html:436
+#: templates/index.html:441
 msgid "REQUEST ERROR"
 msgstr ""
 

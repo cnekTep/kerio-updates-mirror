@@ -171,7 +171,7 @@
 	</style>
 	</head><body onload="custom_checkbox();">
 	<table width = 100%><tr>
-		<td><h3>Kerio Updates Mirror <span id="ver">v.1.2.0</span></h3></td>
+		<td><h3>Kerio Updates Mirror <span id="ver">v.1.2.1</span></h3></td>
 		<td style="text-align: right;">
 			<div class="language-switcher">
 				<a href="#" class="lang-link" data-lang="en">EN</a> |
@@ -252,6 +252,11 @@
 					<div>
 						<input type="checkbox" id="avir_proxy" name="avir_proxy" value="true" {% if proxy %}checked{% endif %}>
 						<label for="avir_proxy">{{ _('Use a proxy server to update Bitdefender:') }}</label>
+					</div>
+					<br />
+					<div>
+						<input type="checkbox" id="ip_logging" name="ip_logging" value="true" {% if ip_logging %}checked{% endif %}>
+						<label for="ip_logging">{{ _('Log client IP addresses in system logs') }}</label>
 					</div>
 					<div>
 						<input type="checkbox" id="allowed_ips_enabled" name="allowed_ips_enabled" value="true" {% if allowed_ips %}checked{% endif %}>

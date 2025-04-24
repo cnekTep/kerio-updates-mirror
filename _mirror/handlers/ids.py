@@ -13,7 +13,9 @@ from utils.logging import write_log
 def handler_control_update():
     """Handler for providing IDS update files"""
     write_log(
-        log_type="system", message=_("Received request for IDS update: %(request_path)s", request_path=request.path)
+        log_type="system",
+        message=_("Received request for IDS update: %(request_path)s", request_path=request.path),
+        ip=request.remote_addr if config.ip_logging else None,
     )
     request_path = request.path.replace("/control-update", "update_files")
 
@@ -35,16 +37,25 @@ def handle_update():
         write_log(
             log_type="system",
             message=_("Error processing URL %(request_url)s in update request", request_url=request.url),
+            ip=request.remote_addr if config.ip_logging else None,
         )
         return Response(response="", status=400)
 
-    write_log(log_type="system", message=_("Received update request for version: %(version)s", version=version))
+    write_log(
+        log_type="system",
+        message=_("Received update request for version: %(version)s", version=version),
+        ip=request.remote_addr if config.ip_logging else None,
+    )
 
     # Parse major version number
     try:
         major_version = int(version.split(".")[0])
     except (ValueError, IndexError):
-        write_log(log_type="system", message=_("Invalid version format: %(version)s", version=version))
+        write_log(
+            log_type="system",
+            message=_("Invalid version format: %(version)s", version=version),
+            ip=request.remote_addr if config.ip_logging else None,
+        )
         return Response(response="400 Bad Request", status=400, mimetype="text/plain")
 
     # Special cases handling
@@ -67,7 +78,11 @@ def handle_update():
         return Response(response=response_text, status=200)
 
     # Unknown version
-    write_log(log_type="system", message=_("Received unknown download request: %(version)s", version=version))
+    write_log(
+        log_type="system",
+        message=_("Received unknown download request: %(version)s", version=version),
+        ip=request.remote_addr if config.ip_logging else None,
+    )
     return Response(response="404 Not found", status=404, mimetype="text/plain")
 
 
@@ -85,8 +100,7 @@ def download_ids_update_files(version: str) -> None:
 
     if not config.license_number:
         log_message = _("IDSv%(version)s: passing because license key is not configured", version=version)
-        write_log(log_type="updates", message=log_message)
-        write_log(log_type="system", message=log_message)
+        write_log(log_type=["system", "updates"], message=log_message)
         return
 
     # Try direct connection first, then proxy if available
@@ -119,8 +133,7 @@ def download_ids_update_files(version: str) -> None:
                     result["download_link"] = value
                 else:
                     log_message = _("IDSv%(version)s error: %(err)s", version=version, err=response.text.strip())
-                    write_log(log_type="updates", message=log_message)
-                    write_log(log_type="system", message=log_message)
+                    write_log(log_type=["system", "updates"], message=log_message)
                     config.license_number = None
                     return
 
@@ -133,8 +146,7 @@ def download_ids_update_files(version: str) -> None:
                     version=version,
                     result_version=result["version"],
                 )
-                write_log(log_type="updates", message=log_message)
-                write_log(log_type="system", message=log_message)
+                write_log(log_type=["system", "updates"], message=log_message)
                 return
 
             # Download new version
@@ -181,8 +193,7 @@ def download_ids_update_files(version: str) -> None:
                 version=version,
                 result_version=result["version"],
             )
-            write_log(log_type="updates", message=log_message)
-            write_log(log_type="system", message=log_message)
+            write_log(log_type=["system", "updates"], message=log_message)
             return
 
         except requests.RequestException as err:
@@ -199,8 +210,7 @@ def download_ids_update_files(version: str) -> None:
 
     # If we get here, all attempts failed
     log_message = _("IDSv%(version)s: error downloading update", version=version)
-    write_log(log_type="updates", message=log_message)
-    write_log(log_type="system", message=log_message)
+    write_log(log_type=["system", "updates"], message=log_message)
 
 
 def prepare_request_params(url: str, headers: dict = None, stream: bool = False) -> dict:

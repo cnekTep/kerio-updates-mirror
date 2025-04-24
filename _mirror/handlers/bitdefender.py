@@ -23,13 +23,22 @@ def handle_bitdefender() -> Response:
 
     # Determine the type of request based on the Host header
     if "bdupdate.kerio.com" in host:
-        write_log(log_type="system", message=_("Received antivirus signatures request"))
+        write_log(
+            log_type="system",
+            message=_("Received antivirus signatures request"),
+            ip=request.remote_addr if config.ip_logging else None,
+        )
     elif "bda-update.kerio.com" in host:
-        write_log(log_type="system", message=_("Received antispam signatures request"))
+        write_log(
+            log_type="system",
+            message=_("Received antispam signatures request"),
+            ip=request.remote_addr if config.ip_logging else None,
+        )
     else:
         write_log(
             log_type="system",
             message=_("Received unknown download request: %(request_path)s", request_path=request.path),
+            ip=request.remote_addr if config.ip_logging else None,
         )
         return Response("404 Not found", status=404, mimetype="text/plain")
 

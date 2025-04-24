@@ -35,6 +35,7 @@ def main_page():
         "proxy_login": config.proxy_login,
         "proxy_password": config.proxy_password,
         "allowed_ips": config.allowed_ips,
+        "ip_logging": config.ip_logging,
         "tor_status": tor_checker.get_status(),
     }
 
@@ -59,6 +60,7 @@ def save_settings():
     config.update_ids_5 = "IDSv5" in request.form
     config.geoip_github = "geo_github" in request.form
     config.update_web_filter_key = "wfkey" in request.form
+    config.ip_logging = "ip_logging" in request.form
 
     # Update allowed IPs if enabled
     config.allowed_ips = request.form.get("allowed_ips") if "allowed_ips_enabled" in request.form else ""

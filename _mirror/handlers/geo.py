@@ -126,8 +126,7 @@ def combine_and_compress_geo_files(v4_filename: str, v6_filename: str) -> str or
             # Update version information in the database
             update_ids(name="ids4", version=int(file_version), file_name=f"full-4-{file_version}.gz")
             log_message = _("IDSv4: new version loaded (from GitHub) - 4.%(file_version)s", file_version=file_version)
-            write_log(log_type="updates", message=log_message)
-            write_log(log_type="system", message=log_message)
+            write_log(log_type=["system", "updates"], message=log_message)
             return output_gz_path
 
         except Exception as e:
@@ -143,8 +142,7 @@ def combine_and_compress_geo_files(v4_filename: str, v6_filename: str) -> str or
 
             if attempt == max_attempts - 1:  # If this is the last attempt
                 log_message = _("IDSv4: error during download")
-                write_log(log_type="updates", message=log_message)
-                write_log(log_type="system", message=log_message)
+                write_log(log_type=["system", "updates"], message=log_message)
                 return None
 
             write_log(
