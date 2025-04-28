@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  1.2.1\n"
+"Project-Id-Version:  1.3.0\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -14,22 +14,22 @@ msgstr ""
 msgid "Language changed to: %(lang)s"
 msgstr "Язык изменен на: %(lang)s"
 
-#: app.py:96
+#: app.py:94
 #, python-format
 msgid "No handler for request: %(request_url)s"
 msgstr "Нет обработчика для запроса: %(request_url)s"
 
-#: app.py:115
+#: app.py:113
 #, python-format
 msgid "%(protocol)s server started on port %(port)s"
 msgstr "%(protocol)s сервер запущен на порту %(port)s"
 
-#: app.py:158
+#: app.py:156
 msgid "Server shutdown initiated"
 msgstr "Инициализировано завершение работы сервера"
 
-#: app.py:161
-#, fuzzy, python-format
+#: app.py:159
+#, python-format
 msgid "Critical error: %(error)s"
 msgstr "Критическая ошибка: %(error)s"
 
@@ -46,18 +46,18 @@ msgstr "Получен запрос на сигнатуры антиспама"
 msgid "Received unknown download request: %(request_path)s"
 msgstr "Получен неизвестный запрос на загрузку: %(request_path)s"
 
-#: handlers/bitdefender.py:82
+#: handlers/bitdefender.py:87
 #, python-format
 msgid "Downloading file: %(request_path)s"
 msgstr "Загружается файл: %(request_path)s"
 
-#: handlers/bitdefender.py:95
+#: handlers/bitdefender.py:100
 #, python-format
 msgid "Error %(err)s while loading file %(request_path)s"
 msgstr "Ошибка %(err)s при загрузке файла %(request_path)s"
 
 #: handlers/geo.py:35
-#, fuzzy, python-format
+#, python-format
 msgid "Downloading file: %(url)s"
 msgstr "Загружается файл: %(url)s"
 
@@ -124,27 +124,27 @@ msgstr "Ошибка при обработке URL %(request_url)s в запро
 msgid "Received update request for version: %(version)s"
 msgstr "Получен запрос на обновление версии: %(version)s"
 
-#: handlers/ids.py:56
+#: handlers/ids.py:61
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr "Недопустимый формат версии: %(version)s"
 
-#: handlers/ids.py:83
+#: handlers/ids.py:88
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr "Получен неизвестный запрос на загрузку: %(version)s"
 
-#: handlers/ids.py:102
+#: handlers/ids.py:112
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr "IDSv%(version)s: пропуск, поскольку лицензионный ключ не настроен"
 
-#: handlers/ids.py:135
+#: handlers/ids.py:145
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr "IDSv%(version)s ошибка: %(err)s"
 
-#: handlers/ids.py:145
+#: handlers/ids.py:155
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
@@ -153,37 +153,37 @@ msgstr ""
 "IDSv%(version)s: нет новой версии, текущая версия: "
 "%(version)s.%(result_version)s"
 
-#: handlers/ids.py:156
+#: handlers/ids.py:166
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr "IDSv%(version)s: загрузка новой версии: %(version)s.%(result_version)s"
 
-#: handlers/ids.py:173
+#: handlers/ids.py:183
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr "Не удалось загрузить основной файл для IDSv%(version)s"
 
-#: handlers/ids.py:185
+#: handlers/ids.py:195
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr "Не удалось загрузить файл подписи для IDSv%(version)s"
 
-#: handlers/ids.py:192
+#: handlers/ids.py:202
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr "IDSv%(version)s: загружена новая версия - %(version)s.%(result_version)s"
 
-#: handlers/ids.py:204
+#: handlers/ids.py:214
 #, python-format
 msgid "Error downloading IDSv%(version)s %(proxy_status)s: %(err)s"
 msgstr "Ошибка при загрузке IDSv%(version)s %(proxy_status)s: %(err)s"
 
-#: handlers/ids.py:212
+#: handlers/ids.py:222
 #, python-format
 msgid "IDSv%(version)s: error downloading update"
 msgstr "IDSv%(version)s: ошибка при загрузке обновления"
 
-#: handlers/pages.py:76
+#: handlers/pages.py:77
 msgid "Settings have been changed"
 msgstr "Настройки были изменены"
 
@@ -258,110 +258,120 @@ msgstr "Ошибка получения Web Filter ключа %(proxy_status)s: 
 msgid "Web Filter: error fetching Web Filter key"
 msgstr "Web Filter: ошибка получения Web Filter ключа"
 
-#: templates/index.html:181 templates/index.html:396
-msgid "CHECKING"
-msgstr "ПРОВЕРКА"
-
-#: templates/index.html:188
+#: templates/index.html:37
 msgid "System Log"
 msgstr "Системный журнал"
 
-#: templates/index.html:189
+#: templates/index.html:40
 msgid "Mirror Update Log"
-msgstr "Журнал обновления"
+msgstr "Журнал обновлений"
 
-#: templates/index.html:190
+#: templates/index.html:43
 msgid "Settings"
 msgstr "Настройки"
 
-#: templates/index.html:191
+#: templates/index.html:46
 msgid "Information"
 msgstr "Информация"
 
-#: templates/index.html:196 templates/index.html:205
+#: templates/index.html:58 templates/index.html:80
 msgid "Autoupdate"
 msgstr "Автообновление"
 
-#: templates/index.html:198 templates/index.html:207
+#: templates/index.html:65 templates/index.html:87
 msgid "Autoscroll"
 msgstr "Автопрокрутка"
 
-#: templates/index.html:212
-msgid "Select the services that you want to download updates for:"
-msgstr "Выберите службы, для которых вы хотите загрузить обновления:"
+#: templates/index.html:98
+msgid "Update"
+msgstr "Обнвление"
 
-#: templates/index.html:216
-msgid "Use a license:"
+#: templates/index.html:100
+msgid "License:"
 msgstr "Использовать лицензию:"
 
-#: templates/index.html:222
+#: templates/index.html:107
 msgid "IDSv1 - IPS/IDS Snort (Windows versions)"
 msgstr "IDSv1 - IPS/IDS Snort (Windows версия)"
 
-#: templates/index.html:226
+#: templates/index.html:112
 msgid "IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)"
 msgstr "IDSv3 - IPS/IDS Snort (версия для Linux до 9.5)"
 
-#: templates/index.html:230
+#: templates/index.html:117
 msgid "IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)"
 msgstr "IDSv5 - IPS/IDS Snort (версия для Linux начиная с 9.5)"
 
-#: templates/index.html:234
+#: templates/index.html:123
 msgid "IDSv2 - Lists of compromised addresses for blocking"
 msgstr "IDSv2 - Списки скомпрометированных адресов для блокировки"
 
-#: templates/index.html:238
+#: templates/index.html:128
 msgid "IDSv4 - GeoIP databases for geolocation/visitor blocking"
 msgstr "IDSv4 - Базы данных GeoIP для геолокации/блокировки посетителей"
 
-#: templates/index.html:242
+#: templates/index.html:134
 msgid "Use GitHub as a source for GeoIP database updates"
 msgstr "Использовать GitHub в качестве источника обновлений базы данных GeoIP"
 
-#: templates/index.html:246
+#: templates/index.html:139
 msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
 msgstr "Ключ подсистемы фильтрации контента Kerio Control Web Filter"
 
-#: templates/index.html:250
-msgid "Bitdefender antivirus and antispam (update support is always enabled)"
+#: templates/index.html:144
+msgid ""
+"Bitdefender antivirus and antispam (update support is always\n"
+"                                enabled)"
 msgstr ""
 "Антивирус и защита от спама Bitdefender (поддержка обновлений всегда "
 "включена)"
 
-#: templates/index.html:254
-msgid "Use a proxy server to update Bitdefender:"
-msgstr "Использовать прокси-сервер для обновления Bitdefender:"
+#: templates/index.html:150
+msgid "Use a proxy server to update Bitdefender"
+msgstr "Использовать прокси-сервер для обновления Bitdefender"
 
-#: templates/index.html:259
+#: templates/index.html:154
+msgid "Other"
+msgstr "Дополнительно"
+
+#: templates/index.html:158
 msgid "Log client IP addresses in system logs"
 msgstr "Записывать IP-адреса клиентов в системном журнале"
 
-#: templates/index.html:263
-msgid "Allow access only from the following IP addresses:"
+#: templates/index.html:164
+msgid ""
+"Allow access only from the following IP\n"
+"                                    addresses:"
 msgstr "Разрешить доступ только со следующих IP-адресов:"
 
-#: templates/index.html:267
+#: templates/index.html:172
 msgid "Apply"
 msgstr "Применить"
 
-#: templates/index.html:272
-msgid ""
-"To manually start checking for new updates, <a "
-"href=\"/update_mirror\">click here</a> (it is not recommended to run the "
-"check more than once a day)."
-msgstr ""
-"Чтобы вручную начать проверку наличия новых обновлений, <a "
-"href=\"/update_mirror\">нажмите сюда</a> (не рекомендуется проводить "
-"проверку чаще одного раза в день)."
+#: templates/index.html:181
+msgid "Manual update check"
+msgstr "Ручная проверка обновлений"
 
-#: templates/index.html:275
+#: templates/index.html:183
+msgid "Run check"
+msgstr "Выполнить проверку"
+
+#: templates/index.html:185
+msgid "It is not recommended to run check more than once a day."
+msgstr "Не рекомендуется проводить проверку чаще одного раза в день."
+
+#: templates/index.html:188
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
-"on the local network. It downloads updates for the services specified by "
-"the administrator from the Kerio update servers, after which updates can "
-"be distributed within the local network, which saves external traffic and"
-" automates the fight against vulnerabilities and bugs in software "
-"products, as well as allows centralized management of updates."
+"on the local\n"
+"                        network. It downloads updates for the services "
+"specified by the administrator from the Kerio\n"
+"                        update servers, after which updates can be "
+"distributed within the local network, which saves\n"
+"                        external traffic and automates the fight against "
+"vulnerabilities and bugs in software products,\n"
+"                        as well as allows centralized management of "
+"updates."
 msgstr ""
 "Зеркало обновлений предназначено для обновления Kerio Control и Kerio "
 "Connect в локальной сети. Оно загружает обновления для сервисов, "
@@ -370,68 +380,64 @@ msgstr ""
 "трафик и автоматизирует борьбу с уязвимостями и ошибками в программных "
 "продуктах, а также позволяет централизованно управлять обновлениями."
 
-#: templates/index.html:276
+#: templates/index.html:195
 msgid ""
-"To work, you must specify the IP address of the Update Mirror for the "
-"following hosts in the DNS settings of Kerio products:"
+"To work, you must specify the IP address of the update mirror for the "
+"following hosts\n"
+"                        in the DNS settings of Kerio products"
 msgstr ""
 "Для работы необходимо указать IP-адрес зеркала обновлений для следующих "
-"хостов в настройках DNS продуктов Kerio:"
+"хостов в настройках DNS продуктов Kerio"
 
-#: templates/index.html:288
-msgid "Updates require a valid license:"
-msgstr "Для обновления требуется действующая лицензия:"
+#: templates/index.html:208
+msgid "License"
+msgstr "Лицензия"
 
-#: templates/index.html:289
+#: templates/index.html:209
 msgid ""
-"You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\" "
+"You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\"\n"
+"                                                        "
 "href=\"https://gfi.ai/products-and-solutions/network-security-"
-"solutions/keriocontrol/free-trial\">here</a> (may not be available in "
-"your region)."
+"solutions/keriocontrol/free-trial\">here</a>."
 msgstr ""
-"Вы можете получить пробный ключ <a target=\"_blank\" rel=\"noopener "
+"Получить пробный ключ можно <a target=\"_blank\" rel=\"noopener "
 "noreferrer\" href=\"https://gfi.ai/products-and-solutions/network-"
-"security-solutions/keriocontrol/free-trial\">здесь</a> (может быть "
-"недоступен в вашем регионе)."
+"security-solutions/keriocontrol/free-trial\">здесь</a>."
 
-#: templates/index.html:290
+#: templates/index.html:212
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
-"noreferrer\" href=\"https://secure.kerio.com/reg/?lang=en\">here</a> (may"
-" not be available in your region)."
+"noreferrer\"\n"
+"                                                              "
+"href=\"https://secure.kerio.com/reg/?lang=en\">here</a>."
 msgstr ""
-"Проверьте дату истечения срока действия ключа <a target=\"_blank\" "
+"Проверить дату истечения срока действия ключа можно <a target=\"_blank\" "
 "rel=\"noopener noreferrer\" "
-"href=\"https://secure.kerio.com/reg/?lang=en\">здесь</a> (может быть "
-"недоступен в вашем регионе)."
+"href=\"https://secure.kerio.com/reg/?lang=en\">здесь</a>."
 
-#: templates/index.html:415
+#: templates/index.html:229
 msgid "CONNECTED"
 msgstr "ПОДКЛЮЧЕН"
 
-#: templates/index.html:420 templates/index.html:429
-msgid "Last check:"
-msgstr "Последняя проверка:"
-
-#: templates/index.html:421
-msgid "Checks completed:"
-msgstr "Проверок завершено:"
-
-#: templates/index.html:426
+#: templates/index.html:230
 msgid "DISABLED"
 msgstr "ОТКЛЮЧЕН"
 
-#: templates/index.html:428
-msgid "Error:"
-msgstr "Ошибка:"
+#: templates/index.html:231
+msgid "CHECKING"
+msgstr "ПРОВЕРКА"
 
-#: templates/index.html:436
-msgid "DATA ERROR"
-msgstr "ОШИБКА ДАННЫХ"
+#: templates/index.html:232
+msgid "ERROR"
+msgstr "ОШИБКА"
 
-#: templates/index.html:441
-msgid "REQUEST ERROR"
-msgstr "ОШИБКА ЗАПРОСА"
+#: templates/index.html:233
+msgid "Last check:"
+msgstr "Последняя проверка:"
+
+#: templates/index.html:234
+msgid "Checks completed:"
+msgstr "Проверок завершено:"
 
 #: utils/ip_auth.py:41
 #, python-format

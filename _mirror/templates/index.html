@@ -1,558 +1,239 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html><head>
-	<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/favicon.ico" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Kerio Updates Mirror</title>
-	<script type="text/javascript">function custom_checkbox(){ document.getElementById('geo_github').onchange = function(){ if (!document.getElementById('IDSv4').checked) document.getElementById('geo_github').checked = false; }; document.getElementById('IDSv4').onchange = function(){ if (!document.getElementById('IDSv4').checked) document.getElementById('geo_github').checked = false; } }</script>
-	<script type="text/javascript">function AddClass(obj,cName){ KillClass(obj,cName); return obj && (obj.className+=(obj.className.length>0?' ':'')+cName); }</script>
-	<script type="text/javascript">function KillClass(obj,cName){ return obj && (obj.className=obj.className.replace(new RegExp("^"+cName+"\\b\\s*|\\s*\\b"+cName+"\\b",'g'),'')); }</script>
-	<script type="text/javascript">function HasClass(obj,cName){ return (!obj || !obj.className)?false:(new RegExp("\\b"+cName+"\\b")).test(obj.className) }</script>
-	<script type="text/javascript">function AttachEvent(obj,evt,fnc,useCapture){if (!useCapture) useCapture=false; if (obj.addEventListener){ obj.addEventListener(evt,fnc,useCapture); return true; } else if (obj.attachEvent) return obj.attachEvent("on"+evt,fnc); else{ MyAttachEvent(obj,evt,fnc); obj['on'+evt]=function(){ MyFireEvent(obj,evt) }; } }</script>
-	<script type="text/javascript">function MyAttachEvent(obj,evt,fnc){ if (!obj.myEvents) obj.myEvents={}; if (!obj.myEvents[evt]) obj.myEvents[evt]=[]; var evts = obj.myEvents[evt]; evts[evts.length]=fnc; }</script>
-	<script type="text/javascript">function MyFireEvent(obj,evt){ if (!obj || !obj.myEvents || !obj.myEvents[evt]) return; var evts = obj.myEvents[evt]; for (var i=0,len=evts.length;i<len;i++) evts[i](); }</script>
-	<script type="text/javascript">function AddStyleSheet(url,idx){ var css,before=null,head=document.getElementsByTagName("head")[0]; if (document.createElement){ if (url){ css = document.createElement('link'); css.rel  = 'stylesheet'; css.href = url; } else css = document.createElement('style'); css.media = 'all'; css.type  = 'text/css'; if (idx>=0){ for (var i=0,ct=0,len=head.childNodes.length;i<len;i++){ var el = head.childNodes[i]; if (!el.tagName) continue; var tagName = el.tagName.toLowerCase(); if (ct==idx){ before = el; break; } if (tagName=='style' || tagName=='link' && (el.rel && el.rel.toLowerCase()=='stylesheet' || el.type && el.type.toLowerCase()=='text/css') ) ct++; } } head.insertBefore(css,before); return document.styleSheets[before?idx:document.styleSheets.length-1]; } else return alert("I can't create a new stylesheet for you. Sorry."); }</script>
-	<script type="text/javascript">function AddRule(ss,selector,styles){ if (!ss) return false; if (ss.insertRule) return ss.insertRule(selector+' {'+styles+'}',ss.cssRules.length); if (ss.addRule){ ss.addRule(selector,styles); return true; } return false; }</script>
-	<script type="text/javascript">AttachEvent(window,'load',function(){
-		var tocTag='ul',tocClass='tabset_tabs',tabTag='a',contentClass='tabset_content';
-		function FindEl(tagName,evt){
-			if (!evt && window.event) evt=event;
-			if (!evt) return DebugOut("Can't find an event to handle in DLTabSet::SetTab",0);
-			var el=evt.currentTarget || evt.srcElement;
-			while (el && (!el.tagName || el.tagName.toLowerCase()!=tagName)) el=el.parentNode;
-			return el;
-		}
-		function SetTabActive(tab){
-			if (tab.tabTOC.activeTab){
-				if (tab.tabTOC.activeTab==tab) return;
-				KillClass(tab.tabTOC.activeTab,'active');
-				if (tab.tabTOC.activeTab.tabContent) KillClass(tab.tabTOC.activeTab.tabContent,'tabset_content_active');
-				if (tab.tabTOC.activeTab.prevTab) KillClass(tab.tabTOC.activeTab.previousTab,'preActive');
-				if (tab.tabTOC.activeTab.nextTab) KillClass(tab.tabTOC.activeTab.nextTab,'postActive');
-			}
-			AddClass(tab.tabTOC.activeTab=tab,'active');
-			if (tab.tabContent) AddClass(tab.tabContent,'tabset_content_active');
-			if (tab.prevTab) AddClass(tab.prevTab,'preActive');
-			if (tab.nextTab) AddClass(tab.nextTab,'postActive');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kerio Updates Mirror</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<header>
+    <div class="container">
+        <div class="header-content">
+            <div class="header-title">
+                <h1>Kerio Updates Mirror</h1>
+                <span class="version-badge" id="ver">v.1.3.0</span>
+            </div>
+            <div class="header-controls">
+                <div id="tor_status" class="tor-status" title="Click to check">
+                    <i class="fas fa-network-wired"></i>
+                    TOR: <span class="status-indicator status-loading">ПРОВЕРКА</span>
+                </div>
+                <div class="language-switcher">
+                    <a href="#" class="lang-link" data-lang="en">EN</a>
+                    <a href="#" class="lang-link" data-lang="ru">RU</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
 
-			// Show or hide log settings depending on the active tab
-			var logControlsSystem = document.getElementById('system_log_controls');
-			var logControlsUpdates = document.getElementById('updates_log_controls');
+<div class="container">
+    <div class="body-content">
+        <div class="tabs">
+            <button class="tab-link active" data-tab="system_log">
+                <i class="fas fa-terminal"></i>{{ _('System Log') }}
+            </button>
+            <button class="tab-link" data-tab="updates_log">
+                <i class="fas fa-sync-alt"></i>{{ _('Mirror Update Log') }}
+            </button>
+            <button class="tab-link" data-tab="settings">
+                <i class="fas fa-cog"></i>{{ _('Settings') }}
+            </button>
+            <button class="tab-link" data-tab="information">
+                <i class="fas fa-info-circle"></i>{{ _('Information') }}
+            </button>
+        </div>
 
-			if (tab.tabID === 'system_log') {
-				logControlsSystem.style.display = 'block';
-				logControlsUpdates.style.display = 'none';
-			} else if (tab.tabID === 'updates_log') {
-				logControlsSystem.style.display = 'none';
-				logControlsUpdates.style.display = 'block';
-			} else {
-				logControlsSystem.style.display = 'none';
-				logControlsUpdates.style.display = 'none';
-			}
+        <div id="system_log" class="tab-content active">
+            <div class="log-container">
+                <div id="system_log_controls" class="log-controls">
+                    <div class="control-group">
+                        <label class="switch">
+                            <input type="checkbox" id="system_log_autoupdate" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <label for="system_log_autoupdate">{{ _('Autoupdate') }}</label>
+                    </div>
+                    <div class="control-group">
+                        <label class="switch">
+                            <input type="checkbox" id="system_log_autoscroll" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <label for="system_log_autoscroll">{{ _('Autoscroll') }}</label>
+                    </div>
+                </div>
+                <div class="log-content system-log">{{ system_log_content | e }}</div>
+            </div>
+        </div>
 
-			// Scroll to the end of the logs if the auto-scroll checkbox is enabled
-			if ((tab.tabID === 'system_log' && document.getElementById('system_log_autoscroll').checked) ||
-			    (tab.tabID === 'updates_log' && document.getElementById('updates_log_autoscroll').checked)) {
-				var block = document.getElementsByTagName('p');
-				for (var i=0,len=block.length;i<len;i++){
-					block[i].scrollTop = block[i].scrollHeight;
-				}
-			}
-		}
-		function SetTabFromAnchor(evt){
-			SetTabActive(FindEl('a',evt).semanticTab);
-		}
-		function Init(){
-			window.everyTabThereIsById = {};
-			var anchorMatch = /#([a-z][\w.:-]*)$/i,match;
-			var activeTabs = [];
-			var tocs = document.getElementsByTagName(tocTag);
-			for (var i=0,len=tocs.length;i<len;i++){
-				var toc = tocs[i];
-				if (!HasClass(toc,tocClass)) continue;
-				var lastTab;
-				var tabs = toc.getElementsByTagName(tabTag);
-				for (var j=0,len2=tabs.length;j<len2;j++){
-					var tab = tabs[j];
-					if (!tab.href || !(match=anchorMatch.exec(tab.href))) continue;
-					if (lastTab){
-						tab.prevTab=lastTab;
-						lastTab.nextTab=tab;
-					}
-					tab.tabTOC=toc;
-					everyTabThereIsById[tab.tabID=match[1]]=tab;
-					tab.tabContent = document.getElementById(tab.tabID);
-					if (HasClass(tab,'active')) activeTabs[activeTabs.length]=tab;
-					lastTab=tab;
-				}
-				AddClass(toc.getElementsByTagName('li')[0],'firstchild');
-			}
-			for (var i=0,len=activeTabs.length;i<len;i++){
-				SetTabActive(activeTabs[i]);
-			}
-			for (var i=0,len=document.links.length;i<len;i++){
-				var a = document.links[i];
-				if (!(match=anchorMatch.exec(a.href))) continue;
-				if (a.semanticTab = everyTabThereIsById[match[1]]) AttachEvent(a,'click',SetTabFromAnchor,false);
-			}
-			if ((match=anchorMatch.exec(location.href)) && (a=everyTabThereIsById[match[1]])) SetTabActive(a);
+        <div id="updates_log" class="tab-content">
+            <div class="log-container">
+                <div id="updates_log_controls" class="log-controls">
+                    <div class="control-group">
+                        <label class="switch">
+                            <input type="checkbox" id="updates_log_autoupdate" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <label for="updates_log_autoupdate">{{ _('Autoupdate') }}</label>
+                    </div>
+                    <div class="control-group">
+                        <label class="switch">
+                            <input type="checkbox" id="updates_log_autoscroll" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <label for="updates_log_autoscroll">{{ _('Autoscroll') }}</label>
+                    </div>
+                </div>
+                <div class="log-content updates-log">{{ updates_log_content | e }}</div>
+            </div>
+        </div>
 
-			// Initializing log settings from localStorage
-			initLogSettings();
-		}
-		Init();
-	},false);</script>
-	<style media="screen" type="text/css">
-		body { font-family:'Trebuchet MS',serif; background-color:#eee }
-		.tabset_tabs { margin:0; padding:0; list-style-type:none; position:relative; z-index:3; white-space:nowrap }
-		.tabset_tabs li { margin:0; padding:0; display:inline }
-		.tabset_tabs a { color:#339 ! important; background-color:#def ! important; border:2px solid #99c; text-decoration:none; padding:0 0.6em; border-left-width:2px; border-bottom:none }
-		.tabset_tabs a:hover { color:#00c ! important; background-color:#eff ! important }
-		.tabset_tabs a.active { color:black ! important; background-color:white ! important; border-color:black; border-left-width:2px; cursor:default; border-bottom:white; padding-top:2px; padding-bottom:2px }
-		.tabset_tabs li.firstchild a { border-left-width:2px }
-		.tabset_content { border:2px solid black; background-color:white; position:relative; z-index:1; padding:0.5em 1em; display:none }
-		.tabset_content_active { display: block; position: absolute; height: 84%; width: 94% }
-		.system_log { font-size: smaller; position:absolute; height: 95%; width: 98%; word-break: break-all; overflow:auto; text-overflow: clip; white-space: pre }
-		.updates_log { font-family: monospace; font-size: smaller; position:absolute; height: 95%; width: 98%; word-break: break-all; overflow:auto; text-overflow: clip; white-space: pre }
-		.shadowbox { width: 80%; border: 1px solid #333; box-shadow: 8px 8px 5px #444; padding: 8px 12px; background-image: linear-gradient(180deg, #fff, #ddd 40%, #ccc) }
-		table { border: 0px; border-spacing: 0px; padding: 0px; border-collapse: collapse; display: inline-table; }
-		.log_controls {
-			position: absolute;
-			top: 10px;
-			right: 15px;
-			z-index: 100;
-			background-color: rgba(255, 255, 255, 0.8);
-			padding: 5px 10px;
-			border: 1px solid #ccc;
-			border-radius: 4px;
-			display: none;
-		}
-		.tor-status {
-			font-size: 14px;
-			padding: 5px 10px;
-			border-radius: 4px;
-			display: inline-block;
-			cursor: pointer;
-		}
-		.tor-status:hover {
-			background-color: #f0f0f0;
-		}
-		.status-ok {
-			color: green;
-			font-weight: bold;
-		}
-		.status-error {
-			color: red;
-			font-weight: bold;
-		}
-		.status-loading {
-			color: orange;
-			font-weight: bold;
-		}
-		.language-switcher {
-			font-size: 14px;
-			padding: 5px 10px;
-			border-radius: 4px;
-		}
-		.lang-link {
-			text-decoration: none;
-			padding: 3px 5px;
-			color: #339;
-			border-radius: 3px;
-		}
-		.lang-link:hover {
-			color: #00c;
-			background-color: #eff;
-		}
-		.lang-link.active {
-			font-weight: bold;
-			color: black;
-			background-color: #def;
-		}
-	</style>
-	</head><body onload="custom_checkbox();">
-	<table width = 100%><tr>
-		<td><h3>Kerio Updates Mirror <span id="ver">v.1.2.1</span></h3></td>
-		<td style="text-align: right;">
-			<div class="language-switcher">
-				<a href="#" class="lang-link" data-lang="en">EN</a> |
-				<a href="#" class="lang-link" data-lang="ru">RU</a>
-			</div>
-			<div id="tor_status" class="tor-status" title="Click to check">
-				TOR: <span class="status-loading">{{ _('CHECKING') }}</span>
-			</div>
-		</td>
-		</tr>
-	</table>
-	<div id="pagecontent">
-		<ul class="tabset_tabs">
-			<li class="firstchild"><a class="preActive active" href="#system_log">{{ _('System Log') }}</a></li>
-			<li><a class="preActive postActive" href="#updates_log">{{ _('Mirror Update Log') }}</a></li>
-			<li><a class="preActive postActive" href="#settings">{{ _('Settings') }}</a></li>
-			<li><a class="preActive postActive" href="#information">{{ _('Information') }}</a></li>
-		</ul>
-		<div id="system_log" class="tabset_content tabset_content_active">
-			<div id="system_log_controls" class="log_controls">
-				<input type="checkbox" id="system_log_autoupdate" checked>
-				<label for="system_log_autoupdate">{{ _('Autoupdate') }}</label>
-				<input type="checkbox" id="system_log_autoscroll" checked>
-				<label for="system_log_autoscroll">{{ _('Autoscroll') }}</label>
-			</div>
-			<p class="system_log">{{ system_log_content | e }}</p>
-		</div>
-		<div id="updates_log" class="tabset_content">
-			<div id="updates_log_controls" class="log_controls">
-				<input type="checkbox" id="updates_log_autoupdate" checked>
-				<label for="updates_log_autoupdate">{{ _('Autoupdate') }}</label>
-				<input type="checkbox" id="updates_log_autoscroll" checked>
-				<label for="updates_log_autoscroll">{{ _('Autoscroll') }}</label>
-			</div>
-			<p class="updates_log">{{ updates_log_content | e }}</p>
-		</div>
-		<div id="settings" class="tabset_content">
-			<h4>{{ _('Select the services that you want to download updates for:') }}</h4>
-			<div id="mirror_settings" class="shadowbox"><br />
-				<form action="/?action=save_settings" method="post">
-					<div>
-						{{ _('Use a license:') }}
-						<input type="text" id="LicenseNo" name="LicenseNo" value="{{ license_number or '' }}">
-					</div>
-					<br />
-					<div>
-						<input type="checkbox" id="IDSv1" name="IDSv1" value="true" {% if update_ids_1 %}checked{% endif %}>
-						<label for="IDSv1">{{ _('IDSv1 - IPS/IDS Snort (Windows versions)') }}</label>
-					</div>
-					<div>
-						<input type="checkbox" id="IDSv3" name="IDSv3" value="true" {% if update_ids_3 %}checked{% endif %}>
-						<label for="IDSv3">{{ _('IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)') }}</label>
-					</div>
-					<div>
-						<input type="checkbox" id="IDSv5" name="IDSv5" value="true" {% if update_ids_5 %}checked{% endif %}>
-						<label for="IDSv5">{{ _('IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)') }}</label>
-					</div>
-					<div>
-						<input type="checkbox" id="IDSv2" name="IDSv2" value="true" {% if update_ids_2 %}checked{% endif %}>
-						<label for="IDSv2">{{ _('IDSv2 - Lists of compromised addresses for blocking') }}</label>
-					</div>
-					<div>
-						<input type="checkbox" id="IDSv4" name="IDSv4" value="true" {% if update_ids_4 %}checked{% endif %}>
-						<label for="IDSv4">{{ _('IDSv4 - GeoIP databases for geolocation/visitor blocking') }}</label>
-					</div>
-					<div style="margin-left:25px;">
-						<input type="checkbox" id="geo_github" name="geo_github" value="true" {% if geoip_github %}checked{% endif %}>
-						<label for="geo_github">{{ _('Use GitHub as a source for GeoIP database updates') }}</label>
-					</div>
-					<div>
-						<input type="checkbox" id="wfkey" name="wfkey" value="true" {% if update_web_filter_key %}checked{% endif %}>
-						<label for="wfkey">{{ _('Kerio Control Web Filter Content Filtering Subsystem Key') }}</label>
-					</div>
-					<div>
-						<input type="checkbox" id="avir" name="avir" onclick="this.checked=true" checked>
-						<label for="avir">{{ _('Bitdefender antivirus and antispam (update support is always enabled)') }}</label>
-					</div>
-					<div>
-						<input type="checkbox" id="avir_proxy" name="avir_proxy" value="true" {% if proxy %}checked{% endif %}>
-						<label for="avir_proxy">{{ _('Use a proxy server to update Bitdefender:') }}</label>
-					</div>
-					<br />
-					<div>
-						<input type="checkbox" id="ip_logging" name="ip_logging" value="true" {% if ip_logging %}checked{% endif %}>
-						<label for="ip_logging">{{ _('Log client IP addresses in system logs') }}</label>
-					</div>
-					<div>
-						<input type="checkbox" id="allowed_ips_enabled" name="allowed_ips_enabled" value="true" {% if allowed_ips %}checked{% endif %}>
-						<label for="allowed_ips_enabled">{{ _('Allow access only from the following IP addresses:') }}</label>
-						<input type="text" id="allowed_ips" name="allowed_ips" value="{{ allowed_ips or '' }}" placeholder="127.0.0.1, 192.168.1.1">
-					</div>
-					<br /><br />
-					<input type="submit" value="{{ _('Apply') }}">
-				</form>
-			</div>
-		</div>
-		<div id="information" class="tabset_content">
-			<h4>{{ _('To manually start checking for new updates, <a href="/update_mirror">click here</a> (it is not recommended to run the check more than once a day).') }}<br />
-			</h4>
-			<div class="shadowbox"><br />
-				{{ _('The update mirror is designed to update Kerio Control and Kerio Connect on the local network. It downloads updates for the services specified by the administrator from the Kerio update servers, after which updates can be distributed within the local network, which saves external traffic and automates the fight against vulnerabilities and bugs in software products, as well as allows centralized management of updates.') }}<br /><br />
-				{{ _('To work, you must specify the IP address of the Update Mirror for the following hosts in the DNS settings of Kerio products:') }}<br />
-				<div style="margin-left:25px;">
-					<table><tr><td>
-					ids-update.kerio.com<br />
-					wf-activation.kerio.com<br />
-					prod-update.kerio.com<br />
-					</td><td>&nbsp;</td><td>
-					bdupdate.kerio.com<br />
-					bda-update.kerio.com<br />
-					update.kerio.com<br />
-					</td></tr></table>
-				</div><br />
-				{{ _('Updates require a valid license:') }}<br />
-				{{ _('You can get a trial key <a target="_blank" rel="noopener noreferrer" href="https://gfi.ai/products-and-solutions/network-security-solutions/keriocontrol/free-trial">here</a> (may not be available in your region).') }}<br />
-				{{ _('Check the key expiration date <a target="_blank" rel="noopener noreferrer" href="https://secure.kerio.com/reg/?lang=en">here</a> (may not be available in your region).') }}<br /><br />
-				<a target="_blank" rel="noopener noreferrer" href="https://github.com/cnekTep/kerio-updates-mirror">GitHub</a>
-			</div>
-		</div>
-	</div>
+        <div id="settings" class="tab-content">
+            <div class="settings-container">
+                <form class="settings-form" action="/?action=save_settings" method="post">
+                    <fieldset>
+                        <legend>{{ _('Update') }}</legend>
+                        <div class="form-group">
+                            <label for="LicenseNo">{{ _('License:') }}</label>
+                            <input type="text" id="LicenseNo" name="LicenseNo" class="form-control"
+                                   value="{{ license_number or '' }}">
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="IDSv1" name="IDSv1" value="true" {% if update_ids_1 %}checked{%
+                                   endif %}>
+                            <label for="IDSv1">{{ _('IDSv1 - IPS/IDS Snort (Windows versions)') }}</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="IDSv3" name="IDSv3" value="true" {% if update_ids_3 %}checked{%
+                                   endif %}>
+                            <label for="IDSv3">{{ _('IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)') }}</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="IDSv5" name="IDSv5" value="true" {% if update_ids_5 %}checked{%
+                                   endif %}>
+                            <label for="IDSv5">{{ _('IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)')
+                                }}</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="IDSv2" name="IDSv2" value="true" {% if update_ids_2 %}checked{%
+                                   endif %}>
+                            <label for="IDSv2">{{ _('IDSv2 - Lists of compromised addresses for blocking') }}</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="IDSv4" name="IDSv4" value="true" {% if update_ids_4 %}checked{%
+                                   endif %}>
+                            <label for="IDSv4">{{ _('IDSv4 - GeoIP databases for geolocation/visitor blocking')
+                                }}</label>
+                        </div>
+                        <div class="checkbox-group nested-option">
+                            <input type="checkbox" id="geo_github" name="geo_github" value="true" {% if geoip_github
+                                   %}checked{% endif %}>
+                            <label for="geo_github">{{ _('Use GitHub as a source for GeoIP database updates') }}</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="wfkey" name="wfkey" value="true" {% if update_web_filter_key
+                                   %}checked{% endif %}>
+                            <label for="wfkey">{{ _('Kerio Control Web Filter Content Filtering Subsystem Key')
+                                }}</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="avir" name="avir" onclick="this.checked=true" checked>
+                            <label for="avir">{{ _('Bitdefender antivirus and antispam (update support is always
+                                enabled)') }}</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="avir_proxy" name="avir_proxy" value="true" {% if proxy
+                                   %}checked{% endif %}>
+                            <label for="avir_proxy">{{ _('Use a proxy server to update Bitdefender') }}</label>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ _('Other') }}</legend>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="ip_logging" name="ip_logging" value="true" {% if ip_logging
+                                   %}checked{% endif %}>
+                            <label for="ip_logging">{{ _('Log client IP addresses in system logs') }}</label>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="allowed_ips_enabled" name="allowed_ips_enabled" value="true"
+                                       {% if allowed_ips %}checked{% endif %}>
+                                <label for="allowed_ips_enabled">{{ _('Allow access only from the following IP
+                                    addresses:') }}</label>
+                            </div>
+                            <input type="text" id="allowed_ips" name="allowed_ips" class="form-control"
+                                   value="{{ allowed_ips or '' }}" placeholder="127.0.0.1, 192.168.1.1">
+                        </div>
+                    </fieldset>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i>{{ _('Apply') }}
+                    </button>
+                </form>
+            </div>
+        </div>
 
-<script type="text/javascript">
-// Function for saving log settings in localStorage
-function saveLogSettings() {
-    // Saving the System Log settings
-    localStorage.setItem('system_log_autoupdate', document.getElementById('system_log_autoupdate').checked);
-    localStorage.setItem('system_log_autoscroll', document.getElementById('system_log_autoscroll').checked);
-
-    // Saving the Updates Log settings
-    localStorage.setItem('updates_log_autoupdate', document.getElementById('updates_log_autoupdate').checked);
-    localStorage.setItem('updates_log_autoscroll', document.getElementById('updates_log_autoscroll').checked);
-}
-
-// Function for downloading log settings from localStorage
-function initLogSettings() {
-    // Initializing settings for the System Log
-    var systemLogAutoupdate = localStorage.getItem('system_log_autoupdate');
-    var systemLogAutoscroll = localStorage.getItem('system_log_autoscroll');
-
-    document.getElementById('system_log_autoupdate').checked = systemLogAutoupdate === null ? true : systemLogAutoupdate === 'true';
-    document.getElementById('system_log_autoscroll').checked = systemLogAutoscroll === null ? true : systemLogAutoscroll === 'true';
-
-    // Initializing settings for Updates Log
-    var updatesLogAutoupdate = localStorage.getItem('updates_log_autoupdate');
-    var updatesLogAutoscroll = localStorage.getItem('updates_log_autoscroll');
-
-    document.getElementById('updates_log_autoupdate').checked = updatesLogAutoupdate === null ? true : updatesLogAutoupdate === 'true';
-    document.getElementById('updates_log_autoscroll').checked = updatesLogAutoscroll === null ? true : updatesLogAutoscroll === 'true';
-
-    // Adding event handlers to save settings when changing
-    document.getElementById('system_log_autoupdate').addEventListener('change', saveLogSettings);
-    document.getElementById('system_log_autoscroll').addEventListener('change', saveLogSettings);
-    document.getElementById('updates_log_autoupdate').addEventListener('change', saveLogSettings);
-    document.getElementById('updates_log_autoscroll').addEventListener('change', saveLogSettings);
-}
-
-function updateLog(logId, logUrl, className) {
-    // Checking whether the log tab is active and whether auto-update is enabled
-	var tabElement = document.getElementById(logId);
-    var isActive = tabElement && tabElement.classList.contains('tabset_content_active');
-    var isAutoUpdateEnabled = document.getElementById(logId + '_autoupdate').checked;
-
-    if (isActive && isAutoUpdateEnabled) {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                // Updating the log content
-                var logElement = document.querySelector('#' + logId.replace('.', '\\.') + ' .' + className);
-                if (logElement) {
-                    logElement.innerHTML = xhr.responseText.replace(/&/g, '&amp;')
-                                                          .replace(/</g, '&lt;')
-                                                          .replace(/>/g, '&gt;');
-
-                    // Scroll to the end if auto-scrolling is enabled
-                    if (document.getElementById(logId + '_autoscroll').checked) {
-                        logElement.scrollTop = logElement.scrollHeight;
-                    }
-                }
-            }
-        };
-        xhr.open('GET', logUrl, true);
-        xhr.send();
-    }
-}
-
-function updateLogs() {
-    // Updating the contents of both logs
-    updateLog('system_log', '/get_system_log', 'system_log');
-    updateLog('updates_log', '/get_updates_log', 'updates_log');
-}
-
-// Update the content every 2 seconds
-setInterval(updateLogs, 2000);
-
-// Also update them when switching to tabs with logs.
-document.addEventListener('DOMContentLoaded', function() {
-    var tabs = document.querySelectorAll('a[href="#system_log"], a[href="#updates_log"]');
-    tabs.forEach(function(tab) {
-        tab.addEventListener('click', function() {
-            // Immediately launch the update after the click
-            setTimeout(updateLogs, 100);
-        });
-    });
-
-    // Initializing the log settings
-    initLogSettings();
-});
-// A variable for storing the TOR status update interval
-let torStatusInterval = null;
-// A variable for storing the current interval
-let currentCheckInterval = null;
-// Check intervals in milliseconds
-const CHECK_INTERVAL_CONNECTED = 60000; // 1 minute if connected
-const CHECK_INTERVAL_DISCONNECTED = 15000; // 15 seconds if not connected
-
-// A function for updating the status of TOR
-function updateTorStatus() {
-	var statusElement = document.querySelector('#tor_status span');
-    // Set status "CHECKING" before sending the request
-    statusElement.classList.remove('status-ok', 'status-error');
-    statusElement.classList.add('status-loading');
-    statusElement.innerHTML = '{{ _("CHECKING") }}';
-
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-			// Delete status "CHECKING" after receiving the response
-            statusElement.classList.remove('status-loading');
-
-            if (xhr.status === 200) {
-                try {
-                    var data = JSON.parse(xhr.responseText);
-
-                    // Delete previous status classes
-                    statusElement.classList.remove('status-ok', 'status-error');
-
-                    // Update status variable
-                    torConnected = data.status;
-
-                    if (data.status) {
-						statusElement.innerHTML = '{{ _("CONNECTED") }}';
-                        statusElement.classList.add('status-ok');
-
-                        // Add information about the last check
-                        let lastCheck = new Date(data.last_check * 1000).toLocaleTimeString();
-                        statusElement.title = '{{ _("Last check:") }} ' + lastCheck +
-                                             '\n{{ _("Checks completed:") }} ' + data.check_count;
-
-                        // Update verification interval if it has changed
-                        updateCheckInterval();
-                    } else {
-                        statusElement.innerHTML = '{{ _("DISABLED") }}';
-                        statusElement.classList.add('status-error');
-                        statusElement.title = '{{ _("Error:") }} ' + data.error +
-                                             '\n{{ _("Last check:") }} ' +
-                                             new Date(data.last_check * 1000).toLocaleTimeString();
-
-                        // Update verification interval if it has changed
-                        updateCheckInterval();
-                    }
-                } catch (e) {
-                    statusElement.innerHTML = '{{ _("DATA ERROR") }}';
-                    statusElement.classList.add('status-error');
-                    updateCheckInterval();
-                }
-            } else {
-                statusElement.innerHTML = '{{ _("REQUEST ERROR") }}';
-                statusElement.classList.add('status-error');
-                updateCheckInterval();
-            }
-        }
+        <div id="information" class="tab-content">
+            <div class="info-container">
+                <details>
+                    <summary>{{ _('Manual update check') }}</summary>
+                    <a href="/update_mirror" class="update-link">
+                        <i class="fas fa-sync"></i>{{ _('Run check') }}
+                    </a>
+                    <p><small>{{ _('It is not recommended to run check more than once a day.') }}</small></p>
+                </details>
+                <div class="info-section">
+                    <p>{{ _('The update mirror is designed to update Kerio Control and Kerio Connect on the local
+                        network. It downloads updates for the services specified by the administrator from the Kerio
+                        update servers, after which updates can be distributed within the local network, which saves
+                        external traffic and automates the fight against vulnerabilities and bugs in software products,
+                        as well as allows centralized management of updates.') }}</p>
+                </div>
+                <details>
+                    <summary>{{ _('To work, you must specify the IP address of the update mirror for the following hosts
+                        in the DNS settings of Kerio products') }}
+                    </summary>
+                    <div class="host-list">
+                        <div class="host-item">ids-update.kerio.com</div>
+                        <div class="host-item">wf-activation.kerio.com</div>
+                        <div class="host-item">prod-update.kerio.com</div>
+                        <div class="host-item">bdupdate.kerio.com</div>
+                        <div class="host-item">bda-update.kerio.com</div>
+                        <div class="host-item">update.kerio.com</div>
+                    </div>
+                </details>
+                <details>
+                    <summary>{{ _('License') }}</summary>
+                    <p>{{ _('You can get a trial key <a target="_blank" rel="noopener noreferrer"
+                                                        href="https://gfi.ai/products-and-solutions/network-security-solutions/keriocontrol/free-trial">here</a>.')
+                        }}</p>
+                    <p>{{ _('Check the key expiration date <a target="_blank" rel="noopener noreferrer"
+                                                              href="https://secure.kerio.com/reg/?lang=en">here</a>.')
+                        }}</p>
+                </details>
+                <div class="footer">
+                    <a href="https://github.com/cnekTep/kerio-updates-mirror" target="_blank" rel="noopener noreferrer"
+                       class="github-link">
+                        <i class="fab fa-github"></i>GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.APP_CONFIG = {locale: "{{ locale }}"};
+    window.TRANSLATIONS = {
+        CONNECTED: "{{ _('CONNECTED') }}",
+        DISABLED: "{{ _('DISABLED') }}",
+        CHECKING: "{{ _('CHECKING') }}",
+        ERROR: "{{ _('ERROR') }}",
+        LAST_CHECK: "{{ _('Last check:') }}",
+        CHECKS_COMPLETED: "{{ _('Checks completed:') }}",
     };
-
-    xhr.open('GET', '/tor_status', true);
-    xhr.send();
-}
-
-// Function for updating check interval
-function updateCheckInterval() {
-    // Determine required interval based on the current status
-    const requiredInterval = torConnected ? CHECK_INTERVAL_CONNECTED : CHECK_INTERVAL_DISCONNECTED;
-
-    // If the interval hasn't changed, do nothing
-    if (currentCheckInterval === requiredInterval) return;
-
-    // Update value and restart timer
-    currentCheckInterval = requiredInterval;
-    clearInterval(torStatusInterval);
-    torStatusInterval = setInterval(updateTorStatus, currentCheckInterval);
-}
-
-// Function for managing TOR status checks
-function setupTorStatusChecks() {
-    // Perform initial check
-    updateTorStatus();
-
-    // Set initial interval
-    currentCheckInterval = CHECK_INTERVAL_DISCONNECTED;
-    torStatusInterval = setInterval(updateTorStatus, currentCheckInterval);
-
-    // Add handler for forced verification by click
-    document.querySelector('#tor_status').addEventListener('click', function() {
-        updateTorStatus();
-    });
-
-    // Stop checks when the page is inactive
-    document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'hidden') {
-            clearInterval(torStatusInterval);
-        } else {
-            // When returning to the page, immediately check and start a new interval
-            updateTorStatus();
-        }
-    });
-}
-
-// Start TOR check settings when the page loads
-document.addEventListener('DOMContentLoaded', setupTorStatusChecks);
-
-// Function for switching the language without reloading the page
-function setupLanguageSwitcher() {
-    const langLinks = document.querySelectorAll('.lang-link');
-
-    // Setting the active class for the current language
-    const currentLang = '{{ config.locale }}';
-    document.querySelectorAll(`.lang-link[data-lang="${currentLang}"]`).forEach(el => {
-        el.classList.add('active');
-    });
-
-    langLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            const lang = this.getAttribute('data-lang');
-
-            // Do not execute the request if the language has already been selected
-            if (this.classList.contains('active')) {
-                return;
-            }
-
-            // Removing the active class from all links
-            langLinks.forEach(l => l.classList.remove('active'));
-
-            // Adding the active class to the selected language
-            this.classList.add('active');
-
-            // Page reloading and refresh indicator
-            const originalText = this.innerHTML;
-            this.innerHTML = '...';
-
-            // Sending a request to change the language on the server
-			fetch(`/set_language?lang=${lang}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            }).then(response => {
-                // Checking response status
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            }).then(data => {
-                // Restoring link text
-                this.innerHTML = originalText;
-
-                // Reload page to apply new language
-                window.location.reload();
-            }).catch(error => {
-                console.error('Error changing language:', error);
-                this.innerHTML = originalText;
-                // Restoring active class for previous language
-                document.querySelector(`.lang-link[data-lang="${currentLang}"]`).classList.add('active');
-                this.classList.remove('active');
-            });
-        });
-    });
-}
-
-// Start language switcher when the page loads
-document.addEventListener('DOMContentLoaded', setupLanguageSwitcher);
 </script>
-
-</body></html>
+<script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</body>
+</html>

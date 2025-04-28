@@ -38,7 +38,7 @@ def check_ip():
             client_ip = request.remote_addr
 
             if client_ip not in allowed_ips:
-                write_log(log_type="updates", message=_("Access is denied for IP: %(ip)s", ip=client_ip))
+                write_log(log_type="system", message=_("Access is denied for IP: %(ip)s", ip=client_ip))
                 return Response(response="403 Access denied", status=403, mimetype="text/plain")
 
             return f(*args, **kwargs)

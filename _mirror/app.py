@@ -11,7 +11,7 @@ from db.database import close_connection
 from handlers.bitdefender import handle_bitdefender
 from handlers.ids import handler_control_update, handler_checknew, handle_update
 from handlers.log_content import get_system_log, get_updates_log
-from handlers.pages import save_settings, main_page, favicon
+from handlers.pages import save_settings, main_page
 from handlers.update_mirror import handler_update_mirror
 from handlers.webfilter import handle_webfilter
 from utils.ip_auth import check_ip
@@ -72,8 +72,6 @@ def router(path: str) -> str | Response:
 
     if path == "":
         return main_page()
-    elif path == "favicon.ico":
-        return favicon()
     elif path == "update_mirror":
         return handler_update_mirror()
     elif path == "get_system_log":

@@ -1,4 +1,4 @@
-from flask import request, render_template, redirect, send_from_directory
+from flask import request, render_template, redirect
 from flask_babel import gettext as _
 
 from config.config_env import config
@@ -37,6 +37,7 @@ def main_page():
         "allowed_ips": config.allowed_ips,
         "ip_logging": config.ip_logging,
         "tor_status": tor_checker.get_status(),
+        "locale": config.locale,
     }
 
     return render_template(template_name_or_list="index.html", **template_data)
@@ -76,8 +77,3 @@ def save_settings():
     write_log(log_type="system", message=_("Settings have been changed"))
 
     return redirect("/#settings")
-
-
-def favicon():
-    """Returns the favicon.ico file."""
-    return send_from_directory(directory="", path="favicon.ico", mimetype="image/vnd.microsoft.icon")
