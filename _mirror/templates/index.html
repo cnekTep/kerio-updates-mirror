@@ -14,12 +14,13 @@
         <div class="header-content">
             <div class="header-title">
                 <h1>Kerio Updates Mirror</h1>
-                <span class="version-badge" id="ver">v.1.3.0</span>
+                <span class="version-badge" id="ver">v.1.4.0</span>
             </div>
             <div class="header-controls">
-                <div id="tor_status" class="tor-status" title="Click to check">
+                <div id="tor_status" class="tor-status" title="Click to check"
+                     {% if not tor %}style="display: none;"{% endif %}>
                     <i class="fas fa-network-wired"></i>
-                    TOR: <span class="status-indicator status-loading">ПРОВЕРКА</span>
+                    TOR: <span class="status-indicator status-loading">{{ _('CHECKING') }}</span>
                 </div>
                 <div class="language-switcher">
                     <a href="#" class="lang-link" data-lang="en">EN</a>
@@ -102,42 +103,39 @@
                                    value="{{ license_number or '' }}">
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="IDSv1" name="IDSv1" value="true" {% if update_ids_1 %}checked{%
-                                   endif %}>
+                            <input type="checkbox" id="IDSv1" name="IDSv1" value="true"
+                                   {% if update_ids_1 %}checked{% endif %}>
                             <label for="IDSv1">{{ _('IDSv1 - IPS/IDS Snort (Windows versions)') }}</label>
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="IDSv3" name="IDSv3" value="true" {% if update_ids_3 %}checked{%
-                                   endif %}>
+                            <input type="checkbox" id="IDSv3" name="IDSv3" value="true"
+                                   {% if update_ids_3 %}checked{% endif %}>
                             <label for="IDSv3">{{ _('IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)') }}</label>
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="IDSv5" name="IDSv5" value="true" {% if update_ids_5 %}checked{%
-                                   endif %}>
-                            <label for="IDSv5">{{ _('IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)')
-                                }}</label>
+                            <input type="checkbox" id="IDSv5" name="IDSv5" value="true"
+                                   {% if update_ids_5 %}checked{% endif %}>
+                            <label for="IDSv5">{{ _('IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)') }}</label>
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="IDSv2" name="IDSv2" value="true" {% if update_ids_2 %}checked{%
-                                   endif %}>
+                            <input type="checkbox" id="IDSv2" name="IDSv2" value="true"
+                                   {% if update_ids_2 %}checked{% endif %}>
                             <label for="IDSv2">{{ _('IDSv2 - Lists of compromised addresses for blocking') }}</label>
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="IDSv4" name="IDSv4" value="true" {% if update_ids_4 %}checked{%
-                                   endif %}>
-                            <label for="IDSv4">{{ _('IDSv4 - GeoIP databases for geolocation/visitor blocking')
-                                }}</label>
+                            <input type="checkbox" id="IDSv4" name="IDSv4" value="true"
+                                   {% if update_ids_4 %}checked{% endif %}>
+                            <label for="IDSv4">{{ _('IDSv4 - GeoIP databases for geolocation/visitor blocking') }}</label>
                         </div>
                         <div class="checkbox-group nested-option">
-                            <input type="checkbox" id="geo_github" name="geo_github" value="true" {% if geoip_github
-                                   %}checked{% endif %}>
+                            <input type="checkbox" id="geo_github" name="geo_github" value="true"
+                                   {% if geoip_github %}checked{% endif %}>
                             <label for="geo_github">{{ _('Use GitHub as a source for GeoIP database updates') }}</label>
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="wfkey" name="wfkey" value="true" {% if update_web_filter_key
-                                   %}checked{% endif %}>
-                            <label for="wfkey">{{ _('Kerio Control Web Filter Content Filtering Subsystem Key')
-                                }}</label>
+                            <input type="checkbox" id="wfkey" name="wfkey" value="true"
+                                   {% if update_web_filter_key %}checked{% endif %}>
+                            <label for="wfkey">{{ _('Kerio Control Web Filter Content Filtering Subsystem Key') }}</label>
                         </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="avir" name="avir" onclick="this.checked=true" checked>
@@ -145,16 +143,43 @@
                                 enabled)') }}</label>
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="avir_proxy" name="avir_proxy" value="true" {% if proxy
-                                   %}checked{% endif %}>
-                            <label for="avir_proxy">{{ _('Use a proxy server to update Bitdefender') }}</label>
+                            <input type="checkbox" id="use_tor" name="use_tor" value="true"
+                                   {% if tor %}checked{% endif %}>
+                            <label for="use_tor">{{ _('Use TOR to update Bitdefender and download other updates') }}</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="use_proxy" name="use_proxy" value="true"
+                                   {% if proxy %}checked{% endif %}>
+                            <label for="use_proxy">{{ _('Use proxy server to update Bitdefender and download other updates') }}</label>
+                        </div>
+                        <div id="proxy_settings" style="display: {% if proxy %}flex{% else %}none{% endif %};">
+                            <div class="form-group">
+                                <label for="proxy_host">{{ _('Host:') }}</label>
+                                <input type="text" id="proxy_host" name="proxy_host" class="form-control"
+                                       value="{{ proxy_host or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_port">{{ _('Port:') }}</label>
+                                <input type="number" id="proxy_port" name="proxy_port" class="form-control"
+                                       min="1" max="65535" value="{{ proxy_port or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_login">{{ _('Login:') }}</label>
+                                <input type="text" id="proxy_login" name="proxy_login" class="form-control"
+                                       value="{{ proxy_login or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_password">{{ _('Password:') }}</label>
+                                <input type="password" id="proxy_password" name="proxy_password" class="form-control"
+                                       value="{{ proxy_password or '' }}">
+                            </div>
                         </div>
                     </fieldset>
                     <fieldset>
                         <legend>{{ _('Other') }}</legend>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="ip_logging" name="ip_logging" value="true" {% if ip_logging
-                                   %}checked{% endif %}>
+                            <input type="checkbox" id="ip_logging" name="ip_logging" value="true"
+                                   {% if ip_logging %}checked{% endif %}>
                             <label for="ip_logging">{{ _('Log client IP addresses in system logs') }}</label>
                         </div>
                         <div class="form-group">
@@ -207,11 +232,9 @@
                 <details>
                     <summary>{{ _('License') }}</summary>
                     <p>{{ _('You can get a trial key <a target="_blank" rel="noopener noreferrer"
-                                                        href="https://gfi.ai/products-and-solutions/network-security-solutions/keriocontrol/free-trial">here</a>.')
-                        }}</p>
+                                                        href="https://gfi.ai/products-and-solutions/network-security-solutions/keriocontrol/free-trial">here</a>.') }}</p>
                     <p>{{ _('Check the key expiration date <a target="_blank" rel="noopener noreferrer"
-                                                              href="https://secure.kerio.com/reg/?lang=en">here</a>.')
-                        }}</p>
+                                                              href="https://secure.kerio.com/reg/?lang=en">here</a>.') }}</p>
                 </details>
                 <div class="footer">
                     <a href="https://github.com/cnekTep/kerio-updates-mirror" target="_blank" rel="noopener noreferrer"

@@ -29,6 +29,7 @@ def main_page():
         "update_ids_5": config.update_ids_5,
         "geoip_github": config.geoip_github,
         "update_web_filter_key": config.update_web_filter_key,
+        "tor": config.tor,
         "proxy": config.proxy,
         "proxy_host": config.proxy_host,
         "proxy_port": config.proxy_port,
@@ -62,17 +63,18 @@ def save_settings():
     config.geoip_github = "geo_github" in request.form
     config.update_web_filter_key = "wfkey" in request.form
     config.ip_logging = "ip_logging" in request.form
+    config.tor = "use_tor" in request.form
+
+    # Update proxy settings if enabled
+    config.proxy = "use_proxy" in request.form
+    if config.proxy:
+        config.proxy_host = request.form.get("proxy_host") or config.proxy_host
+        config.proxy_port = request.form.get("proxy_port") or config.proxy_port
+        config.proxy_login = request.form.get("proxy_login") or None
+        config.proxy_password = request.form.get("proxy_password") or None
 
     # Update allowed IPs if enabled
     config.allowed_ips = request.form.get("allowed_ips") if "allowed_ips_enabled" in request.form else ""
-
-    # Update proxy settings if enabled
-    config.proxy = "avir_proxy" in request.form
-    if config.proxy:
-        config.proxy_host = request.form.get("avir_host") or config.proxy_host
-        config.proxy_port = request.form.get("avir_port") or config.proxy_port
-        config.proxy_login = request.form.get("avir_login") or None
-        config.proxy_password = request.form.get("avir_passw") or None
 
     write_log(log_type="system", message=_("Settings have been changed"))
 

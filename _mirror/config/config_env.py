@@ -25,9 +25,12 @@ class Config:
             "LOCALE": "en",  # Locale
             "DB": "mirror.db",  # Database path
             "LICENSE_NUMBER": None,  # License number
-            "PROXY": True,  # Use proxy or not
-            "PROXY_HOST": "172.222.0.5",  # Proxy host
-            "PROXY_PORT": "8118",  # Proxy port
+            "TOR": True,  # Use TOR or not
+            "TOR_HOST": "172.222.0.5",  # TOR host
+            "TOR_PORT": "8118",  # TOR port
+            "PROXY": False,  # Use proxy or not
+            "PROXY_HOST": None,  # Proxy host
+            "PROXY_PORT": None,  # Proxy port
             "PROXY_LOGIN": None,  # Proxy login (if required)
             "PROXY_PASSWORD": None,  # Proxy password (if required)
             "UPDATE_WEB_FILTER_KEY": False,  # Whether to update Web Filter key

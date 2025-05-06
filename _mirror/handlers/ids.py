@@ -1,4 +1,3 @@
-import base64
 import os
 
 import requests
@@ -7,6 +6,7 @@ from flask_babel import gettext as _
 
 from config.config_env import config
 from db.database import get_ids, update_ids
+from utils.internet_utils import add_proxy_to_params, prepare_request_params
 from utils.logging import write_log
 
 
@@ -103,19 +103,27 @@ def download_ids_update_files(version: str) -> None:
         write_log(log_type=["system", "updates"], message=log_message)
         return
 
-    # Try direct connection first, then proxy if available
-    for use_proxy in [False, True]:
-        # Skip proxy attempt if proxy is not configured
-        if use_proxy and not config.proxy:
-            break
+    # Attempt order: direct, TOR (if enabled), proxy (if enabled)
+    connection_attempts = [{"type": "direct"}]
 
+    if config.tor:
+        connection_attempts.append({"type": "tor"})
+
+    if config.proxy:
+        connection_attempts.append({"type": "proxy"})
+
+    for attempt in connection_attempts:
         try:
-            params = prepare_request_params(url=url, headers=headers)
+            proxy_type = None
+            request_params = prepare_request_params(url=url, headers=headers)
 
-            if use_proxy:
-                params = add_proxy_to_params(params)
+            # Apply proxy settings for TOR or regular proxy
+            if attempt["type"] in ("tor", "proxy"):
+                proxy_type = attempt["type"]
+                request_params = add_proxy_to_params(proxy_type=proxy_type, params=request_params)
 
-            response = requests.get(**params)
+            # Send HTTP request
+            response = requests.get(**request_params)
 
             if not response.ok:
                 continue
@@ -168,7 +176,7 @@ def download_ids_update_files(version: str) -> None:
             save_path = os.path.join(save_directory, filename)
 
             # Download main file
-            if not download_file(url=result["download_link"], save_path=save_path, use_proxy=use_proxy):
+            if not download_file(url=result["download_link"], save_path=save_path, proxy_type=proxy_type):
                 write_log(
                     log_type="system", message=_("Failed to download main file for IDSv%(version)s", version=version)
                 )
@@ -178,7 +186,7 @@ def download_ids_update_files(version: str) -> None:
             if version in ["1", "2", "3", "5"]:
                 sig_save_path = os.path.join(save_directory, f"{filename}.sig")
                 if not download_file(
-                    url=f"{result['download_link']}.sig", save_path=sig_save_path, use_proxy=use_proxy
+                    url=f"{result['download_link']}.sig", save_path=sig_save_path, proxy_type=proxy_type
                 ):
                     write_log(
                         log_type="system",
@@ -197,13 +205,18 @@ def download_ids_update_files(version: str) -> None:
             return
 
         except requests.RequestException as err:
-            proxy_status = "with proxy" if use_proxy else "without proxy"
+            attempt_desc = {
+                "direct": "without proxy",
+                "tor": "via TOR",
+                "proxy": "with proxy",
+            }[attempt["type"]]
+
             write_log(
                 log_type="system",
                 message=_(
                     "Error downloading IDSv%(version)s %(proxy_status)s: %(err)s",
                     version=version,
-                    proxy_status=proxy_status,
+                    proxy_status=attempt_desc,
                     err=str(err),
                 ),
             )
@@ -213,65 +226,14 @@ def download_ids_update_files(version: str) -> None:
     write_log(log_type=["system", "updates"], message=log_message)
 
 
-def prepare_request_params(url: str, headers: dict = None, stream: bool = False) -> dict:
-    """
-    Prepares request parameters with optional proxy configuration.
-
-    Args:
-        url: URL for the request
-        headers: Headers for the request
-        stream: Whether to stream the response
-
-    Returns:
-        dict: Dictionary with request parameters
-    """
-    params = {
-        "url": url,
-        "timeout": 30,
-        "stream": stream,
-    }
-
-    if headers:
-        params["headers"] = headers
-
-    return params
-
-
-def add_proxy_to_params(params: dict) -> dict:
-    """
-    Adds proxy configuration to request parameters if proxy is configured.
-
-    Args:
-        params: Request parameters to modify
-
-    Returns:
-        dict: Modified request parameters with proxy settings
-    """
-    if not config.proxy:
-        return params
-
-    params["proxies"] = {
-        "http": f"http://{config.proxy_host}:{config.proxy_port}",
-        "https": f"http://{config.proxy_host}:{config.proxy_port}",
-    }
-
-    if config.proxy_login:
-        headers = params.get("headers", {})
-        auth_str = f"{config.proxy_login}:{config.proxy_password}"
-        headers["Proxy-Authorization"] = f"Basic {base64.b64encode(auth_str.encode()).decode()}"
-        params["headers"] = headers
-
-    return params
-
-
-def download_file(url: str, save_path: str, use_proxy: bool = False):
+def download_file(url: str, save_path: str, proxy_type: str = None):
     """
     Downloads a file from the specified URL and saves it to the given path.
 
     Args:
         url: URL to download from
         save_path: Path to save the file to
-        use_proxy: Whether to use proxy for download
+        proxy_type: Type of proxy to use
 
     Returns:
         bool: True if download successful, False otherwise
@@ -279,8 +241,8 @@ def download_file(url: str, save_path: str, use_proxy: bool = False):
     try:
         params = prepare_request_params(url=url, stream=True)
 
-        if use_proxy:
-            params = add_proxy_to_params(params)
+        if proxy_type:
+            params = add_proxy_to_params(proxy_type=proxy_type, params=params)
 
         response = requests.get(**params)
         response.raise_for_status()

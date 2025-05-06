@@ -45,9 +45,9 @@ services:
       external:
         ipv4_address: 172.222.0.10
     ports:
-      - "9980:80"
-#      - "80:80"
-#      - "443:443"
+#      - "9980:80"
+      - "80:80"
+      - "443:443"
     logging:
       driver: "json-file"
       options:

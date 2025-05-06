@@ -1,5 +1,3 @@
-import base64
-
 import requests
 from flask import Response
 from flask import request
@@ -7,6 +5,7 @@ from flask_babel import gettext as _
 
 from config.config_env import config
 from db.database import get_webfilter_key, add_webfilter_key
+from utils.internet_utils import add_proxy_to_params, prepare_request_params
 from utils.logging import write_log
 
 
@@ -45,34 +44,26 @@ def update_web_filter_key() -> None:
     url = f"https://wf-activation.kerio.com/getkey.php?id={config.license_number}&tag="
     headers = {"Host": target_host}
 
-    # First attempt without proxy, then with proxy if configured
-    for use_proxy in [False, True]:
-        # Skip proxy attempt if proxy is not configured
-        if use_proxy and not config.proxy:
-            break
+    # Attempt order: direct, TOR (if enabled), proxy (if enabled)
+    connection_attempts = [{"type": "direct"}]
 
+    if config.tor:
+        connection_attempts.append({"type": "tor"})
+
+    if config.proxy:
+        connection_attempts.append({"type": "proxy"})
+
+    for attempt in connection_attempts:
         try:
-            request_params = {
-                "url": url,
-                "headers": headers,
-                "timeout": 30,
-            }
+            request_params = prepare_request_params(url=url, headers=headers)
 
-            # Add proxy configuration if needed
-            if use_proxy:
-                request_params["proxies"] = {
-                    "http": f"http://{config.proxy_host}:{config.proxy_port}",
-                    "https": f"http://{config.proxy_host}:{config.proxy_port}",
-                }
+            # Apply proxy settings for TOR or regular proxy
+            if attempt["type"] in ("tor", "proxy"):
+                request_params = add_proxy_to_params(proxy_type=attempt["type"], params=request_params)
 
-                # Add proxy authentication if configured
-                if config.proxy_login:
-                    auth_str = f"{config.proxy_login}:{config.proxy_password}"
-                    headers["Proxy-Authorization"] = f"Basic {base64.b64encode(auth_str.encode()).decode()}"
-
+            # Send HTTP request
             response = requests.get(**request_params)
 
-            # Check for specific error messages in response
             if "Invalid product license" in response.text:
                 log_message = _("Web Filter: invalid license key. %(lic_number)s", lic_number=config.license_number)
                 write_log(log_type=["system", "updates"], message=log_message)
@@ -91,14 +82,17 @@ def update_web_filter_key() -> None:
                 write_log(log_type=["system", "updates"], message=log_message)
                 return
         except requests.RequestException as err:
-            proxy_status = "with proxy" if use_proxy else "without proxy"
+            attempt_desc = {
+                "direct": "without proxy",
+                "tor": "via TOR",
+                "proxy": "with proxy",
+            }[attempt["type"]]
+
             write_log(
                 log_type="system",
                 message=_(
-                    "Error fetching Web Filter key %(proxy_status)s: %(err)s", proxy_status=proxy_status, err=str(err)
+                    "Error fetching Web Filter key %(proxy_status)s: %(err)s", proxy_status=attempt_desc, err=str(err)
                 ),
             )
-
-            # Log to mkc only after all attempts failed
-            if use_proxy or not config.proxy:
-                write_log(log_type="updates", message=_("Web Filter: error fetching Web Filter key"))
+    # All attempts failed
+    write_log(log_type="updates", message=_("Web Filter: error fetching Web Filter key"))

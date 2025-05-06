@@ -1,10 +1,9 @@
-import base64
-
 import requests
 from flask import request, Response
 from flask_babel import gettext as _
 
 from config.config_env import config
+from utils.internet_utils import prepare_request_params, add_proxy_to_params
 from utils.logging import write_log
 
 
@@ -59,26 +58,22 @@ def handle_bitdefender() -> Response:
     additional_headers = {key: value for key, value in request.headers.items() if key.lower() not in excluded_headers}
     headers = {**default_headers, **additional_headers}
 
-    # Setup proxy if configured
-    proxies = {}
-    if config.proxy:
-        proxy_url = f"http://{config.proxy_host}:{config.proxy_port}"
-        proxies = {"http": proxy_url, "https": proxy_url}
-        if config.proxy_login:
-            auth_str = f"{config.proxy_login}:{config.proxy_password}"
-            headers["Proxy-Authorization"] = f"Basic {base64.b64encode(auth_str.encode()).decode()}"
-
     try:
-        # Forward the request to the Bitdefender server
-        response = requests.get(
+        request_params = prepare_request_params(
             url=url,
             headers=headers,
-            proxies=proxies,
             data=request.get_data(),
             params=request.args,
-            timeout=30,
             stream=True,
         )
+        # Setup proxy if configured
+        if config.tor:
+            request_params = add_proxy_to_params(proxy_type="tor", params=request_params)
+        elif config.proxy:
+            request_params = add_proxy_to_params(proxy_type="proxy", params=request_params)
+
+        # Forward the request to the Bitdefender server
+        response = requests.get(**request_params)
         write_log(log_type="system", message=_("Downloading file: %(request_path)s", request_path=request.path))
 
         # Build response preserving the headers from the external response

@@ -396,6 +396,60 @@ legend {
     background-color: #2980b9;
 }
 
+/* Proxy Settings */
+#proxy_settings {
+    padding-top: 8px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    align-items: center;
+}
+
+#proxy_settings .form-group {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+#proxy_settings label {
+    font-size: 12px;
+    color: var(--primary-color);
+    font-weight: 500;
+    white-space: nowrap;
+    margin: 0;
+}
+
+#proxy_settings .form-control {
+    height: 28px;
+    padding: 2px 8px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 12px;
+    transition: var(--transition);
+}
+
+#proxy_host {
+    width: 200px;
+}
+
+#proxy_port {
+    width: 70px;
+}
+
+#proxy_login, #proxy_password {
+    width: 120px;
+}
+
+#proxy_settings .form-control:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+}
+
 /* Information Section */
 .info-container {
     padding: 20px;
@@ -511,5 +565,27 @@ summary {
 
     input:checked + .slider:before {
         transform: translateX(14px);
+    }
+
+    /* Proxy Settings */
+    #proxy_settings {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    #proxy_settings .form-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    #proxy_settings label {
+        width: 80px;
+        text-align: right;
+    }
+
+    #proxy_settings .form-control {
+        flex-grow: 1;
+        width: calc(100% - 90px) !important;
     }
 }

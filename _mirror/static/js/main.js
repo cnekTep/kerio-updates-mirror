@@ -13,6 +13,13 @@ const App = {
         logControls: {
             system: document.getElementById('system_log_controls'),
             updates: document.getElementById('updates_log_controls')
+        },
+        proxyElements: {
+            useProxyCheckbox: document.getElementById("use_proxy"),
+            proxySettingsDiv: document.getElementById("proxy_settings"),
+            proxyHost: document.getElementById("proxy_host"),
+            proxyPort: document.getElementById("proxy_port"),
+            form: document.querySelector("form")
         }
     },
 
@@ -30,6 +37,7 @@ const App = {
         this.setupTorStatusChecks();
         this.setupLanguageSwitcher();
         this.setupGeoCheckboxes();
+        this.setupProxySettings();
         setInterval(this.updateLogs.bind(this), this.LOG_UPDATE_INTERVAL);
         window.addEventListener('hashchange', this.handleHashChange.bind(this));
         this.handleHashChange();
@@ -148,12 +156,20 @@ const App = {
 
     // Setting up TOR Status Checks
     setupTorStatusChecks() {
-        this.updateTorStatus();
-        this.elements.torStatus.addEventListener('click', this.updateTorStatus.bind(this));
+        const useTor = document.getElementById('use_tor')?.checked;
+        if (this.elements.torStatus) {
+            this.elements.torStatus.style.display = useTor ? 'flex' : 'none';
+        }
+        if (useTor) {
+            this.updateTorStatus();
+            this.elements.torStatus.addEventListener('click', this.updateTorStatus.bind(this));
+        } else {
+            clearInterval(this.state.torStatusInterval);
+        }
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 clearInterval(this.state.torStatusInterval);
-            } else {
+            } else if (document.getElementById('use_tor')?.checked) {
                 this.updateTorStatus();
             }
         });
@@ -194,6 +210,27 @@ const App = {
         ids4.onchange = () => {
             if (!ids4.checked) geoGithub.checked = false;
         };
+    },
+
+    // Setting up proxy settings
+    setupProxySettings() {
+        const { useProxyCheckbox, proxySettingsDiv, proxyHost, proxyPort, form } = this.elements.proxyElements;
+
+        // Function to toggle proxy settings visibility
+        const toggleProxySettings = () => {
+            const show = useProxyCheckbox.checked;
+            proxySettingsDiv.style.display = show ? "block" : "none";
+
+            // Make fields required only if proxy is enabled
+            proxyHost.required = show;
+            proxyPort.required = show;
+        };
+
+        // Apply initial state
+        toggleProxySettings();
+
+        // Handle checkbox change
+        useProxyCheckbox.addEventListener("change", toggleProxySettings);
     }
 };
 
