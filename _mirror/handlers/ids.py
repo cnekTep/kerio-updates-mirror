@@ -61,7 +61,7 @@ def handle_update():
     # Special cases handling
     if major_version == 0:
         return Response(response="0:0.0", status=200)
-    elif major_version == 9:
+    elif major_version in [9, 10]:
         return Response(
             response="THDdir=https://bdupdate.kerio.com/../",
             mimetype="text/plain",
