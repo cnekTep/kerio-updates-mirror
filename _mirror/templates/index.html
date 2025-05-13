@@ -14,7 +14,7 @@
         <div class="header-content">
             <div class="header-title">
                 <h1>Kerio Updates Mirror</h1>
-                <span class="version-badge" id="ver">v.1.4.2</span>
+                <span class="version-badge" id="ver">v.1.4.3</span>
             </div>
             <div class="header-controls">
                 <div id="tor_status" class="tor-status" title="Click to check"
@@ -144,7 +144,8 @@
                         </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="use_tor" name="use_tor" value="true"
-                                   {% if tor %}checked{% endif %}>
+                                   {% if tor and not compile %}checked{% endif %}
+                                   {% if compile %}disabled{% endif %}>
                             <label for="use_tor">{{ _('Use TOR to update Bitdefender and download other updates') }}</label>
                         </div>
                         <div class="checkbox-group">

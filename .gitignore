@@ -3,11 +3,12 @@ __pycache__/
 
 #MyIgnore
 .idea
-_curl
-__images__
+__binaries__
 __dockers__
-__VMs__
+__images__
 __temp__
+__VMs__
+_curl
 _mirrorKC
 docker-compose_dev.yml
 *.*~

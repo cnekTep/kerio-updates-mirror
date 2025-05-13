@@ -39,6 +39,7 @@ def main_page():
         "ip_logging": config.ip_logging,
         "tor_status": tor_checker.get_status(),
         "locale": config.locale,
+        "compile": config.compile,
     }
 
     return render_template(template_name_or_list="index.html", **template_data)

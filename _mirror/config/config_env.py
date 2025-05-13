@@ -45,6 +45,7 @@ class Config:
             "GEOLOC_URL": "https://raw.githubusercontent.com/wyot1/GeoLite2-Unwalled/downloads/COUNTRY/CSV/GeoLite2-Country-Locations-en.csv",
             "ALLOWED_IPS": "",  # Comma-separated list of allowed IP addresses, e.g. "1.1.1.1.1, 8.8.8.8.8"
             "IP_LOGGING": True,  # Enable IP logging
+            "COMPILE": False,  # For .exe .deb compilation
         }
 
         # Create .env file if it doesn't exist

@@ -17,7 +17,11 @@ def handler_control_update():
         message=_("Received request for IDS update: %(request_path)s", request_path=request.path),
         ip=request.remote_addr if config.ip_logging else None,
     )
-    request_path = request.path.replace("/control-update", "update_files")
+
+    current_directory = os.getcwd()  # Get the current directory
+    target_directory = os.path.join(current_directory, 'update_files')  # Construct the target directory
+
+    request_path = request.path.replace("/control-update", target_directory)
 
     return send_file(path_or_file=request_path, as_attachment=True)
 
