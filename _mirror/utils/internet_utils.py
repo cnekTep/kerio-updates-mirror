@@ -1,4 +1,3 @@
-import base64
 from typing import Optional, Dict, Any
 
 from config.config_env import config
@@ -64,14 +63,17 @@ def add_proxy_to_params(proxy_type: str, params: dict) -> dict:
     else:
         raise ValueError(f"Unsupported proxy type: {proxy_type}")
 
-    params["proxies"] = {
-        "http": f"http://{proxy_host}:{proxy_port}",
-        "https": f"http://{proxy_host}:{proxy_port}",
-    }
-
+    # Create proxy URL with authorization, if required
     if proxy_login and proxy_password:
-        auth_str = f"{proxy_login}:{proxy_password}"
-        encoded_auth = base64.b64encode(auth_str.encode()).decode()
-        params["headers"]["Proxy-Authorization"] = f"Basic {encoded_auth}"
+        proxy_auth = f"{proxy_login}:{proxy_password}@"
+    else:
+        proxy_auth = ""
+
+    proxy_url = f"http://{proxy_auth}{proxy_host}:{proxy_port}"
+
+    params["proxies"] = {
+        "http": proxy_url,
+        "https": proxy_url,
+    }
 
     return params
