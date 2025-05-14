@@ -5,6 +5,17 @@ from typing import Optional, List, Dict
 from flask import g
 
 from config.config_env import config
+from utils.logging import write_log
+
+
+def init_db() -> None:
+    """Initialize database."""
+    try:
+        with transaction() as db:
+            db.execute("CREATE TABLE IF NOT EXISTS webfilter (lic_number TEXT PRIMARY KEY, key TEXT)")
+            db.execute("CREATE TABLE IF NOT EXISTS ids (name TEXT PRIMARY KEY, version INTEGER, file_name TEXT)")
+    except sqlite3.Error as e:
+        write_log(log_type="system", message=f"Database initialization error: {e}")
 
 
 def get_db() -> sqlite3.Connection:
