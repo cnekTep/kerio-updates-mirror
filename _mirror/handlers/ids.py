@@ -147,7 +147,9 @@ def download_ids_update_files(version: str) -> None:
                     log_message = _("IDSv%(version)s error: %(err)s", version=version, err=response.text.strip())
                     write_log(log_type=["system", "updates"], message=log_message)
                     config.license_number = None
-                    return            # Get current version from database
+                    return
+
+            # Get current version from database
             actual_version = get_ids(name=f"ids{version}")
             current_version = 0
 

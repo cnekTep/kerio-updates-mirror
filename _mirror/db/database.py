@@ -142,7 +142,7 @@ def get_all_ids_file_names() -> List[str]:
 
 
 def update_ids(name: str, version: int, file_name: str) -> bool:
-    """Update information about an IDS system in the database.
+    """Update or insert information about an IDS system in the database.
 
     Args:
         name: IDS system name to update
@@ -154,7 +154,9 @@ def update_ids(name: str, version: int, file_name: str) -> bool:
     """
     try:
         with transaction() as db:
-            db.execute("UPDATE ids SET version = ?, file_name = ? WHERE name = ?", (version, file_name, name))
+            cursor = db.execute("UPDATE ids SET version = ?, file_name = ? WHERE name = ?", (version, file_name, name))
+            if cursor.rowcount == 0:
+                db.execute("INSERT INTO ids (name, version, file_name) VALUES (?, ?, ?)", (name, version, file_name))
         return True
     except sqlite3.Error:
         return False
