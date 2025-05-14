@@ -13,3 +13,6 @@ _mirrorKC
 docker-compose_dev.yml
 *.*~
 *.log
+.env
+mirror.db
+/update_files
