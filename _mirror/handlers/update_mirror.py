@@ -59,8 +59,11 @@ def update_mirror():
 
     if config.update_ids_4:  # Update GeoIP database files
         if config.geoip_github:
-            actual_version = get_ids(name=f"ids4")
-            if int(actual_version["version"]) < int(datetime.datetime.now().strftime("%Y%m%d")):
+            actual_version = get_ids(name="ids4")
+            current_version = "0"
+            if actual_version is not None and "version" in actual_version:
+                current_version = actual_version["version"]
+            if int(current_version) < int(datetime.datetime.now().strftime("%Y%m%d")):
                 write_log(
                     log_type="system",
                     message=_(
@@ -82,7 +85,7 @@ def update_mirror():
                     log_type="updates",
                     message=_(
                         "IDSv4: no new version available, current version: 4.%(actual_version)s",
-                        actual_version=actual_version["version"],
+                        actual_version=current_version,
                     ),
                 )
         else:
