@@ -16,3 +16,4 @@ docker-compose_dev.yml
 .env
 mirror.db
 /update_files
+/output
