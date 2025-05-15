@@ -17,7 +17,6 @@ _mirror/update_files/*.gz
 _mirror/update_files/*.sig
 *.*~
 *.log
-
 .env
 mirror.db
 /update_files
