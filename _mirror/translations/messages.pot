@@ -10,26 +10,26 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app.py:64
+#: app.py:68
 #, python-format
 msgid "Language changed to: %(lang)s"
 msgstr ""
 
-#: app.py:94
+#: app.py:98
 #, python-format
 msgid "No handler for request: %(request_url)s"
 msgstr ""
 
-#: app.py:113
+#: app.py:117
 #, python-format
 msgid "%(protocol)s server started on port %(port)s"
 msgstr ""
 
-#: app.py:156
+#: app.py:160
 msgid "Server shutdown initiated"
 msgstr ""
 
-#: app.py:159
+#: app.py:163
 #, python-format
 msgid "Critical error: %(error)s"
 msgstr ""
@@ -108,111 +108,111 @@ msgstr ""
 msgid "File %(input_path)s not found"
 msgstr ""
 
-#: handlers/ids.py:17
+#: handlers/ids.py:18
 #, python-format
 msgid "Received request for IDS update: %(request_path)s"
 msgstr ""
 
-#: handlers/ids.py:39
+#: handlers/ids.py:44
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr ""
 
-#: handlers/ids.py:46
+#: handlers/ids.py:51
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:56
+#: handlers/ids.py:61
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:83
+#: handlers/ids.py:93
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:102
+#: handlers/ids.py:112
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr ""
 
-#: handlers/ids.py:143
+#: handlers/ids.py:153
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:153
+#: handlers/ids.py:167
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
 "%(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:164
+#: handlers/ids.py:178
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:181
+#: handlers/ids.py:195
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:193
+#: handlers/ids.py:207
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:200
+#: handlers/ids.py:214
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:217
+#: handlers/ids.py:231
 #, python-format
 msgid "Error downloading IDSv%(version)s %(proxy_status)s: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:225
+#: handlers/ids.py:239
 #, python-format
 msgid "IDSv%(version)s: error downloading update"
 msgstr ""
 
-#: handlers/pages.py:79
+#: handlers/pages.py:80
 msgid "Settings have been changed"
 msgstr ""
 
-#: handlers/update_mirror.py:39
+#: handlers/update_mirror.py:47
 msgid "Scheduled mirror update process started"
 msgstr ""
 
-#: handlers/update_mirror.py:42
-msgid "Starting scheduled mirror update..."
+#: handlers/update_mirror.py:47
+msgid "Manual mirror update process started"
 msgstr ""
 
-#: handlers/update_mirror.py:44
+#: handlers/update_mirror.py:51
 #, python-format
 msgid "Using license key: %(license_number)s"
 msgstr ""
 
-#: handlers/update_mirror.py:67
+#: handlers/update_mirror.py:77
 #, python-format
 msgid "Downloading new version: 4.%(version)s"
 msgstr ""
 
-#: handlers/update_mirror.py:84
+#: handlers/update_mirror.py:94
 #, python-format
 msgid "IDSv4: no new version available, current version: 4.%(actual_version)s"
 msgstr ""
 
-#: handlers/update_mirror.py:102
-msgid "Update completed"
+#: handlers/update_mirror.py:115
+msgid "Scheduled mirror update process completed"
 msgstr ""
 
-#: handlers/update_mirror.py:104
-msgid "Scheduled mirror update process completed"
+#: handlers/update_mirror.py:115
+msgid "Manual mirror update process completed"
 msgstr ""
 
 #: handlers/webfilter.py:16
@@ -255,7 +255,7 @@ msgstr ""
 msgid "Web Filter: error fetching Web Filter key"
 msgstr ""
 
-#: templates/index.html:23 templates/index.html:254
+#: templates/index.html:23 templates/index.html:255
 msgid "CHECKING"
 msgstr ""
 
@@ -325,61 +325,61 @@ msgid ""
 "                                enabled)"
 msgstr ""
 
-#: templates/index.html:148
+#: templates/index.html:149
 msgid "Use TOR to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/index.html:153
+#: templates/index.html:154
 msgid "Use proxy server to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/index.html:157
+#: templates/index.html:158
 msgid "Host:"
 msgstr ""
 
-#: templates/index.html:162
+#: templates/index.html:163
 msgid "Port:"
 msgstr ""
 
-#: templates/index.html:167
+#: templates/index.html:168
 msgid "Login:"
 msgstr ""
 
-#: templates/index.html:172
+#: templates/index.html:173
 msgid "Password:"
 msgstr ""
 
-#: templates/index.html:179
+#: templates/index.html:180
 msgid "Other"
 msgstr ""
 
-#: templates/index.html:183
+#: templates/index.html:184
 msgid "Log client IP addresses in system logs"
 msgstr ""
 
-#: templates/index.html:189
+#: templates/index.html:190
 msgid ""
 "Allow access only from the following IP\n"
 "                                    addresses:"
 msgstr ""
 
-#: templates/index.html:197
+#: templates/index.html:198
 msgid "Apply"
 msgstr ""
 
-#: templates/index.html:206
+#: templates/index.html:207
 msgid "Manual update check"
 msgstr ""
 
-#: templates/index.html:208
+#: templates/index.html:209
 msgid "Run check"
 msgstr ""
 
-#: templates/index.html:210
+#: templates/index.html:211
 msgid "It is not recommended to run check more than once a day."
 msgstr ""
 
-#: templates/index.html:213
+#: templates/index.html:214
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local\n"
@@ -393,18 +393,18 @@ msgid ""
 "updates."
 msgstr ""
 
-#: templates/index.html:220
+#: templates/index.html:221
 msgid ""
 "To work, you must specify the IP address of the update mirror for the "
 "following hosts\n"
 "                        in the DNS settings of Kerio products"
 msgstr ""
 
-#: templates/index.html:233
+#: templates/index.html:234
 msgid "License"
 msgstr ""
 
-#: templates/index.html:234
+#: templates/index.html:235
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\"\n"
 "                                                        "
@@ -412,7 +412,7 @@ msgid ""
 "solutions/keriocontrol/free-trial\">here</a>."
 msgstr ""
 
-#: templates/index.html:236
+#: templates/index.html:237
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\"\n"
@@ -420,23 +420,23 @@ msgid ""
 "href=\"https://secure.kerio.com/reg/?lang=en\">here</a>."
 msgstr ""
 
-#: templates/index.html:252
+#: templates/index.html:253
 msgid "CONNECTED"
 msgstr ""
 
-#: templates/index.html:253
+#: templates/index.html:254
 msgid "DISABLED"
 msgstr ""
 
-#: templates/index.html:255
+#: templates/index.html:256
 msgid "ERROR"
 msgstr ""
 
-#: templates/index.html:256
+#: templates/index.html:257
 msgid "Last check:"
 msgstr ""
 
-#: templates/index.html:257
+#: templates/index.html:258
 msgid "Checks completed:"
 msgstr ""
 

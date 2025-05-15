@@ -19,7 +19,7 @@ def scheduled_update_mirror(app):
         write_log(log_type="system", message=_("Launching a planned mirror update"))
         try:
             with app.app_context():  # Creating an application context for a background task
-                update_mirror()
+                update_mirror(scheduler=True)
             write_log(log_type="system", message=_("The planned mirror update has been completed"))
         except Exception as e:
             write_log(log_type="system", message=_("Error during a planned mirror update: %(err)s", err=str(e)))

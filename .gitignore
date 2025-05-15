@@ -11,7 +11,7 @@ __VMs__
 _curl
 _mirrorKC
 docker-compose_dev.yml
-_mirror/mirror.db
+mirror.db
 _mirror/update_files/*.csv
 _mirror/update_files/*.gz
 _mirror/update_files/*.sig
