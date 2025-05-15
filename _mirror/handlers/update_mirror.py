@@ -31,15 +31,22 @@ def handler_update_mirror():
     return redirect("/#updates_log")  # Immediately redirect user to the updates log page
 
 
-def update_mirror():
+def update_mirror(scheduler=False) -> None:
     """
     Function to directly perform mirror update, suitable for calling from scheduler.
     This function does not require Flask context or return anything.
+
+    Args:
+        scheduler: True if function is called from scheduler. Defaults to False.
     """
-    write_log(log_type="system", message=_("Scheduled mirror update process started"))
     write_log(log_type="updates", message="", date=False)
     write_log(log_type="updates", message="----------------------------------------------------------------")
-    write_log(log_type="updates", message=_("Starting scheduled mirror update..."))
+    write_log(
+        log_type=["system", "updates"],
+        message=(
+            _("Scheduled mirror update process started") if scheduler else _("Manual mirror update process started")
+        ),
+    )
     write_log(
         log_type="updates", message=_("Using license key: %(license_number)s", license_number=config.license_number)
     )
@@ -102,9 +109,13 @@ def update_mirror():
 
     clean_update_files(files_to_keep=files_to_keep)
 
-    write_log(log_type="updates", message=_("Update completed"))
+    write_log(
+        log_type=["system", "updates"],
+        message=(
+            _("Scheduled mirror update process completed") if scheduler else _("Manual mirror update process completed")
+        ),
+    )
     write_log(log_type="updates", message="----------------------------------------------------------------")
-    write_log(log_type="system", message=_("Scheduled mirror update process completed"))
 
 
 def background_update_mirror(app):

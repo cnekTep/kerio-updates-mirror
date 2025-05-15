@@ -7,7 +7,7 @@ from flask_babel import Babel
 from flask_babel import gettext as _
 
 from config.config_env import config
-from db.database import close_connection
+from db.database import close_connection, init_db
 from handlers.bitdefender import handle_bitdefender
 from handlers.ids import handler_control_update, handler_checknew, handle_update
 from handlers.log_content import get_system_log, get_updates_log
@@ -30,6 +30,10 @@ app.config["BABEL_DEFAULT_LOCALE"] = config.locale
 app.config["BABEL_TRANSLATION_DIRECTORIES"] = "translations"
 
 babel = Babel(app=app, locale_selector=get_locale)
+
+# Initialize database and tables
+with app.app_context():
+    init_db()
 
 
 # Close database connection when request ends
