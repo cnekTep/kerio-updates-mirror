@@ -74,13 +74,20 @@ def handle_update():
 
     # Regular versions (1-5)
     if 1 <= major_version <= 5:
-        result = get_ids(f"ids{major_version}")
-        response_text = (
-            f"0:{major_version}.{str(result['version'])}\n"
-            f"full:http://{local_ip}/control-update/{result['file_name']}"
-        )
-        return Response(response=response_text, status=200)
-
+        try:
+            result = get_ids(f"ids{major_version}")
+            response_text = (
+                f"0:{major_version}.{str(result['version'])}\n"
+                f"full:http://{local_ip}/control-update/{result['file_name']}"
+            )
+            return Response(response=response_text, status=200)
+        except Exception as err:
+            write_log(
+                log_type="system",
+                message=_("Error occurred while processing IDS update: %(err)s", err=str(err)),
+            )
+            return Response(response="500 Internal Server Error", status=500, mimetype="text/plain")
+        
     # Unknown version
     write_log(
         log_type="system",
