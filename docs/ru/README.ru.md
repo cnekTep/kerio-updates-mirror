@@ -14,6 +14,7 @@
 ## 🌐 Сообщество и поддержка
 
 Присоединяйтесь к нашему Telegram-каналу для получения обновлений, анонсов и поддержки сообщества:
+
 [![Telegram](https://img.shields.io/badge/Join-Telegram_Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/kerio_updates_mirror)
 
 ## 📋 Обзор
