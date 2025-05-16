@@ -85,7 +85,6 @@ def handle_update():
             write_log(
                 log_type="system",
                 message=_("Error occurred while processing IDS update: %(err)s", err=str(err)),
-                ip=request.remote_addr if config.ip_logging else None,
             )
             return Response(response="500 Internal Server Error", status=500, mimetype="text/plain")
         
