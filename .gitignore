@@ -13,6 +13,7 @@ _mirrorKC
 docker-compose_dev.yml
 mirror.db
 _mirror/.env
+_mirror/data/update_check_results.json
 _mirror/update_files/*.csv
 _mirror/update_files/*.gz
 _mirror/update_files/*.sig

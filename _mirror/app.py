@@ -18,6 +18,7 @@ from utils.ip_auth import check_ip
 from utils.logging import write_log, setup_logging
 from utils.schedulers import setup_scheduler
 from utils.tor_check import tor_checker
+from utils.update_check import checker
 
 
 def get_locale():
@@ -84,6 +85,10 @@ def router(path: str) -> str | Response:
         return get_updates_log()
     elif path == "tor_status":
         return tor_checker.check_connection()
+    elif path == "check_update_status":
+        return checker.get_latest_results()
+    elif path == "check_for_updates":
+        return checker.manual_update_check()
     elif path == "update.php":
         return handle_update()
     elif path == "getkey.php":

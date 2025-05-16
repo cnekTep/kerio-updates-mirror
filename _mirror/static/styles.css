@@ -77,6 +77,13 @@ header {
     font-weight: bold;
 }
 
+.update-label {
+    color: var(--success-color);
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 2px 6px;
+}
+
 /* Header Controls */
 .header-controls {
     display: flex;
@@ -476,6 +483,8 @@ summary {
 }
 
 .update-link {
+    background: none;
+    font: inherit;
     padding: 8px 16px;
     margin-top: 8px;
     display: inline-block;
@@ -511,6 +520,62 @@ summary {
 
 .github-link:hover {
     text-decoration: underline;
+}
+
+/* Styles for the update status section */
+.update-status-info p {
+    margin: 0;
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.update-status-info span {
+    margin-left: 8px;
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+.update-available {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-left: 4px solid var(--secondary-color);
+    padding: 12px 15px;
+    margin: 15px 0;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.update-available h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--secondary-color);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.update-changes {
+    font-size: 14px;
+    line-height: 1.5;
+    max-height: 150px;
+    overflow-y: auto;
+    padding-right: 5px;
+    margin-bottom: 10px;
+}
+
+.update-changes ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.update-changes li {
+    margin-bottom: 5px;
+}
+
+#check-updates-btn {
+    margin-top: 12px;
+    display: inline-block;
 }
 
 /* Adaptability */

@@ -5,6 +5,7 @@ from flask_babel import gettext as _
 
 from handlers.update_mirror import update_mirror
 from utils.logging import write_log
+from utils.update_check import checker
 
 
 def scheduled_update_mirror(app):
@@ -23,6 +24,30 @@ def scheduled_update_mirror(app):
             write_log(log_type="system", message=_("The planned mirror update has been completed"))
         except Exception as e:
             write_log(log_type="system", message=_("Error during a planned mirror update: %(err)s", err=str(e)))
+
+
+def scheduled_update_check(app):
+    """
+    A function for the scheduled launch of update checking.
+
+    Args:
+        app: Flask Application instance
+    """
+    with app.app_context():
+        write_log(log_type="system", message=_("Starting scheduled update check"))
+        try:
+            results = checker.check_for_updates()
+            if results:
+                write_log(
+                    log_type="system",
+                    message=_(
+                        "Update check completed. New version available: %(version)s", version=results[0]["version"]
+                    ),
+                )
+            else:
+                write_log(log_type="system", message=_("Update check completed. No updates available."))
+        except Exception as e:
+            write_log(log_type="system", message=_("Error during update check: %(err)s", err=str(e)))
 
 
 def setup_scheduler(app, schedule_type="daily", hour=3, minute=0, interval_minutes=None):
@@ -53,6 +78,19 @@ def setup_scheduler(app, schedule_type="daily", hour=3, minute=0, interval_minut
                 log_type="system",
                 message=_("Daily mirror updates are set up in %(hour)02d:%(minute)02d", hour=hour, minute=minute),
             )
+
+            update_check_trigger = CronTrigger(hour=hour, minute=minute)
+            scheduler.add_job(
+                func=scheduled_update_check,
+                trigger=update_check_trigger,
+                id="daily_update_check",
+                name="Daily update checks",
+                args=[app],
+            )
+            write_log(
+                log_type="system",
+                message=_("Daily update checks are set up in %(hour)02d:%(minute)02d", hour=hour, minute=minute),
+            )
         else:
             # Running at regular intervals
             if not interval_minutes:
@@ -71,6 +109,24 @@ def setup_scheduler(app, schedule_type="daily", hour=3, minute=0, interval_minut
                 message=_(
                     "Configured to update the mirror every %(interval_minutes)s minutes",
                     interval_minutes=interval_minutes,
+                ),
+            )
+
+            # Check for updates at regular intervals
+            update_check_interval = interval_minutes * 2  # Half as often as updating the mirror
+            update_check_trigger = IntervalTrigger(minutes=update_check_interval)
+            scheduler.add_job(
+                func=scheduled_update_check,
+                trigger=update_check_trigger,
+                id="interval_update_check",
+                name=f"Update checks every {update_check_interval} minutes",
+                args=[app],
+            )
+            write_log(
+                log_type="system",
+                message=_(
+                    "Configured to check for updates every %(interval_minutes)s minutes",
+                    interval_minutes=update_check_interval,
                 ),
             )
 

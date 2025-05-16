@@ -9,26 +9,26 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app.py:68
+#: app.py:69
 #, python-format
 msgid "Language changed to: %(lang)s"
 msgstr "Язык изменен на: %(lang)s"
 
-#: app.py:98
+#: app.py:106
 #, python-format
 msgid "No handler for request: %(request_url)s"
 msgstr "Нет обработчика для запроса: %(request_url)s"
 
-#: app.py:117
+#: app.py:125
 #, python-format
 msgid "%(protocol)s server started on port %(port)s"
 msgstr "%(protocol)s сервер запущен на порту %(port)s"
 
-#: app.py:160
+#: app.py:168
 msgid "Server shutdown initiated"
 msgstr "Инициализировано завершение работы сервера"
 
-#: app.py:163
+#: app.py:171
 #, python-format
 msgid "Critical error: %(error)s"
 msgstr "Критическая ошибка: %(error)s"
@@ -129,22 +129,27 @@ msgstr "Получен запрос на обновление версии: %(ve
 msgid "Invalid version format: %(version)s"
 msgstr "Недопустимый формат версии: %(version)s"
 
-#: handlers/ids.py:93
+#: handlers/ids.py:97
+#, python-format
+msgid "Error occurred while processing IDS update: %(err)s"
+msgstr "Ошибка при обработке обновлений IDS: %(err)s"
+
+#: handlers/ids.py:104
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr "Получен неизвестный запрос на загрузку: %(version)s"
 
-#: handlers/ids.py:112
+#: handlers/ids.py:123
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr "IDSv%(version)s: пропуск, поскольку лицензионный ключ не настроен"
 
-#: handlers/ids.py:153
+#: handlers/ids.py:164
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr "IDSv%(version)s ошибка: %(err)s"
 
-#: handlers/ids.py:167
+#: handlers/ids.py:178
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
@@ -153,37 +158,37 @@ msgstr ""
 "IDSv%(version)s: нет новой версии, текущая версия: "
 "%(version)s.%(result_version)s"
 
-#: handlers/ids.py:178
+#: handlers/ids.py:189
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr "IDSv%(version)s: загрузка новой версии: %(version)s.%(result_version)s"
 
-#: handlers/ids.py:195
+#: handlers/ids.py:206
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr "Не удалось загрузить основной файл для IDSv%(version)s"
 
-#: handlers/ids.py:207
+#: handlers/ids.py:218
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr "Не удалось загрузить файл подписи для IDSv%(version)s"
 
-#: handlers/ids.py:214
+#: handlers/ids.py:225
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr "IDSv%(version)s: загружена новая версия - %(version)s.%(result_version)s"
 
-#: handlers/ids.py:231
+#: handlers/ids.py:242
 #, python-format
 msgid "Error downloading IDSv%(version)s %(proxy_status)s: %(err)s"
 msgstr "Ошибка при загрузке IDSv%(version)s %(proxy_status)s: %(err)s"
 
-#: handlers/ids.py:239
+#: handlers/ids.py:250
 #, python-format
 msgid "IDSv%(version)s: error downloading update"
 msgstr "IDSv%(version)s: ошибка при загрузке обновления"
 
-#: handlers/pages.py:80
+#: handlers/pages.py:82
 msgid "Settings have been changed"
 msgstr "Настройки были изменены"
 
@@ -258,71 +263,75 @@ msgstr "Ошибка получения Web Filter ключа %(proxy_status)s: 
 msgid "Web Filter: error fetching Web Filter key"
 msgstr "Web Filter: ошибка получения Web Filter ключа"
 
-#: templates/index.html:23 templates/index.html:255
+#: templates/index.html:18
+msgid "Update available!"
+msgstr "Доступно обновление!"
+
+#: templates/index.html:31 templates/index.html:280
 msgid "CHECKING"
 msgstr "ПРОВЕРКА"
 
-#: templates/index.html:38
+#: templates/index.html:46
 msgid "System Log"
 msgstr "Системный журнал"
 
-#: templates/index.html:41
+#: templates/index.html:49
 msgid "Mirror Update Log"
 msgstr "Журнал обновлений"
 
-#: templates/index.html:44
+#: templates/index.html:52
 msgid "Settings"
 msgstr "Настройки"
 
-#: templates/index.html:47
+#: templates/index.html:55
 msgid "Information"
 msgstr "Информация"
 
-#: templates/index.html:59 templates/index.html:81
+#: templates/index.html:67 templates/index.html:89
 msgid "Autoupdate"
 msgstr "Автообновление"
 
-#: templates/index.html:66 templates/index.html:88
+#: templates/index.html:74 templates/index.html:96
 msgid "Autoscroll"
 msgstr "Автопрокрутка"
 
-#: templates/index.html:99
+#: templates/index.html:107
 msgid "Update"
 msgstr "Обнвление"
 
-#: templates/index.html:101
+#: templates/index.html:109
 msgid "License:"
 msgstr "Использовать лицензию:"
 
-#: templates/index.html:108
+#: templates/index.html:116
 msgid "IDSv1 - IPS/IDS Snort (Windows versions)"
 msgstr "IDSv1 - IPS/IDS Snort (Windows версия)"
 
-#: templates/index.html:113
+#: templates/index.html:121
 msgid "IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)"
 msgstr "IDSv3 - IPS/IDS Snort (версия для Linux до 9.5)"
 
-#: templates/index.html:118
+#: templates/index.html:126
 msgid "IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)"
 msgstr "IDSv5 - IPS/IDS Snort (версия для Linux начиная с 9.5)"
 
-#: templates/index.html:123
+#: templates/index.html:131
 msgid "IDSv2 - Lists of compromised addresses for blocking"
 msgstr "IDSv2 - Списки скомпрометированных адресов для блокировки"
 
-#: templates/index.html:128
+#: templates/index.html:136
 msgid "IDSv4 - GeoIP databases for geolocation/visitor blocking"
 msgstr "IDSv4 - Базы данных GeoIP для геолокации/блокировки посетителей"
 
-#: templates/index.html:133
+#: templates/index.html:141
 msgid "Use GitHub as a source for GeoIP database updates"
 msgstr "Использовать GitHub в качестве источника обновлений базы данных GeoIP"
 
-#: templates/index.html:138
+#: templates/index.html:146
 msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
 msgstr "Ключ подсистемы фильтрации контента Kerio Control Web Filter"
 
-#: templates/index.html:142
+#: templates/index.html:150
 msgid ""
 "Bitdefender antivirus and antispam (update support is always\n"
 "                                enabled)"
@@ -330,63 +339,87 @@ msgstr ""
 "Антивирус и защита от спама Bitdefender (поддержка обновлений всегда "
 "включена)"
 
-#: templates/index.html:149
+#: templates/index.html:157
 msgid "Use TOR to update Bitdefender and download other updates"
 msgstr "Использовать TOR для обновления Bitdefender и загрузки других обновлений"
 
-#: templates/index.html:154
+#: templates/index.html:162
 msgid "Use proxy server to update Bitdefender and download other updates"
 msgstr ""
 "Использовать прокси-сервер для обновления Bitdefender и загрузки других "
 "обновлений"
 
-#: templates/index.html:158
+#: templates/index.html:166
 msgid "Host:"
 msgstr "Адрес:"
 
-#: templates/index.html:163
+#: templates/index.html:171
 msgid "Port:"
 msgstr "Порт:"
 
-#: templates/index.html:168
+#: templates/index.html:176
 msgid "Login:"
 msgstr "Логин:"
 
-#: templates/index.html:173
+#: templates/index.html:181
 msgid "Password:"
 msgstr "Пароль:"
 
-#: templates/index.html:180
+#: templates/index.html:188
 msgid "Other"
 msgstr "Дополнительно"
 
-#: templates/index.html:184
+#: templates/index.html:192
 msgid "Log client IP addresses in system logs"
 msgstr "Записывать IP-адреса клиентов в системном журнале"
 
-#: templates/index.html:190
+#: templates/index.html:198
 msgid ""
 "Allow access only from the following IP\n"
 "                                    addresses:"
 msgstr "Разрешить доступ только со следующих IP-адресов:"
 
-#: templates/index.html:198
+#: templates/index.html:206
 msgid "Apply"
 msgstr "Применить"
 
-#: templates/index.html:207
+#: templates/index.html:215
+msgid "Check for Application Updates"
+msgstr "Проверка обновлений приложения"
+
+#: templates/index.html:218
+msgid "Current version:"
+msgstr "Текущая версия:"
+
+#: templates/index.html:219
+msgid "Latest version:"
+msgstr "Последняя версия:"
+
+#: templates/index.html:220 templates/index.html:282
+msgid "Last check:"
+msgstr "Последняя проверка:"
+
+#: templates/index.html:223
+msgid "New version available!"
+msgstr "Доступна новая версия!"
+
+#: templates/index.html:227
+msgid "Check for updates"
+msgstr "Проверить обновления"
+
+#: templates/index.html:232
 msgid "Manual update check"
 msgstr "Ручная проверка обновлений"
 
-#: templates/index.html:209
+#: templates/index.html:234
 msgid "Run check"
 msgstr "Выполнить проверку"
 
-#: templates/index.html:211
+#: templates/index.html:236
 msgid "It is not recommended to run check more than once a day."
 msgstr "Не рекомендуется проводить проверку чаще одного раза в день."
 
-#: templates/index.html:214
+#: templates/index.html:239
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local\n"
@@ -406,7 +439,7 @@ msgstr ""
 "трафик и автоматизирует борьбу с уязвимостями и ошибками в программных "
 "продуктах, а также позволяет централизованно управлять обновлениями."
 
-#: templates/index.html:221
+#: templates/index.html:246
 msgid ""
 "To work, you must specify the IP address of the update mirror for the "
 "following hosts\n"
@@ -415,11 +448,11 @@ msgstr ""
 "Для работы необходимо указать IP-адрес зеркала обновлений для следующих "
 "хостов в настройках DNS продуктов Kerio"
 
-#: templates/index.html:234
+#: templates/index.html:259
 msgid "License"
 msgstr "Лицензия"
 
-#: templates/index.html:235
+#: templates/index.html:260
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\"\n"
 "                                                        "
@@ -430,7 +463,7 @@ msgstr ""
 "noreferrer\" href=\"https://gfi.ai/products-and-solutions/network-"
 "security-solutions/keriocontrol/free-trial\">здесь</a>."
 
-#: templates/index.html:237
+#: templates/index.html:262
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\"\n"
@@ -441,23 +474,19 @@ msgstr ""
 "rel=\"noopener noreferrer\" "
 "href=\"https://secure.kerio.com/reg/?lang=en\">здесь</a>."
 
-#: templates/index.html:253
+#: templates/index.html:278
 msgid "CONNECTED"
 msgstr "ПОДКЛЮЧЕН"
 
-#: templates/index.html:254
+#: templates/index.html:279
 msgid "DISABLED"
 msgstr "ОТКЛЮЧЕН"
 
-#: templates/index.html:256
+#: templates/index.html:281
 msgid "ERROR"
 msgstr "ОШИБКА"
 
-#: templates/index.html:257
-msgid "Last check:"
-msgstr "Последняя проверка:"
-
-#: templates/index.html:258
+#: templates/index.html:283
 msgid "Checks completed:"
 msgstr "Проверок завершено:"
 
@@ -466,25 +495,53 @@ msgstr "Проверок завершено:"
 msgid "Access is denied for IP: %(ip)s"
 msgstr "Доступ запрещен для IP-адреса: %(ip)s"
 
-#: utils/schedulers.py:19
+#: utils/schedulers.py:20
 msgid "Launching a planned mirror update"
 msgstr "Запуск запланированного обновления зеркала"
 
-#: utils/schedulers.py:23
+#: utils/schedulers.py:24
 msgid "The planned mirror update has been completed"
 msgstr "Запланированное обновление зеркала завершено"
 
-#: utils/schedulers.py:25
+#: utils/schedulers.py:26
 #, python-format
 msgid "Error during a planned mirror update: %(err)s"
 msgstr "Ошибка во время запланированного обновления зеркала: %(err)s"
 
-#: utils/schedulers.py:54
+#: utils/schedulers.py:37
+msgid "Starting scheduled update check"
+msgstr "Запуск запланированной проверки обновлений"
+
+#: utils/schedulers.py:44
+#, python-format
+msgid "Update check completed. New version available: %(version)s"
+msgstr "Проверка обновлений завершена. Доступна новая версия: %(version)s"
+
+#: utils/schedulers.py:48
+msgid "Update check completed. No updates available."
+msgstr "Проверка обновлений завершена. Обновления отсутствуют."
+
+#: utils/schedulers.py:50
+#, python-format
+msgid "Error during update check: %(err)s"
+msgstr "Ошибка во время проверке обновлений: %(err)s"
+
+#: utils/schedulers.py:79
 #, python-format
 msgid "Daily mirror updates are set up in %(hour)02d:%(minute)02d"
 msgstr "Ежедневное обновление зеркала настроено в %(hour)02d:%(minute)02d"
 
-#: utils/schedulers.py:72
+#: utils/schedulers.py:92
+#, python-format
+msgid "Daily update checks are set up in %(hour)02d:%(minute)02d"
+msgstr "Ежедневная проверка обновлений настроена в %(hour)02d:%(minute)02d"
+
+#: utils/schedulers.py:110
 #, python-format
 msgid "Configured to update the mirror every %(interval_minutes)s minutes"
 msgstr "Настроено обновление зеркала каждые %(interval_minutes)s минут"
+
+#: utils/schedulers.py:128
+#, python-format
+msgid "Configured to check for updates every %(interval_minutes)s minutes"
+msgstr "Настроена проверка обновлений каждые %(interval_minutes)s минут"

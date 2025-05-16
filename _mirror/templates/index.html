@@ -14,7 +14,8 @@
         <div class="header-content">
             <div class="header-title">
                 <h1>Kerio Updates Mirror</h1>
-                <span class="version-badge" id="ver">v.1.4.5</span>
+                <span class="version-badge" id="ver">v.{{ current_version }}</span>
+                <span class="update-label" style="display: none; margin-left: 8px;">{{ _('Update available!') }}</span>
             </div>
             <div class="header-controls">
                 <div id="tor_status" class="tor-status" title="Click to check"
@@ -203,6 +204,23 @@
 
         <div id="information" class="tab-content">
             <div class="info-container">
+                <details>
+                    <summary>{{ _('Check for Application Updates') }}</summary>
+                    <div id="update-status" class="update-status">
+                        <div class="update-status-info">
+                            <p>{{ _('Current version:') }} <span id="current-version">-</span></p>
+                            <p>{{ _('Latest version:') }} <span id="latest-version">-</span></p>
+                            <p>{{ _('Last check:') }} <span id="last-check">-</span></p>
+                        </div>
+                        <div id="update-available" class="update-available" style="display: none;">
+                            <h4>{{ _('New version available!') }}</h4>
+                            <div id="update-changes" class="update-changes"></div>
+                        </div>
+                        <button type="button" id="check-updates-btn" class="update-link">
+                            <i class="fas fa-search"></i>{{ _('Check for updates') }}
+                        </button>
+                    </div>
+                </details>
                 <details>
                     <summary>{{ _('Manual update check') }}</summary>
                     <a href="/update_mirror" class="update-link">

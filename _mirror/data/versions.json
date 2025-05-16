@@ -1,0 +1,114 @@
+[
+  {
+    "version": "1.5.0",
+    "description": {
+      "en": "Added checking for program updates",
+      "ru": "Добавлена проверка наличия обновлений программы"
+    }
+  },
+  {
+    "version": "1.4.5",
+    "description": {
+      "en": "Fixed log when manually starting updates",
+      "ru": "Исправлены записи в журнале при ручном запуске обновлений"
+    }
+  },
+  {
+    "version": "1.4.4",
+    "description": {
+      "en": "Added DATABASE initialization at startup",
+      "ru": "Добавлена инициализация базы данных при запуске"
+    }
+  },
+  {
+    "version": "1.4.3",
+    "description": {
+      "en": "Added compiled .exe file",
+      "ru": "Добавлен скомпилированный .exe файл"
+    }
+  },
+  {
+    "version": "1.4.2",
+    "description": {
+      "en": "Fixed proxy support with authorization",
+      "ru": "Исправлена поддержка прокси с авторизацией"
+    }
+  },
+  {
+    "version": "1.4.1",
+    "description": {
+      "en": "Added Kerio Connect support from the 'black box'",
+      "ru": "Добавлена поддержка Kerio Connect из 'черного ящика' by NathanAdler."
+    }
+  },
+  {
+    "version": "1.4.0",
+    "description": {
+      "en": "Added proxy support, TOR is now optional",
+      "ru": "Добавлена поддержка прокси, TOR теперь необязателен"
+    }
+  },
+  {
+    "version": "1.3.0",
+    "description": {
+      "en": "Updated web interface",
+      "ru": "Обновлен web интерфейс"
+    }
+  },
+  {
+    "version": "1.2.1",
+    "description": {
+      "en": "Added option to record clients IP addresses in the system log",
+      "ru": "Добавлена опция записи IP-адресов клиентов в системном журнале"
+    }
+  },
+  {
+    "version": "1.2.0",
+    "description": {
+      "en": "Added multilingual support and russian translation",
+      "ru": "Добавлена многоязычная поддержка и перевод на русский язык"
+    }
+  },
+  {
+    "version": "1.1.3",
+    "description": {
+      "en": "Changing script behavior in case of incorrect license key",
+      "ru": "Улучшено поведение скрипта при некорректном лицензионном ключе"
+    }
+  },
+  {
+    "version": "1.1.2",
+    "description": {
+      "en": "Added TOR status check to the webpage",
+      "ru": "Добавлена проверка и обновление статуса TOR-прокси на веб-странице"
+    }
+  },
+  {
+    "version": "1.1.1",
+    "description": {
+      "en": "Added allowed IP configuration to the webpage",
+      "ru": "Добавлено изменение ограничений по IP на веб-странице"
+    }
+  },
+  {
+    "version": "1.1.0",
+    "description": {
+      "en": "Added the ability to restrict updates only from authorized IP addresses",
+      "ru": "Добавлена возможность ограничивать доступ к обновлениям только с авторизованных IP-адресов"
+    }
+  },
+  {
+    "version": "1.0.1",
+    "description": {
+      "en": "Added auto-refresh and auto-scroll options",
+      "ru": "Добавлены опции автоматического обновления и автоматической прокрутки"
+    }
+  },
+  {
+    "version": "1.0.0",
+    "description": {
+      "en": "First release",
+      "ru": "Первый релиз"
+    }
+  }
+]

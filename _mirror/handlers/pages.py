@@ -4,6 +4,7 @@ from flask_babel import gettext as _
 from config.config_env import config
 from utils.logging import write_log, read_last_lines
 from utils.tor_check import tor_checker
+from utils.update_check import checker
 
 
 def main_page():
@@ -40,6 +41,7 @@ def main_page():
         "tor_status": tor_checker.get_status(),
         "locale": config.locale,
         "compile": config.compile,
+        "current_version": checker.get_current_version(),
     }
 
     return render_template(template_name_or_list="index.html", **template_data)
