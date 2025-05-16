@@ -18,6 +18,3 @@ _mirror/update_files/*.sig
 *.*~
 *.log
 .env
-mirror.db
-/update_files
-/output
