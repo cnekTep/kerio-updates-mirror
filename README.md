@@ -6,9 +6,15 @@
 
 ![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=flat&logo=docker&logoColor=white)
 ![Kerio](https://img.shields.io/badge/Kerio-Connect_&_Control-0078D4?style=flat)
+![Telegram](https://img.shields.io/badge/Telegram-Channel-2CA5E0?style=flat&logo=telegram&logoColor=white)
 
 **English** · [Русский](./docs/ru/README.ru.md)
 </div>
+
+## 🌐 Community & Support
+
+Join our Telegram channel for updates, announcements, and community support:
+[![Telegram](https://img.shields.io/badge/Join-Telegram_Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/kerio_updates_mirror)
 
 ## 📋 Overview
 
