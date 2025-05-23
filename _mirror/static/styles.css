@@ -510,15 +510,16 @@ summary {
     text-align: right;
 }
 
-.github-link {
+.github-link, .telegram-link {
     color: var(--secondary-color);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    margin-left: 10px;
 }
 
-.github-link:hover {
+.github-link:hover, .telegram-link:hover {
     text-decoration: underline;
 }
 
