@@ -28,13 +28,13 @@ products, which allows you to:
 
 ## ✅ Tested Configurations
 
-| Component     | Version     |
-|---------------|-------------|
-| Ubuntu        | 24.04.1     |
-| Windows Server| 2012 R2     |
-| Windows 11    | 24H2        |
-| Kerio Connect | 10.0.6.8504 |
-| Kerio Control | 9.4.5.8526  |
+| Component      | Version     |
+|----------------|-------------|
+| Ubuntu         | 24.04.1     |
+| Windows Server | 2012 R2     |
+| Windows 11     | 24H2        |
+| Kerio Connect  | 10.0.6.8504 |
+| Kerio Control  | 9.4.5.8526  |
 
 ## 🚀 Installation and Setup
 
@@ -216,6 +216,7 @@ Link to download the assembly of the finished exe file: [Kerio Updates Mirror](h
 
 1. Download and unzip the archive
 2. Run the file `app.exe `
+
 </details>
 
 <details>
@@ -337,7 +338,6 @@ There are two options for configuring antispam:
 
 > **Note**: When using a proxy, the antivirus will temporarily stop working, but it will recover after disabling the proxy.  
 > Antispam will work until the server is restarted.
-
 
 ## 📊 Features
 
