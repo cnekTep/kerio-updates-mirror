@@ -192,7 +192,9 @@
                                     addresses:') }}</label>
                             </div>
                             <input type="text" id="allowed_ips" name="allowed_ips" class="form-control"
-                                   value="{{ allowed_ips or '' }}" placeholder="127.0.0.1, 192.168.1.1">
+                                   value="{{ allowed_ips or '' }}"
+                                   placeholder="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10, 192.168.3.0/24"
+                                   title="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10, 192.168.3.0/24">
                         </div>
                     </fieldset>
                     <button type="submit" class="btn">
@@ -262,7 +264,7 @@
                     </a>
                     <a href="https://t.me/kerio_updates_mirror" target="_blank" rel="noopener noreferrer"
                        class="telegram-link">
-                      <i class="fab fa-telegram"></i>Telegram
+                        <i class="fab fa-telegram"></i>Telegram
                     </a>
                 </div>
             </div>

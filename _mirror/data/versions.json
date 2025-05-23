@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.6.0",
+    "description": {
+      "en": "Added support for access restriction by IP ranges (192.168.2.1–192.168.2.10) and CIDR masks (192.168.3.0/24)",
+      "ru": "Добавлена поддержка ограничения доступа по IP-группам (192.168.2.1–192.168.2.10) и CIDR-маскам (192.168.3.0/24)"
+    }
+  },
+  {
     "version": "1.5.0",
     "description": {
       "en": "Added checking for program updates",
