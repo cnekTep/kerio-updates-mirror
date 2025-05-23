@@ -31,16 +31,20 @@ products, which allows you to:
 | Component     | Version     |
 |---------------|-------------|
 | Ubuntu        | 24.04.1     |
+| Windows Server| 2012 R2     |
+| Windows 11    | 24H2        |
 | Kerio Connect | 10.0.6.8504 |
 | Kerio Control | 9.4.5.8526  |
 
 ## 🚀 Installation and Setup
 
-### Prerequisites
+### Docker
+
+#### Prerequisites
 
 - Docker and Docker Compose ([installation guide](./docs/en/docker.md))
 
-### Option 1: Running from pre-built Docker images (recommended)
+#### Option 1: Running from pre-built Docker images (recommended)
 
 1. [Download Docker images](https://t.me/my_store_files_bot?start=kerio-updates-mirror)
 2. Load images from archives:
@@ -59,7 +63,7 @@ products, which allows you to:
    sudo docker-compose up -d
    ```
 
-### Option 2: Building from source code
+#### Option 2: Building from source code
 
 1. Download or clone the repository:
    ```bash
@@ -72,7 +76,7 @@ products, which allows you to:
    sudo docker-compose up -d
    ```
 
-### Option 3: Importing a Ready-to-Use Virtual Machine
+#### Option 3: Importing a Ready-to-Use Virtual Machine
 
 This option provides a fully configured out-of-the-box solution, ideal for quick deployment.
 
@@ -103,7 +107,7 @@ This option provides a fully configured out-of-the-box solution, ideal for quick
 <details>
 <summary>📝 VMware Import Instructions</summary>
 
-#### Step-by-step import instructions for VMware Workstation/Player
+##### Step-by-step import instructions for VMware Workstation/Player
 
 1. Launch VMware Workstation or VMware Player
 2. Select **File** → **Open**
@@ -114,7 +118,7 @@ This option provides a fully configured out-of-the-box solution, ideal for quick
     - Click **Import**
 5. Wait for the import process to complete
 
-#### Step-by-step import instructions for VMware ESXi
+##### Step-by-step import instructions for VMware ESXi
 
 1. Log in to the VMware ESXi or vSphere web interface
 2. Navigate to the **Virtual Machines** section
@@ -131,20 +135,20 @@ This option provides a fully configured out-of-the-box solution, ideal for quick
 <details>
 <summary>📝 Virtual Machine Specifications and Setup</summary>
 
-#### Technical Specifications
+##### Technical Specifications
 
 - **Operating System**: Debian 12 (minimal installation)
 - **Resource Requirements**: 512-1024 MB RAM, 1 CPU, 10 GB storage
 - **Pre-installed Software**: SSH, Midnight Commander, htop, Docker, Docker Compose
 - **Docker Containers**: Portainer, Kerio Updates Mirror
 
-#### System Access
+##### System Access
 
 - **Default Credentials**:
     - Username: `root`
     - Password: `root`
 
-#### Initial Setup
+##### Initial Setup
 
 1. Connect to the virtual machine via SSH (port 22)
 2. **Strongly recommended** to change the root password:
@@ -160,7 +164,7 @@ This option provides a fully configured out-of-the-box solution, ideal for quick
    ip a
    ```
 
-#### Network Configuration
+##### Network Configuration
 
 To change network parameters:
 
@@ -173,11 +177,11 @@ To change network parameters:
 2. Configure DNS servers:
    ```bash
    nano /etc/resolv.conf
-   # or 
+   # or
    mc # then navigate to /etc/resolv.conf
    ```
 
-#### Management via Portainer
+##### Management via Portainer
 
 The virtual machine includes pre-installed Portainer for convenient Docker container management:
 
@@ -187,6 +191,67 @@ The virtual machine includes pre-installed Portainer for convenient Docker conta
     - Password: `admin`
 
 > **Note**: It is recommended to change the Portainer admin password after first login.
+
+</details>
+
+### Running without Docker
+
+If you don't want to use Docker, you can run Kerio Updates Mirror without it. To do this, you will need to manually install all the dependencies and configure the system.
+However, it can be more difficult and take more time. It is recommended to use Docker to simplify the installation and management process.
+
+#### Limitations compared to the Docker version
+
+1. There is no built-in TOR support
+2. There is no built-in proxy server
+3. Difficulties with activating Kerio Connect antispam (for more information, see Configuring Kerio Connect antispam)
+
+#### Launch Options
+
+<details>
+<summary>Prepared exe file</summary>
+
+Link to download the assembly of the finished exe file: [Kerio Updates Mirror](https://t.me/my_store_files_bot?start=kerio-updates-mirror)
+
+###### Installation and launch
+
+1. Download and unzip the archive
+2. Run the file `app.exe `
+</details>
+
+<details>
+<summary>Running the Python script</summary>
+
+1. Make sure you have Python 3.x installed
+2. Download or clone the repository:
+
+    ```bash
+    git clone https://github.com/cnekTep/kerio-updates-mirror.git
+    cd kerio-updates-mirror
+    ```
+
+3. Create a virtual environment:
+
+   ```bash
+   python -m venv venv
+   ```
+
+4. Activate the virtual environment:
+
+     ```bash
+     venv\Scripts\activate
+     ```
+
+5. Install the necessary dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+6. Run the script:
+
+   ```bash
+    python app.py
+    ```
 
 </details>
 
@@ -239,6 +304,40 @@ To configure updates through the local mirror in Kerio Control, you need to add 
 | Update_server_IP | wf-activation.kerio.com | kerio-updates-mirror |
 
 </details>
+
+### Configuring Kerio Control and Kerio Connect in the version without Docker
+
+n the non-Docker version, for Kerio Control and Kerio Connect updates to work correctly, you must manually specify the local mirror address for the respective hosts (see the table above).
+
+- For **Kerio Connect**, you can configure the DNS server so that it resolves the specified domains via Kerio Control. This can be done by specifying the IP address of the server with the mirror in the DNS settings.
+- Alternatively, you can add the necessary domain matches and mirror IP addresses to the `hosts` file on the server with Kerio Connect.
+
+This will ensure that update requests are redirected to your local mirror.
+
+### Configuring Kerio Connect antispam in the version without Docker
+
+There are two options for configuring antispam:
+
+1. **Via VPN** (recommended):
+    - Direct traffic to the following hosts via VPN:
+
+      ```bash
+      upgrade-please-change-me.cdn.bitdefender.net
+      patches-please-change-me.cdn.bitdefender.net
+      nimbus.bitdefender.net
+      ```
+
+    - In this case, both antivirus and antispam will work.
+
+2. **Through an external proxy**:
+    - Temporarily configure Kerio Connect to work via an external proxy server
+    - Wait for antispam activation
+    - Disable the proxy
+    - After that, both components will work: antivirus and antispam
+
+> **Note**: When using a proxy, the antivirus will temporarily stop working, but it will recover after disabling the proxy.  
+> Antispam will work until the server is restarted.
+
 
 ## 📊 Features
 
