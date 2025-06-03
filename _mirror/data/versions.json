@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.0.0",
+    "description": {
+      "en": "Added alternative mirror mode (downloading antivirus signatures without using a mirror and using third-party update servers)",
+      "ru": "Добавлен альтернативный режим работы зеркала (скачивание антивирусных сигнатур без использования зеркала и использование сторонних серверов обновления)"
+    }
+  },
+  {
     "version": "1.6.0",
     "description": {
       "en": "Added support for access restriction by IP ranges (192.168.2.1–192.168.2.10) and CIDR masks (192.168.3.0/24)",

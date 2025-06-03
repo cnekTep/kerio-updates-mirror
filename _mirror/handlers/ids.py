@@ -19,7 +19,7 @@ def handler_control_update():
     )
 
     current_directory = os.getcwd()  # Get the current directory
-    target_directory = os.path.join(current_directory, 'update_files')  # Construct the target directory
+    target_directory = os.path.join(current_directory, "update_files")  # Construct the target directory
 
     request_path = request.path.replace("/control-update", target_directory)
 
@@ -66,8 +66,56 @@ def handle_update():
     if major_version == 0:
         return Response(response="0:0.0", status=200)
     elif major_version in [9, 10]:
+        response_text = "THDdir=https://bdupdate.kerio.com/../"  # Default value
+
+        # Check if alternative mode is enabled
+        if config.alternative_mode:
+            update_url = config.antivirus_update_url.strip().rstrip("/")
+            is_kerio_host = "bdupdate.kerio.com" in update_url
+
+            # Set default response for alternative mode without mirror
+            if config.bitdefender_update_mode == "no_mirror":
+                response_text = f"THDdir={update_url}/../"
+
+            # Make request to Kerio if needed
+            if is_kerio_host:
+                try:
+                    target_host = "bdupdate.kerio.com"
+                    url = f"https://bdupdate.kerio.com/update.php?id={config.license_number}&version={version}&tag="
+                    headers = {"Host": target_host}
+                    request_params = prepare_request_params(url=url, headers=headers)
+
+                    # Setup proxy if configured
+                    if config.tor:
+                        request_params = add_proxy_to_params(proxy_type="tor", params=request_params)
+                    elif config.proxy:
+                        request_params = add_proxy_to_params(proxy_type="proxy", params=request_params)
+
+                    response = requests.get(**request_params)
+                    response.raise_for_status()
+
+                    # Handle response based on mode
+                    if config.bitdefender_update_mode == "via_mirror":
+                        config.kerio_cdn_url = response.text.replace("THDdir=", "").strip()
+                    else:
+                        response_text = response.text
+
+                except Exception as err:
+                    write_log(
+                        log_type="system",
+                        message=_(
+                            "Error occurred while receiving a link to an antivirus update: %(err)s", err=str(err)
+                        ),
+                    )
+                    return Response(response="400 Bad Request", status=400, mimetype="text/plain")
+
+        write_log(
+            log_type="system",
+            message=_("Update link sent: %(url)s", url=response_text.replace("THDdir=", "").strip()),
+            ip=request.remote_addr if config.ip_logging else None,
+        )
         return Response(
-            response="THDdir=https://bdupdate.kerio.com/../",
+            response=response_text,
             mimetype="text/plain",
             headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
         )
@@ -87,7 +135,7 @@ def handle_update():
                 message=_("Error occurred while processing IDS update: %(err)s", err=str(err)),
             )
             return Response(response="500 Internal Server Error", status=500, mimetype="text/plain")
-        
+
     # Unknown version
     write_log(
         log_type="system",

@@ -139,11 +139,6 @@
                             <label for="wfkey">{{ _('Kerio Control Web Filter Content Filtering Subsystem Key') }}</label>
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="avir" name="avir" onclick="this.checked=true" checked>
-                            <label for="avir">{{ _('Bitdefender antivirus and antispam (update support is always
-                                enabled)') }}</label>
-                        </div>
-                        <div class="checkbox-group">
                             <input type="checkbox" id="use_tor" name="use_tor" value="true"
                                    {% if tor and not compile %}checked{% endif %}
                                    {% if compile %}disabled{% endif %}>
@@ -174,6 +169,75 @@
                                 <label for="proxy_password">{{ _('Password:') }}</label>
                                 <input type="password" id="proxy_password" name="proxy_password" class="form-control"
                                        value="{{ proxy_password or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="alternative_mode" name="alternative_mode" value="true"
+                                   {% if alternative_mode %}checked{% endif %}>
+                            <label for="alternative_mode">{{ _('Alternative mirror modes') }}</label>
+                        </div>
+
+                        <div id="alternative_settings" class="alternative-methods">
+                            <div class="url-group">
+                                <label for="antivirus_url">{{ _('Antivirus update source URL:') }}</label>
+                                <div class="url-input-container">
+                                    <input type="text" id="antivirus_url" name="antivirus_url"
+                                           class="url-input form-control"
+                                           value="{{ antivirus_update_url or 'https://bdupdate.kerio.com' }}" readonly>
+                                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                                    <div class="url-dropdown" id="antivirus_dropdown">
+                                        <div class="url-option" data-value="https://bdupdate.kerio.com">
+                                            https://bdupdate.kerio.com (Official Kerio site)
+                                        </div>
+                                        <div class="url-option" data-value="http://upgrade.bitdefender.com">
+                                            http://upgrade.bitdefender.com
+                                        </div>
+                                        <div class="url-option" data-value="http://breck-update.logicnow.us">
+                                            http://breck-update.logicnow.us
+                                        </div>
+                                        <div class="url-option" data-value="https://update-service.onesec.net">
+                                            https://update-service.onesec.net
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="url-group">
+                                <label for="antispam_url">{{ _('Antispam update source URL:') }}</label>
+                                <div class="url-input-container">
+                                    <input type="text" id="antispam_url" name="antispam_url"
+                                           class="url-input form-control"
+                                           value="{{ antispam_update_url or 'https://bda-update.kerio.com' }}" readonly>
+                                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                                    <div class="url-dropdown" id="antispam_dropdown">
+                                        <div class="url-option" data-value="https://bda-update.kerio.com">
+                                            https://bda-update.kerio.com (Official Kerio site)
+                                        </div>
+                                        <div class="url-option" data-value="http://upgrade.bitdefender.com">
+                                            http://upgrade.bitdefender.com
+                                        </div>
+                                        <div class="url-option" data-value="http://breck-update.logicnow.us">
+                                            http://breck-update.logicnow.us
+                                        </div>
+                                        <div class="url-option" data-value="https://update-service.onesec.net">
+                                            https://update-service.onesec.net
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="radio-group">
+                                <input type="radio" id="bitdefender_no_mirror" name="bitdefender_mode" value="no_mirror"
+                                       {% if bitdefender_mode == 'no_mirror' or not bitdefender_mode %}checked{% endif %}>
+                                <label for="bitdefender_no_mirror">{{ _('Update Bitdefender without using Mirror') }}</label>
+                            </div>
+
+                            <div class="radio-group">
+                                <input type="radio" id="bitdefender_via_mirror" name="bitdefender_mode"
+                                       value="via_mirror"
+                                       {% if bitdefender_mode == 'via_mirror' %}checked{% endif %}>
+                                <label for="bitdefender_via_mirror">{{ _('Download Bitdefender antivirus signatures through Mirror') }}</label>
                             </div>
                         </div>
                     </fieldset>

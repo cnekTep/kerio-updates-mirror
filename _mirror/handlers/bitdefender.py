@@ -1,3 +1,5 @@
+import re
+
 import requests
 from flask import request, Response
 from flask_babel import gettext as _
@@ -41,9 +43,24 @@ def handle_bitdefender() -> Response:
         )
         return Response("404 Not found", status=404, mimetype="text/plain")
 
-    target_host = "upgrade.bitdefender.com"
-    clean_path = request.path.lstrip("/")  # Remove leading slash from the request path
-    url = f"http://{target_host}/{clean_path}"
+    if config.alternative_mode:
+        if "bdupdate.kerio.com" in host:
+            if "bdupdate.kerio.com" in config.antivirus_update_url:
+                target_url = config.kerio_cdn_url
+                target_host = "bdupdate-cdn.kerio.com"
+            else:
+                target_url = config.antivirus_update_url.strip().rstrip("/")
+                target_host = target_url.split("//")[1]
+        else:
+            target_url = config.antispam_update_url.strip().rstrip("/")
+            target_host = target_url.split("//")[1]
+    else:
+        target_url = "http://upgrade.bitdefender.com"
+        target_host = "upgrade.bitdefender.com"
+
+    # Remove leading slashes and dots from the request path
+    clean_path = re.sub(r"^(?:[./]+|(?:\.\./)+)*", "", request.path)
+    url = f"{target_url}/{clean_path}"
 
     # Create default headers for the outgoing request
     default_headers = {
@@ -74,10 +91,17 @@ def handle_bitdefender() -> Response:
 
         # Forward the request to the Bitdefender server
         response = requests.get(**request_params)
-        write_log(log_type="system", message=_("Downloading file: %(request_path)s", request_path=request.path))
 
-        # Build response preserving the headers from the external response
+        # Enable automatic decompression of gzip stream
+        response.raw.decode_content = True
+
+        write_log(log_type="system", message=_("Downloading file: %(request_path)s", request_path=clean_path))
+
+        # Copy and clear headers
         response_headers = dict(response.headers)
+        for h in ("Content-Encoding", "Content-Length"):
+            response_headers.pop(h, None)
+
         flask_response = Response(
             response=response.iter_content(chunk_size=1024),
             status=response.status_code,
@@ -87,6 +111,6 @@ def handle_bitdefender() -> Response:
     except requests.RequestException as e:
         write_log(
             log_type="system",
-            message=_("Error %(err)s while loading file %(request_path)s", err=str(e), request_path=request.path),
+            message=_("Error %(err)s while loading file %(request_path)s", err=str(e), request_path=clean_path),
         )
         return Response(response="404 Not found", status=404, mimetype="text/plain")

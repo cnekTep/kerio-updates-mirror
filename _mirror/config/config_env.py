@@ -20,6 +20,9 @@ class Config:
         self.env_path = env_path
         self._data: Dict[str, Any] = {}
 
+        # Keys that should always be reset to standard values
+        self._force_reset_keys = {"TOR_HOST", "TOR_PORT"}
+
         # Default values
         self._defaults = {
             "LOCALE": "en",  # Locale
@@ -27,7 +30,7 @@ class Config:
             "LICENSE_NUMBER": None,  # License number
             "TOR": True,  # Use TOR or not
             "TOR_HOST": "172.222.0.5",  # TOR host
-            "TOR_PORT": "8118",  # TOR port
+            "TOR_PORT": "9050",  # TOR port
             "PROXY": False,  # Use proxy or not
             "PROXY_HOST": None,  # Proxy host
             "PROXY_PORT": None,  # Proxy port
@@ -46,6 +49,11 @@ class Config:
             "ALLOWED_IPS": "",  # Comma-separated list of allowed IP addresses, e.g. "1.1.1.1.1, 8.8.8.8.8"
             "IP_LOGGING": True,  # Enable IP logging
             "COMPILE": False,  # For .exe .deb compilation
+            "ALTERNATIVE_MODE": False,  # Use mirror alternative mode
+            "ANTIVIRUS_UPDATE_URL": None,  # Antivirus update URL
+            "ANTISPAM_UPDATE_URL": None,  # Antispam update URL
+            "BITDEFENDER_UPDATE_MODE": "no_mirror",  # Download Bitdefender signatures through mirror or not
+            "KERIO_CDN_URL": None,  # Kerio CDN URL
         }
 
         # Create .env file if it doesn't exist
@@ -67,6 +75,12 @@ class Config:
 
         # Apply values from file or use default values
         for key, default_value in self._defaults.items():
+            # If key is in forced reset list, use standard value
+            if key in self._force_reset_keys:
+                self._data[key.lower()] = default_value
+                set_key(dotenv_path=self.env_path, key_to_set=key, value_to_set=self._format_value(default_value))
+                continue
+
             env_value = os.environ.get(key)
 
             if env_value is not None:

@@ -34,25 +34,25 @@ msgstr ""
 msgid "Critical error: %(error)s"
 msgstr ""
 
-#: handlers/bitdefender.py:27
+#: handlers/bitdefender.py:29
 msgid "Received antivirus signatures request"
 msgstr ""
 
-#: handlers/bitdefender.py:33
+#: handlers/bitdefender.py:35
 msgid "Received antispam signatures request"
 msgstr ""
 
-#: handlers/bitdefender.py:39
+#: handlers/bitdefender.py:41
 #, python-format
 msgid "Received unknown download request: %(request_path)s"
 msgstr ""
 
-#: handlers/bitdefender.py:77
+#: handlers/bitdefender.py:98
 #, python-format
 msgid "Downloading file: %(request_path)s"
 msgstr ""
 
-#: handlers/bitdefender.py:90
+#: handlers/bitdefender.py:114
 #, python-format
 msgid "Error %(err)s while loading file %(request_path)s"
 msgstr ""
@@ -108,84 +108,94 @@ msgstr ""
 msgid "File %(input_path)s not found"
 msgstr ""
 
-#: handlers/ids.py:18
+#: handlers/ids.py:17
 #, python-format
 msgid "Received request for IDS update: %(request_path)s"
 msgstr ""
 
-#: handlers/ids.py:44
+#: handlers/ids.py:43
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr ""
 
-#: handlers/ids.py:51
+#: handlers/ids.py:50
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:61
+#: handlers/ids.py:60
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:105
+#: handlers/ids.py:107
+#, python-format
+msgid "Error occurred while receiving a link to an antivirus update: %(err)s"
+msgstr ""
+
+#: handlers/ids.py:114
+#, python-format
+msgid "Update link sent: %(url)s"
+msgstr ""
+
+#: handlers/ids.py:135
 #, python-format
 msgid "Error occurred while processing IDS update: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:112
+#: handlers/ids.py:142
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:131
+#: handlers/ids.py:161
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr ""
 
-#: handlers/ids.py:172
+#: handlers/ids.py:202
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:186
+#: handlers/ids.py:216
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
 "%(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:197
+#: handlers/ids.py:227
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:214
+#: handlers/ids.py:244
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:226
+#: handlers/ids.py:256
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:233
+#: handlers/ids.py:263
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:250
+#: handlers/ids.py:280
 #, python-format
 msgid "Error downloading IDSv%(version)s %(proxy_status)s: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:258
+#: handlers/ids.py:288
 #, python-format
 msgid "IDSv%(version)s: error downloading update"
 msgstr ""
 
-#: handlers/pages.py:82
+#: handlers/pages.py:93
 msgid "Settings have been changed"
 msgstr ""
 
@@ -264,7 +274,7 @@ msgstr ""
 msgid "Update available!"
 msgstr ""
 
-#: templates/index.html:24 templates/index.html:279
+#: templates/index.html:24 templates/index.html:343
 msgid "CHECKING"
 msgstr ""
 
@@ -328,91 +338,105 @@ msgstr ""
 msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
 msgstr ""
 
-#: templates/index.html:143
-msgid ""
-"Bitdefender antivirus and antispam (update support is always\n"
-"                                enabled)"
-msgstr ""
-
-#: templates/index.html:150
+#: templates/index.html:145
 msgid "Use TOR to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/index.html:155
+#: templates/index.html:150
 msgid "Use proxy server to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/index.html:159
+#: templates/index.html:154
 msgid "Host:"
 msgstr ""
 
-#: templates/index.html:164
+#: templates/index.html:159
 msgid "Port:"
 msgstr ""
 
-#: templates/index.html:169
+#: templates/index.html:164
 msgid "Login:"
 msgstr ""
 
-#: templates/index.html:174
+#: templates/index.html:169
 msgid "Password:"
 msgstr ""
 
-#: templates/index.html:181
+#: templates/index.html:178
+msgid "Alternative mirror modes"
+msgstr ""
+
+#: templates/index.html:183
+msgid "Specify antivirus update source URL:"
+msgstr ""
+
+#: templates/index.html:207
+msgid "Specify antispam update source URL:"
+msgstr ""
+
+#: templates/index.html:233
+msgid "Update Bitdefender without using Mirror"
+msgstr ""
+
+#: templates/index.html:240
+msgid "Download Bitdefender antivirus signatures through Mirror"
+msgstr ""
+
+#: templates/index.html:245
 msgid "Other"
 msgstr ""
 
-#: templates/index.html:185
+#: templates/index.html:249
 msgid "Log client IP addresses in system logs"
 msgstr ""
 
-#: templates/index.html:191
+#: templates/index.html:255
 msgid ""
 "Allow access only from the following IP\n"
 "                                    addresses:"
 msgstr ""
 
-#: templates/index.html:201
+#: templates/index.html:265
 msgid "Apply"
 msgstr ""
 
-#: templates/index.html:210
+#: templates/index.html:274
 msgid "Check for Application Updates"
 msgstr ""
 
-#: templates/index.html:213
+#: templates/index.html:277
 msgid "Current version:"
 msgstr ""
 
-#: templates/index.html:214
+#: templates/index.html:278
 msgid "Latest version:"
 msgstr ""
 
-#: templates/index.html:215 templates/index.html:281
+#: templates/index.html:279 templates/index.html:345
 msgid "Last check:"
 msgstr ""
 
-#: templates/index.html:218
+#: templates/index.html:282
 msgid "New version available!"
 msgstr ""
 
-#: templates/index.html:222
+#: templates/index.html:286
 msgid "Check for updates"
 msgstr ""
 
-#: templates/index.html:227
+#: templates/index.html:291
 msgid "Manual update check"
 msgstr ""
 
-#: templates/index.html:229
+#: templates/index.html:293
 msgid "Run check"
 msgstr ""
 
-#: templates/index.html:231
+#: templates/index.html:295
 msgid "It is not recommended to run check more than once a day."
 msgstr ""
 
-#: templates/index.html:234
+#: templates/index.html:298
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local\n"
@@ -426,18 +450,18 @@ msgid ""
 "updates."
 msgstr ""
 
-#: templates/index.html:241
+#: templates/index.html:305
 msgid ""
 "To work, you must specify the IP address of the update mirror for the "
 "following hosts\n"
 "                        in the DNS settings of Kerio products"
 msgstr ""
 
-#: templates/index.html:254
+#: templates/index.html:318
 msgid "License"
 msgstr ""
 
-#: templates/index.html:255
+#: templates/index.html:319
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\"\n"
 "                                                        "
@@ -445,7 +469,7 @@ msgid ""
 "solutions/keriocontrol/free-trial\">here</a>."
 msgstr ""
 
-#: templates/index.html:257
+#: templates/index.html:321
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\"\n"
@@ -453,19 +477,19 @@ msgid ""
 "href=\"https://secure.kerio.com/reg/?lang=en\">here</a>."
 msgstr ""
 
-#: templates/index.html:277
+#: templates/index.html:341
 msgid "CONNECTED"
 msgstr ""
 
-#: templates/index.html:278
+#: templates/index.html:342
 msgid "DISABLED"
 msgstr ""
 
-#: templates/index.html:280
+#: templates/index.html:344
 msgid "ERROR"
 msgstr ""
 
-#: templates/index.html:282
+#: templates/index.html:346
 msgid "Checks completed:"
 msgstr ""
 

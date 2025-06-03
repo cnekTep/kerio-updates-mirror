@@ -30,6 +30,14 @@ const App = {
             updateAvailable: document.getElementById('update-available'),
             updateChanges: document.getElementById('update-changes'),
             checkUpdatesBtn: document.getElementById('check-updates-btn')
+        },
+        alternativeElements: {
+            alternativeCheckbox: document.getElementById('alternative_mode'),
+            alternativeSettings: document.getElementById('alternative_settings'),
+            antivirusUrl: document.getElementById('antivirus_url'),
+            antispamUrl: document.getElementById('antispam_url'),
+            antivirusDropdown: document.getElementById('antivirus_dropdown'),
+            antispamDropdown: document.getElementById('antispam_dropdown')
         }
     },
 
@@ -49,6 +57,7 @@ const App = {
         this.setupGeoCheckboxes();
         this.setupProxySettings();
         this.setupUpdateChecker();
+        this.setupAlternativeMethods();
         setInterval(this.updateLogs.bind(this), this.LOG_UPDATE_INTERVAL);
         window.addEventListener('hashchange', this.handleHashChange.bind(this));
         this.handleHashChange();
@@ -402,6 +411,82 @@ const App = {
                 // Hide loading indicator
                 updateStatus.classList.remove('loading');
             });
+    },
+
+    // Setting up alternative methods functionality
+    setupAlternativeMethods() {
+        const {
+            alternativeCheckbox,
+            alternativeSettings,
+            antivirusUrl,
+            antispamUrl
+        } = this.elements.alternativeElements;
+
+        if (!alternativeCheckbox) return;
+
+        // Check initial state on page load
+        if (alternativeCheckbox.checked) {
+            alternativeSettings.style.display = 'block';
+        }
+
+        // Show/hide alternative settings
+        alternativeCheckbox.addEventListener('change', () => {
+            alternativeSettings.style.display = alternativeCheckbox.checked ? 'block' : 'none';
+        });
+
+        // Setup URL dropdowns
+        this.setupUrlDropdown('antivirus_url', 'antivirus_dropdown');
+        this.setupUrlDropdown('antispam_url', 'antispam_dropdown');
+
+        // Hide dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.url-dropdown').forEach(dropdown => {
+                dropdown.style.display = 'none';
+            });
+        });
+
+        // Allow editing URL fields on focus
+        if (antivirusUrl) {
+            antivirusUrl.addEventListener('focus', function () {
+                this.readOnly = false;
+            });
+        }
+
+        if (antispamUrl) {
+            antispamUrl.addEventListener('focus', function () {
+                this.readOnly = false;
+            });
+        }
+    },
+
+    // Setup URL dropdown functionality
+    setupUrlDropdown(inputId, dropdownId) {
+        const input = document.getElementById(inputId);
+        const dropdown = document.getElementById(dropdownId);
+
+        if (!input || !dropdown) return;
+
+        const container = input.parentElement;
+
+        // Show/hide dropdown
+        container.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Hide all other dropdowns
+            document.querySelectorAll('.url-dropdown').forEach(d => {
+                if (d !== dropdown) d.style.display = 'none';
+            });
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Handle option selection
+        dropdown.addEventListener('click', (e) => {
+            if (e.target.classList.contains('url-option')) {
+                input.value = e.target.dataset.value;
+            }
+            // Close dropdown in any case when clicking inside
+            dropdown.style.display = 'none';
+            e.stopPropagation();
+        });
     }
 };
 

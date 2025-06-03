@@ -51,11 +51,13 @@ def add_proxy_to_params(proxy_type: str, params: dict) -> dict:
         dict: Modified request parameters with proxy settings
     """
     if proxy_type == "tor":
+        proxy_scheme = "socks5h"  # SOCKS5 через Tor с DNS
         proxy_host = config.tor_host
         proxy_port = config.tor_port
         proxy_login = None
         proxy_password = None
     elif proxy_type == "proxy":
+        proxy_scheme = "http"
         proxy_host = config.proxy_host
         proxy_port = config.proxy_port
         proxy_login = config.proxy_login
@@ -69,7 +71,7 @@ def add_proxy_to_params(proxy_type: str, params: dict) -> dict:
     else:
         proxy_auth = ""
 
-    proxy_url = f"http://{proxy_auth}{proxy_host}:{proxy_port}"
+    proxy_url = f"{proxy_scheme}://{proxy_auth}{proxy_host}:{proxy_port}"
 
     params["proxies"] = {
         "http": proxy_url,

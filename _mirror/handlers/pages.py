@@ -41,6 +41,10 @@ def main_page():
         "tor_status": tor_checker.get_status(),
         "locale": config.locale,
         "compile": config.compile,
+        "alternative_mode": config.alternative_mode,
+        "antivirus_update_url":config.antivirus_update_url,
+        "antispam_update_url":config.antispam_update_url,
+        "bitdefender_mode": config.bitdefender_update_mode,
         "current_version": checker.get_current_version(),
     }
 
@@ -75,6 +79,13 @@ def save_settings():
         config.proxy_port = request.form.get("proxy_port") or config.proxy_port
         config.proxy_login = request.form.get("proxy_login") or None
         config.proxy_password = request.form.get("proxy_password") or None
+
+    # Update alternative methods if enabled
+    config.alternative_mode = "alternative_mode" in request.form
+    if config.alternative_mode:
+        config.antivirus_update_url = request.form.get("antivirus_url")
+        config.antispam_update_url = request.form.get("antispam_url")
+        config.bitdefender_update_mode = request.form.get("bitdefender_mode", "no_mirror")
 
     # Update allowed IPs if enabled
     config.allowed_ips = request.form.get("allowed_ips") if "allowed_ips_enabled" in request.form else ""
