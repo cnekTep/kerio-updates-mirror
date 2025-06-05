@@ -38,6 +38,10 @@ const App = {
             antispamUrl: document.getElementById('antispam_url'),
             antivirusDropdown: document.getElementById('antivirus_dropdown'),
             antispamDropdown: document.getElementById('antispam_dropdown')
+        },
+        authElements: {
+            useAuthCheckbox: document.getElementById('use_auth'),
+            authSettings: document.getElementById('auth_settings')
         }
     },
 
@@ -58,6 +62,7 @@ const App = {
         this.setupProxySettings();
         this.setupUpdateChecker();
         this.setupAlternativeMethods();
+        this.setupAuthSettings();
         setInterval(this.updateLogs.bind(this), this.LOG_UPDATE_INTERVAL);
         window.addEventListener('hashchange', this.handleHashChange.bind(this));
         this.handleHashChange();
@@ -487,6 +492,79 @@ const App = {
             dropdown.style.display = 'none';
             e.stopPropagation();
         });
+    },
+
+    setupAuthSettings() {
+        const useAuthCheckbox = document.getElementById('use_auth');
+        const authSettings = document.getElementById('auth_settings');
+        const authPassword = document.getElementById('auth_password');
+        const authPasswordConfirm = document.getElementById('auth_password_confirm');
+        const form = document.querySelector('.settings-form');
+
+        // Checking if the elements exist
+        if (!useAuthCheckbox || !authSettings) {
+            return;
+        }
+
+        // Функция переключения видимости настроек
+        const toggleAuthSettings = () => {
+            authSettings.style.display = useAuthCheckbox.checked ? 'block' : 'none';
+        };
+
+        // Password validation
+        const validatePasswords = () => {
+            if (!useAuthCheckbox.checked) {
+                if (authPasswordConfirm) authPasswordConfirm.setCustomValidity('');
+                return true;
+            }
+
+            // If both fields are empty, the password does not change
+            if (!authPassword.value && !authPasswordConfirm.value) {
+                authPasswordConfirm.setCustomValidity('');
+                return true;
+            }
+
+            // If only one field is filled in, it is an error
+            if (authPassword.value && !authPasswordConfirm.value) {
+                authPasswordConfirm.setCustomValidity(window.TRANSLATIONS.CONFIRM_NEW_PASSWORD);
+                return false;
+            }
+
+            if (!authPassword.value && authPasswordConfirm.value) {
+                authPasswordConfirm.setCustomValidity(window.TRANSLATIONS.ENTER_NEW_PASSWORD);
+                return false;
+            }
+
+            // If both are filled in - check for a match
+            if (authPassword.value !== authPasswordConfirm.value) {
+                authPasswordConfirm.setCustomValidity(window.TRANSLATIONS.PASSWORDS_DO_NOT_MATCH);
+                return false;
+            }
+
+            authPasswordConfirm.setCustomValidity('');
+            return true;
+        };
+
+        // Set initial state
+        toggleAuthSettings();
+
+        // Add an event listener for the checkbox
+        useAuthCheckbox.addEventListener('change', toggleAuthSettings);
+
+        if (authPassword && authPasswordConfirm) {
+            authPassword.addEventListener('input', validatePasswords);
+            authPasswordConfirm.addEventListener('input', validatePasswords);
+        }
+
+        // Check when submitting form
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                if (useAuthCheckbox.checked && !validatePasswords()) {
+                    e.preventDefault();
+                    authPasswordConfirm.focus();
+                }
+            });
+        }
     }
 };
 

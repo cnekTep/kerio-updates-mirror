@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.1.0",
+    "description": {
+      "en": "Added authorization option",
+      "ru": "Добавлена возможность авторизации"
+    }
+  },
+  {
     "version": "2.0.0",
     "description": {
       "en": "Added alternative mirror mode (downloading antivirus signatures without using a mirror and using third-party update servers)",

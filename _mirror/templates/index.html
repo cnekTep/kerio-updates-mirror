@@ -27,6 +27,10 @@
                     <a href="#" class="lang-link" data-lang="en">EN</a>
                     <a href="#" class="lang-link" data-lang="ru">RU</a>
                 </div>
+                <a href="/logout" class="logout-btn" title="{{ _('Logout') }}"
+                    {% if not auth %}style="display: none;"{% endif %}>
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
             </div>
         </div>
     </div>
@@ -260,6 +264,36 @@
                                    placeholder="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10, 192.168.3.0/24"
                                    title="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10, 192.168.3.0/24">
                         </div>
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="use_auth" name="use_auth"
+                                   {% if auth %}checked{% endif %}>
+                            <label for="use_auth">{{ _('Use authentication') }}</label>
+                        </div>
+
+                        <div id="auth_settings">
+                            <div class="form-group">
+                                <label for="auth_username">{{ _('Username:') }}</label>
+                                <input type="text" id="auth_username" name="auth_username" class="form-control"
+                                       value="{{ auth_username or '' }}"
+                                       title="{{ _('To change the username, enter password and confirm it!') }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="auth_password">{{ _('Password:') }}</label>
+                                <input type="password" id="auth_password" name="auth_password" class="form-control"
+                                       value="{{ auth_password or '' }}"
+                                       placeholder="**********"
+                                       title="{{ _('Leave empty not to change it') }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="auth_password_confirm">{{ _('Confirm:') }}</label>
+                                <input type="password" id="auth_password_confirm" name="auth_password_confirm"
+                                       class="form-control"
+                                       value="{{ auth_password or '' }}"
+                                       placeholder="**********"
+                                       title="{{ _('Leave empty not to change it') }}">
+                            </div>
+                        </div>
+
                     </fieldset>
                     <button type="submit" class="btn">
                         <i class="fas fa-save"></i>{{ _('Apply') }}
@@ -344,6 +378,9 @@
         ERROR: "{{ _('ERROR') }}",
         LAST_CHECK: "{{ _('Last check:') }}",
         CHECKS_COMPLETED: "{{ _('Checks completed:') }}",
+        CONFIRM_NEW_PASSWORD: "{{ _('Confirm new password') }}",
+        ENTER_NEW_PASSWORD: "{{ _('Enter new password') }}",
+        PASSWORDS_DO_NOT_MATCH: "{{ _('Passwords do not match') }}",
     };
 </script>
 <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>

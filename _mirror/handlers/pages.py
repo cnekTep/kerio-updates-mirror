@@ -1,5 +1,8 @@
+import uuid
+
 from flask import request, render_template, redirect
 from flask_babel import gettext as _
+from werkzeug.security import generate_password_hash
 
 from config.config_env import config
 from utils.logging import write_log, read_last_lines
@@ -42,10 +45,12 @@ def main_page():
         "locale": config.locale,
         "compile": config.compile,
         "alternative_mode": config.alternative_mode,
-        "antivirus_update_url":config.antivirus_update_url,
-        "antispam_update_url":config.antispam_update_url,
+        "antivirus_update_url": config.antivirus_update_url,
+        "antispam_update_url": config.antispam_update_url,
         "bitdefender_mode": config.bitdefender_update_mode,
         "current_version": checker.get_current_version(),
+        "auth": config.auth,
+        "auth_username": config.admin_username,
     }
 
     return render_template(template_name_or_list="index.html", **template_data)
@@ -86,6 +91,21 @@ def save_settings():
         config.antivirus_update_url = request.form.get("antivirus_url")
         config.antispam_update_url = request.form.get("antispam_url")
         config.bitdefender_update_mode = request.form.get("bitdefender_mode", "no_mirror")
+
+    # Update authentication
+    if "use_auth" in request.form:
+        auth_username = request.form.get("auth_username") or None
+        auth_password = request.form.get("auth_password") or None
+        if auth_username and auth_password:
+            config.auth = True
+            config.admin_id = str(uuid.uuid4())
+            config.admin_username = auth_username
+            config.admin_password_hash = generate_password_hash(auth_password)
+    else:
+        config.auth = False
+        config.admin_id = None
+        config.admin_username = None
+        config.admin_password_hash = None
 
     # Update allowed IPs if enabled
     config.allowed_ips = request.form.get("allowed_ips") if "allowed_ips_enabled" in request.form else ""

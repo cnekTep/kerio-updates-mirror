@@ -1,4 +1,5 @@
 import os
+import secrets
 from typing import Any, Dict
 
 from dotenv import load_dotenv, set_key
@@ -54,6 +55,11 @@ class Config:
             "ANTISPAM_UPDATE_URL": None,  # Antispam update URL
             "BITDEFENDER_UPDATE_MODE": "no_mirror",  # Download Bitdefender signatures through mirror or not
             "KERIO_CDN_URL": None,  # Kerio CDN URL
+            "AUTH": False,  # Authentication enabled or not
+            "SECRET_KEY": secrets.token_hex(16),  # Secret key,
+            "ADMIN_ID": None,  # Admin ID
+            "ADMIN_USERNAME": None,  # Admin username
+            "ADMIN_PASSWORD_HASH": None,  # Admin password hash
         }
 
         # Create .env file if it doesn't exist

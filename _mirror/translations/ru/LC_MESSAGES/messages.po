@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  2.0.0\n"
+"Project-Id-Version:  2.1.0\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -9,29 +9,43 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app.py:69
+#: app.py:57
 #, python-format
-msgid "Language changed to: %(lang)s"
-msgstr "Язык изменен на: %(lang)s"
+msgid "No handler found for request: %(request_url)s"
+msgstr "Не найден обработчик для запроса: %(request_url)s"
 
-#: app.py:103
-#, python-format
-msgid "No handler for request: %(request_url)s"
-msgstr "Нет обработчика для запроса: %(request_url)s"
-
-#: app.py:122
+#: app.py:78
 #, python-format
 msgid "%(protocol)s server started on port %(port)s"
 msgstr "%(protocol)s сервер запущен на порту %(port)s"
 
-#: app.py:165
+#: app.py:121
 msgid "Server shutdown initiated"
 msgstr "Инициализировано завершение работы сервера"
 
-#: app.py:168
+#: app.py:124
 #, python-format
 msgid "Critical error: %(error)s"
 msgstr "Критическая ошибка: %(error)s"
+
+#: handlers/auth.py:67
+#, python-format
+msgid "User logged in: %(username)s"
+msgstr "Пользователь вошел в систему: %(username)s"
+
+#: handlers/auth.py:75
+#, python-format
+msgid "Failed login attempt for user: %(username)s"
+msgstr "Неудачная попытка входа пользователя: %(username)s"
+
+#: handlers/auth.py:78
+msgid "Invalid username or password"
+msgstr "Неверное имя пользователя или пароль"
+
+#: handlers/auth.py:89
+#, python-format
+msgid "User logged out: %(username)s"
+msgstr "Пользователь вышел из системы: %(username)s"
 
 #: handlers/bitdefender.py:29
 msgid "Received antivirus signatures request"
@@ -198,7 +212,7 @@ msgstr "Ошибка при загрузке IDSv%(version)s %(proxy_status)s: %
 msgid "IDSv%(version)s: error downloading update"
 msgstr "IDSv%(version)s: ошибка при загрузке обновления"
 
-#: handlers/pages.py:93
+#: handlers/pages.py:113
 msgid "Settings have been changed"
 msgstr "Настройки были изменены"
 
@@ -273,175 +287,204 @@ msgstr "Ошибка получения Web Filter ключа %(proxy_status)s: 
 msgid "Web Filter: error fetching Web Filter key"
 msgstr "Web Filter: ошибка получения Web Filter ключа"
 
+#: routes/admin.py:37
+#, python-format
+msgid "Language changed to: %(lang)s"
+msgstr "Язык изменен на: %(lang)s"
+
 #: templates/index.html:18
 msgid "Update available!"
 msgstr "Доступно обновление!"
 
-#: templates/index.html:24 templates/index.html:343
+#: templates/index.html:24 templates/index.html:377
 msgid "CHECKING"
 msgstr "ПРОВЕРКА"
 
-#: templates/index.html:39
+#: templates/index.html:30
+msgid "Logout"
+msgstr "Выход из системы"
+
+#: templates/index.html:43
 msgid "System Log"
 msgstr "Системный журнал"
 
-#: templates/index.html:42
+#: templates/index.html:46
 msgid "Mirror Update Log"
 msgstr "Журнал обновлений"
 
-#: templates/index.html:45
+#: templates/index.html:49
 msgid "Settings"
 msgstr "Настройки"
 
-#: templates/index.html:48
+#: templates/index.html:52
 msgid "Information"
 msgstr "Информация"
 
-#: templates/index.html:60 templates/index.html:82
+#: templates/index.html:64 templates/index.html:86
 msgid "Autoupdate"
 msgstr "Автообновление"
 
-#: templates/index.html:67 templates/index.html:89
+#: templates/index.html:71 templates/index.html:93
 msgid "Autoscroll"
 msgstr "Автопрокрутка"
 
-#: templates/index.html:100
+#: templates/index.html:104
 msgid "Update"
 msgstr "Обнвление"
 
-#: templates/index.html:102
+#: templates/index.html:106
 msgid "License:"
 msgstr "Использовать лицензию:"
 
-#: templates/index.html:109
+#: templates/index.html:113
 msgid "IDSv1 - IPS/IDS Snort (Windows versions)"
 msgstr "IDSv1 - IPS/IDS Snort (Windows версия)"
 
-#: templates/index.html:114
+#: templates/index.html:118
 msgid "IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)"
 msgstr "IDSv3 - IPS/IDS Snort (версия для Linux до 9.5)"
 
-#: templates/index.html:119
+#: templates/index.html:123
 msgid "IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)"
 msgstr "IDSv5 - IPS/IDS Snort (версия для Linux начиная с 9.5)"
 
-#: templates/index.html:124
+#: templates/index.html:128
 msgid "IDSv2 - Lists of compromised addresses for blocking"
 msgstr "IDSv2 - Списки скомпрометированных адресов для блокировки"
 
-#: templates/index.html:129
+#: templates/index.html:133
 msgid "IDSv4 - GeoIP databases for geolocation/visitor blocking"
 msgstr "IDSv4 - Базы данных GeoIP для геолокации/блокировки посетителей"
 
-#: templates/index.html:134
+#: templates/index.html:138
 msgid "Use GitHub as a source for GeoIP database updates"
 msgstr "Использовать GitHub в качестве источника обновлений базы данных GeoIP"
 
-#: templates/index.html:139
+#: templates/index.html:143
 msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
 msgstr "Ключ подсистемы фильтрации контента Kerio Control Web Filter"
 
-#: templates/index.html:145
+#: templates/index.html:149
 msgid "Use TOR to update Bitdefender and download other updates"
 msgstr "Использовать TOR для обновления Bitdefender и загрузки других обновлений"
 
-#: templates/index.html:150
+#: templates/index.html:154
 msgid "Use proxy server to update Bitdefender and download other updates"
 msgstr ""
 "Использовать прокси-сервер для обновления Bitdefender и загрузки других "
 "обновлений"
 
-#: templates/index.html:154
+#: templates/index.html:158
 msgid "Host:"
 msgstr "Адрес:"
 
-#: templates/index.html:159
+#: templates/index.html:163
 msgid "Port:"
 msgstr "Порт:"
 
-#: templates/index.html:164
+#: templates/index.html:168
 msgid "Login:"
 msgstr "Логин:"
 
-#: templates/index.html:169
+#: templates/index.html:173 templates/index.html:281 templates/login.html:19
 msgid "Password:"
 msgstr "Пароль:"
 
-#: templates/index.html:178
+#: templates/index.html:182
 msgid "Alternative mirror modes"
 msgstr "Альтернативные режимы работы зеркала"
 
-#: templates/index.html:183
+#: templates/index.html:187
 msgid "Antivirus update source URL:"
 msgstr "URL обновления антивируса:"
 
-#: templates/index.html:207
+#: templates/index.html:211
 msgid "Antispam update source URL:"
 msgstr "URL обновления антиспама:"
 
-#: templates/index.html:233
+#: templates/index.html:237
 msgid "Update Bitdefender without using Mirror"
 msgstr "Обновление Bitdefender без использования зеркала"
 
-#: templates/index.html:240
+#: templates/index.html:244
 msgid "Download Bitdefender antivirus signatures through Mirror"
 msgstr "Загрузка антивирусных сигнатур Bitdefender через зеркало"
 
-#: templates/index.html:245
+#: templates/index.html:249
 msgid "Other"
 msgstr "Дополнительно"
 
-#: templates/index.html:249
+#: templates/index.html:253
 msgid "Log client IP addresses in system logs"
 msgstr "Записывать IP-адреса клиентов в системном журнале"
 
-#: templates/index.html:255
+#: templates/index.html:259
 msgid ""
 "Allow access only from the following IP\n"
 "                                    addresses:"
 msgstr "Разрешить доступ только со следующих IP-адресов:"
 
-#: templates/index.html:265
+#: templates/index.html:270
+msgid "Use authentication"
+msgstr "Использовать аутентификацию"
+
+#: templates/index.html:275 templates/login.html:15
+msgid "Username:"
+msgstr "Логин:"
+
+#: templates/index.html:278
+msgid "To change the username, enter password and confirm it!"
+msgstr "Чтобы изменить имя пользователя, введите пароль и подтвердите его!"
+
+#: templates/index.html:285 templates/index.html:293
+msgid "Leave empty not to change it"
+msgstr "Оставьте пустым, чтобы не изменять"
+
+#: templates/index.html:288
+msgid "Confirm:"
+msgstr "Подтверждение:"
+
+#: templates/index.html:299
 msgid "Apply"
 msgstr "Применить"
 
-#: templates/index.html:274
+#: templates/index.html:308
 msgid "Check for Application Updates"
 msgstr "Проверка обновлений приложения"
 
-#: templates/index.html:277
+#: templates/index.html:311
 msgid "Current version:"
 msgstr "Текущая версия:"
 
-#: templates/index.html:278
+#: templates/index.html:312
 msgid "Latest version:"
 msgstr "Последняя версия:"
 
-#: templates/index.html:279 templates/index.html:345
+#: templates/index.html:313 templates/index.html:379
 msgid "Last check:"
 msgstr "Последняя проверка:"
 
-#: templates/index.html:282
+#: templates/index.html:316
 msgid "New version available!"
 msgstr "Доступна новая версия!"
 
-#: templates/index.html:286
+#: templates/index.html:320
 msgid "Check for updates"
 msgstr "Проверить обновления"
 
-#: templates/index.html:291
+#: templates/index.html:325
 msgid "Manual update check"
 msgstr "Ручная проверка обновлений"
 
-#: templates/index.html:293
+#: templates/index.html:327
 msgid "Run check"
 msgstr "Выполнить проверку"
 
-#: templates/index.html:295
+#: templates/index.html:329
 msgid "It is not recommended to run check more than once a day."
 msgstr "Не рекомендуется проводить проверку чаще одного раза в день."
 
-#: templates/index.html:298
+#: templates/index.html:332
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local\n"
@@ -461,7 +504,7 @@ msgstr ""
 "трафик и автоматизирует борьбу с уязвимостями и ошибками в программных "
 "продуктах, а также позволяет централизованно управлять обновлениями."
 
-#: templates/index.html:305
+#: templates/index.html:339
 msgid ""
 "To work, you must specify the IP address of the update mirror for the "
 "following hosts\n"
@@ -470,11 +513,11 @@ msgstr ""
 "Для работы необходимо указать IP-адрес зеркала обновлений для следующих "
 "хостов в настройках DNS продуктов Kerio"
 
-#: templates/index.html:318
+#: templates/index.html:352
 msgid "License"
 msgstr "Лицензия"
 
-#: templates/index.html:319
+#: templates/index.html:353
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\"\n"
 "                                                        "
@@ -485,7 +528,7 @@ msgstr ""
 "noreferrer\" href=\"https://gfi.ai/products-and-solutions/network-"
 "security-solutions/keriocontrol/free-trial\">здесь</a>."
 
-#: templates/index.html:321
+#: templates/index.html:355
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\"\n"
@@ -496,21 +539,37 @@ msgstr ""
 "rel=\"noopener noreferrer\" "
 "href=\"https://secure.kerio.com/reg/?lang=en\">здесь</a>."
 
-#: templates/index.html:341
+#: templates/index.html:375
 msgid "CONNECTED"
 msgstr "ПОДКЛЮЧЕН"
 
-#: templates/index.html:342
+#: templates/index.html:376
 msgid "DISABLED"
 msgstr "ОТКЛЮЧЕН"
 
-#: templates/index.html:344
+#: templates/index.html:378
 msgid "ERROR"
 msgstr "ОШИБКА"
 
-#: templates/index.html:346
+#: templates/index.html:380
 msgid "Checks completed:"
 msgstr "Проверок завершено:"
+
+#: templates/index.html:381
+msgid "Confirm new password"
+msgstr "Подтвердите новый пароль"
+
+#: templates/index.html:382
+msgid "Enter new password"
+msgstr "Введите новый пароль"
+
+#: templates/index.html:383
+msgid "Passwords do not match"
+msgstr "Пароли не совпадают"
+
+#: templates/login.html:22
+msgid "Login"
+msgstr "Вход"
 
 #: utils/ip_auth.py:89
 #, python-format

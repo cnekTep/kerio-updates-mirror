@@ -2,23 +2,15 @@ import threading
 from typing import Tuple
 
 from flask import Flask, request, Response
-from flask import redirect, url_for
 from flask_babel import Babel
 from flask_babel import gettext as _
 
 from config.config_env import config
 from db.database import close_connection, init_db
-from handlers.bitdefender import handle_bitdefender
-from handlers.ids import handler_control_update, handler_checknew, handle_update
-from handlers.log_content import get_system_log, get_updates_log
-from handlers.pages import save_settings, main_page
-from handlers.update_mirror import handler_update_mirror
-from handlers.webfilter import handle_webfilter
-from utils.ip_auth import check_ip
+from handlers.auth import init_auth
+from routes import admin_bp, auth_bp, kerio_bp
 from utils.logging import write_log, setup_logging
 from utils.schedulers import setup_scheduler
-from utils.tor_check import tor_checker
-from utils.update_check import checker
 
 
 def get_locale():
@@ -36,72 +28,36 @@ babel = Babel(app=app, locale_selector=get_locale)
 with app.app_context():
     init_db()
 
-
 # Close database connection when request ends
 app.teardown_appcontext(close_connection)
 
+# Initialize authentication
+app.secret_key = config.secret_key
+login_manager = init_auth(app)
 
-# Main router for all requests
-@app.route(rule="/", defaults={"path": ""}, methods=["GET", "POST"])
-@app.route(rule="/<path:path>", methods=["GET", "POST"])
-@check_ip()  # Decorator for IP verification
-def router(path: str) -> str | Response:
+# Registration of all Blueprints
+app.register_blueprint(auth_bp)
+app.register_blueprint(kerio_bp)
+app.register_blueprint(admin_bp)
+
+
+@app.errorhandler(404)
+def global_not_found(error) -> Response:
     """
-    Unified router for all incoming requests.
+    Global 404 handler (if no Blueprint has processed the request)
 
     Args:
-        path: Request path
+        error: Flask error
 
     Returns:
-        Response: Appropriate response based on the request
+        404 Not found response
     """
-    host = request.headers.get("Host", "")
-
-    # Handle settings save
-    if request.method == "POST" and request.args.get("action") == "save_settings":
-        return save_settings()
-
-    # Handle language change
-    if path == "set_language" and request.args.get("lang"):
-        lang = request.args.get("lang")
-        if lang in ["en", "ru"]:  # Supported languages
-            config.locale = lang
-            write_log(log_type="system", message=_("Language changed to: %(lang)s", lang=lang))
-
-            # Checking if it was an AJAX request
-            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return {"status": "success", "language": lang}
-
-            # Otherwise, redirect to the previous page or to the main page
-            return redirect(request.referrer or url_for("router"))
-
-    if path == "":
-        return main_page()
-    elif path == "update_mirror":
-        return handler_update_mirror()
-    elif path == "get_system_log":
-        return get_system_log()
-    elif path == "get_updates_log":
-        return get_updates_log()
-    elif path == "tor_status":
-        return tor_checker.check_connection()
-    elif path == "check_update_status":
-        return checker.get_latest_results()
-    elif path == "check_for_updates":
-        return checker.manual_update_check()
-    elif path == "update.php":
-        return handle_update()
-    elif path == "getkey.php":
-        return handle_webfilter()
-    elif path == "checknew.php":
-        return handler_checknew()
-    elif "control-update" in path:
-        return handler_control_update()
-    elif "bdupdate.kerio.com" in host or "bda-update.kerio.com" in host:
-        return handle_bitdefender()
-    else:
-        write_log(log_type="system", message=_("No handler for request: %(request_url)s", request_url=request.url))
-        return Response(response="404 Not found", status=404, mimetype="text/plain")
+    write_log(
+        log_type="system",
+        message=_("No handler found for request: %(request_url)s", request_url=request.url),
+        ip=request.remote_addr if config.ip_logging else None,
+    )
+    return Response(response="404 Not found", status=404, mimetype="text/plain")
 
 
 def run_server(port: int, ssl: bool = False) -> None:

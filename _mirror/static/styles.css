@@ -125,6 +125,20 @@ header {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
+.logout-btn {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn:hover {
+    color: var(--light-text);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
 /* TOR Status */
 .tor-status {
     display: flex;
@@ -404,7 +418,7 @@ legend {
 }
 
 /* Proxy Settings */
-#proxy_settings {
+#proxy_settings, #auth_settings {
     padding-top: 8px;
     padding-bottom: 5px;
     padding-left: 10px;
@@ -414,7 +428,7 @@ legend {
     align-items: center;
 }
 
-#proxy_settings .form-group {
+#proxy_settings .form-group, #auth_settings .form-group {
     margin: 0;
     display: inline-flex;
     align-items: center;
@@ -422,7 +436,7 @@ legend {
     flex-shrink: 0;
 }
 
-#proxy_settings label {
+#proxy_settings label, #auth_settings label {
     font-size: 12px;
     color: var(--primary-color);
     font-weight: 500;
@@ -430,7 +444,7 @@ legend {
     margin: 0;
 }
 
-#proxy_settings .form-control {
+#proxy_settings .form-control, #auth_settings .form-control {
     height: 28px;
     padding: 2px 8px;
     border: 1px solid #ddd;
@@ -447,11 +461,11 @@ legend {
     width: 70px;
 }
 
-#proxy_login, #proxy_password {
+#proxy_login, #proxy_password, #auth_username, #auth_password, #auth_password_confirm {
     width: 120px;
 }
 
-#proxy_settings .form-control:focus {
+#proxy_settings .form-control:focus, #auth_settings .form-control:focus {
     border-color: var(--secondary-color);
     outline: none;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
@@ -671,6 +685,88 @@ summary {
     display: inline-block;
 }
 
+/* =================================
+   LOGIN PAGE STYLES
+   ================================= */
+
+/* Login page body override */
+body.login-page {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Login container */
+.login-container {
+    background: white;
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-title {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+/* Login form overrides */
+.login-container .form-group {
+    margin-bottom: 20px;
+}
+
+.login-container .form-group label {
+    font-weight: 500;
+    min-width: 80px;
+    text-align: right;
+}
+
+.login-container .form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+}
+
+.login-container .form-group input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.login-btn:hover {
+    background-color: #2980b9;
+}
+
+.login-container .error {
+    color: var(--error-color);
+    margin-top: 15px;
+    text-align: center;
+    padding: 10px;
+    background-color: #fdf2f2;
+    border: 1px solid var(--error-color);
+    border-radius: var(--border-radius);
+}
+
 /* Adaptability */
 @media (max-width: 768px) {
     .header-content {
@@ -725,24 +821,24 @@ summary {
         transform: translateX(14px);
     }
 
-    /* Proxy Settings */
-    #proxy_settings {
+    /* Proxy and auth Settings */
+    #proxy_settings, #auth_settings {
         flex-direction: column;
         align-items: stretch;
         gap: 8px;
     }
 
-    #proxy_settings .form-group {
+    #proxy_settings .form-group, #auth_settings .form-group {
         width: 100%;
         justify-content: space-between;
     }
 
-    #proxy_settings label {
-        width: 80px;
+    #proxy_settings label, #auth_settings label {
+        width: 95px;
         text-align: right;
     }
 
-    #proxy_settings .form-control {
+    #proxy_settings .form-control, #auth_settings .form-control {
         flex-grow: 1;
         width: calc(100% - 90px) !important;
     }
