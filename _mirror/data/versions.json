@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.1.1",
+    "description": {
+      "en": "The maximum displayed logs in the web interface are limited to 1000 lines to improve UI responsiveness",
+      "ru": "Максимум отображаемых логов в веб-интерфейсе ограничен 1000 строками для повышения отзывчивости UI"
+    }
+  },
+  {
     "version": "2.1.0",
     "description": {
       "en": "Added authorization option",
