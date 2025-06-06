@@ -519,25 +519,27 @@ msgstr "Лицензия"
 
 #: templates/index.html:353
 msgid ""
-"You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\"\n"
+"You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\" "
+"class=\"license-link\"\n"
 "                                                        "
 "href=\"https://gfi.ai/products-and-solutions/network-security-"
 "solutions/keriocontrol/free-trial\">here</a>."
 msgstr ""
 "Получить пробный ключ можно <a target=\"_blank\" rel=\"noopener "
-"noreferrer\" href=\"https://gfi.ai/products-and-solutions/network-"
-"security-solutions/keriocontrol/free-trial\">здесь</a>."
+"noreferrer\" class=\"license-link\"\n"
+" href=\"https://gfi.ai/products-and-solutions/network-security-"
+"solutions/keriocontrol/free-trial\">здесь</a>."
 
 #: templates/index.html:355
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
-"noreferrer\"\n"
+"noreferrer\" class=\"license-link\"\n"
 "                                                              "
 "href=\"https://secure.kerio.com/reg/?lang=en\">here</a>."
 msgstr ""
 "Проверить дату истечения срока действия ключа можно <a target=\"_blank\" "
-"rel=\"noopener noreferrer\" "
-"href=\"https://secure.kerio.com/reg/?lang=en\">здесь</a>."
+"rel=\"noopener noreferrer\" class=\"license-link\"\n"
+" href=\"https://secure.kerio.com/reg/?lang=en\">здесь</a>."
 
 #: templates/index.html:375
 msgid "CONNECTED"

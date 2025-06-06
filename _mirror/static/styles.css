@@ -616,16 +616,23 @@ summary {
     text-align: right;
 }
 
-.github-link, .telegram-link {
+.github-link, .telegram-link, .license-link {
+    background: none;
+    font: inherit;
+    padding: 0;
+    border: none;
     color: var(--secondary-color);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 5px;
+}
+
+.telegram-link {
     margin-left: 10px;
 }
 
-.github-link:hover, .telegram-link:hover {
+.github-link:hover, .telegram-link:hover, .license-link:hover {
     text-decoration: underline;
 }
 
