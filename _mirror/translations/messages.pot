@@ -10,21 +10,21 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app.py:57
+#: app.py:58
 #, python-format
 msgid "No handler found for request: %(request_url)s"
 msgstr ""
 
-#: app.py:78
+#: app.py:79
 #, python-format
 msgid "%(protocol)s server started on port %(port)s"
 msgstr ""
 
-#: app.py:121
+#: app.py:122
 msgid "Server shutdown initiated"
 msgstr ""
 
-#: app.py:124
+#: app.py:125
 #, python-format
 msgid "Critical error: %(error)s"
 msgstr ""
@@ -551,6 +551,10 @@ msgstr ""
 
 #: templates/login.html:22
 msgid "Login"
+msgstr ""
+
+#: utils/internet_utils.py:30
+msgid "No certificates were found, temporary SSL (adhoc) is used"
 msgstr ""
 
 #: utils/ip_auth.py:89

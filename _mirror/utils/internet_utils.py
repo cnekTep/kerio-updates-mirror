@@ -1,6 +1,34 @@
+import os
 from typing import Optional, Dict, Any
 
+from flask_babel import gettext as _
+
 from config.config_env import config
+from utils.logging import write_log
+
+
+def get_ssl_context(cert_dir: str = "certs") -> tuple[str, str] | str:
+    """
+    Returns the SSL context if valid certificates are found, otherwise 'adhoc'.
+
+    Args:
+        cert_dir: Directory with certificates
+
+    Returns:
+        Tuple(str, str) or the string 'adhoc'
+    """
+    cert1 = os.path.join(cert_dir, "cert.pem")
+    key1 = os.path.join(cert_dir, "key.pem")
+    cert2 = os.path.join(cert_dir, "Certificate.crt")
+    key2 = os.path.join(cert_dir, "Certificate.key")
+
+    if os.path.exists(cert1) and os.path.exists(key1):
+        return cert1, key1
+    elif os.path.exists(cert2) and os.path.exists(key2):
+        return cert2, key2
+    else:
+        write_log(log_type="system", message=_("No certificates were found, temporary SSL (adhoc) is used"))
+        return "adhoc"
 
 
 def prepare_request_params(

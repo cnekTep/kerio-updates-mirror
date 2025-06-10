@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  2.1.0\n"
+"Project-Id-Version:  2.2.0\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -9,21 +9,21 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app.py:57
+#: app.py:58
 #, python-format
 msgid "No handler found for request: %(request_url)s"
 msgstr "Не найден обработчик для запроса: %(request_url)s"
 
-#: app.py:78
+#: app.py:79
 #, python-format
 msgid "%(protocol)s server started on port %(port)s"
 msgstr "%(protocol)s сервер запущен на порту %(port)s"
 
-#: app.py:121
+#: app.py:122
 msgid "Server shutdown initiated"
 msgstr "Инициализировано завершение работы сервера"
 
-#: app.py:124
+#: app.py:125
 #, python-format
 msgid "Critical error: %(error)s"
 msgstr "Критическая ошибка: %(error)s"
@@ -572,6 +572,10 @@ msgstr "Пароли не совпадают"
 #: templates/login.html:22
 msgid "Login"
 msgstr "Вход"
+
+#: utils/internet_utils.py:30
+msgid "No certificates were found, temporary SSL (adhoc) is used"
+msgstr "Сертификаты не найдены, используется временный SSL (adhoc)"
 
 #: utils/ip_auth.py:89
 #, python-format

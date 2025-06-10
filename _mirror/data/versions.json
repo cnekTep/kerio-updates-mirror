@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.2.0",
+    "description": {
+      "en": "Added the ability to launch a mirror with a pre-generated certificate",
+      "ru": "Добавлена возможность запуска зеркала с заранее сгенерированным сертификатом"
+    }
+  },
+  {
     "version": "2.1.1",
     "description": {
       "en": "The maximum displayed logs in the web interface are limited to 1000 lines to improve UI responsiveness",

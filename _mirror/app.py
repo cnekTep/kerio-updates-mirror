@@ -9,6 +9,7 @@ from config.config_env import config
 from db.database import close_connection, init_db
 from handlers.auth import init_auth
 from routes import admin_bp, auth_bp, kerio_bp
+from utils.internet_utils import get_ssl_context
 from utils.logging import write_log, setup_logging
 from utils.schedulers import setup_scheduler
 
@@ -71,7 +72,7 @@ def run_server(port: int, ssl: bool = False) -> None:
     with app.app_context():
         kwargs = {"port": port, "host": "0.0.0.0", "threaded": True}
         if ssl:
-            kwargs["ssl_context"] = "adhoc"
+            kwargs["ssl_context"] = get_ssl_context()
 
         protocol = "HTTPS" if ssl else "HTTP"
         write_log(
