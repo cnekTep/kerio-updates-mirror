@@ -28,6 +28,44 @@ msgstr "Инициализировано завершение работы се�
 msgid "Critical error: %(error)s"
 msgstr "Критическая ошибка: %(error)s"
 
+#: db/database.py:19
+#, python-format
+msgid "Database initialization error: %(error)s"
+msgstr "Ошибка инициализации базы данных: %(error)s"
+
+#: db/migrations.py:64
+#, python-format
+msgid "Current database version: %(version)s"
+msgstr "Текущая версия базы данных: %(version)s"
+
+#: db/migrations.py:67
+#, python-format
+msgid "Latest available version: %(version)s"
+msgstr "Последняя версия: %(version)s"
+
+#: db/migrations.py:68
+msgid "Applying migrations..."
+msgstr "Применение миграций..."
+
+#: db/migrations.py:73
+#, python-format
+msgid "Apply migration: %(version)s"
+msgstr "Применяемая миграция: %(version)s"
+
+#: db/migrations.py:79
+#, python-format
+msgid "Migration %(version)s successfully applied"
+msgstr "Миграция %(version)s успешно применена"
+
+#: db/migrations.py:85
+#, python-format
+msgid "Error when applying %(version)s migration: %(error)s"
+msgstr "Ошибка при применении миграции %(version)s: %(error)s"
+
+#: db/migrations.py:90
+msgid "Database is up to date"
+msgstr "База данных актуальна"
+
 #: handlers/auth.py:67
 #, python-format
 msgid "User logged in: %(username)s"

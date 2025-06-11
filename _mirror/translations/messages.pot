@@ -29,6 +29,44 @@ msgstr ""
 msgid "Critical error: %(error)s"
 msgstr ""
 
+#: db/database.py:19
+#, python-format
+msgid "Database initialization error: %(error)s"
+msgstr ""
+
+#: db/migrations.py:64
+#, python-format
+msgid "Current database version: %(version)s"
+msgstr ""
+
+#: db/migrations.py:67
+#, python-format
+msgid "Latest available version: %(version)s"
+msgstr ""
+
+#: db/migrations.py:68
+msgid "Applying migrations..."
+msgstr ""
+
+#: db/migrations.py:73
+#, python-format
+msgid "Apply migration: %(version)s"
+msgstr ""
+
+#: db/migrations.py:79
+#, python-format
+msgid "Migration %(version)s successfully applied"
+msgstr ""
+
+#: db/migrations.py:85
+#, python-format
+msgid "Error when applying %(version)s migration: %(error)s"
+msgstr ""
+
+#: db/migrations.py:90
+msgid "Database is up to date"
+msgstr ""
+
 #: handlers/auth.py:67
 #, python-format
 msgid "User logged in: %(username)s"
