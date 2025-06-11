@@ -25,7 +25,7 @@ def write_log(log_type: Union[str, list[str]], message: str, date: bool = True, 
         ip: Optional IP address to include in the log entry
     """
     now_date = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
-    logging.info(f"[{ip}] {message}" if ip else message)
+    logging.warn(f"[{ip}] {message}" if ip else message)
 
     prefix = ""
     if date:
