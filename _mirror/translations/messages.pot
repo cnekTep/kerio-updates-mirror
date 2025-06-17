@@ -160,94 +160,104 @@ msgstr ""
 msgid "File %(input_path)s not found"
 msgstr ""
 
-#: handlers/ids.py:17
+#: handlers/ids.py:18
 #, python-format
-msgid "Received request for IDS update: %(request_path)s"
+msgid "Received request for %(update_type)s update: %(request_path)s"
 msgstr ""
 
-#: handlers/ids.py:43
+#: handlers/ids.py:51
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr ""
 
-#: handlers/ids.py:50
+#: handlers/ids.py:58
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:60
+#: handlers/ids.py:68
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:107
+#: handlers/ids.py:115
 #, python-format
 msgid "Error occurred while receiving a link to an antivirus update: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:114
+#: handlers/ids.py:122
 #, python-format
 msgid "Update link sent: %(url)s"
 msgstr ""
 
-#: handlers/ids.py:135
+#: handlers/ids.py:143
 #, python-format
 msgid "Error occurred while processing IDS update: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:142
+#: handlers/ids.py:150
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:161
+#: handlers/ids.py:169
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr ""
 
-#: handlers/ids.py:202
+#: handlers/ids.py:210
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:216
+#: handlers/ids.py:224
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
 "%(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:227
+#: handlers/ids.py:235
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:244
+#: handlers/ids.py:252
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:256
+#: handlers/ids.py:264
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:263
+#: handlers/ids.py:271
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:280
+#: handlers/ids.py:288
 #, python-format
 msgid "Error downloading IDSv%(version)s %(proxy_status)s: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:288
+#: handlers/ids.py:296
 #, python-format
 msgid "IDSv%(version)s: error downloading update"
 msgstr ""
 
-#: handlers/pages.py:113
+#: handlers/ids.py:342
+#, python-format
+msgid "[%(proxy_status)s] Failed to download Snort template: %(url)s"
+msgstr ""
+
+#: handlers/ids.py:352
+#, python-format
+msgid "[%(proxy_status)s] Successfully downloaded Snort template: %(url)s"
+msgstr ""
+
+#: handlers/pages.py:115
 msgid "Settings have been changed"
 msgstr ""
 
@@ -274,11 +284,11 @@ msgstr ""
 msgid "IDSv4: no new version available, current version: 4.%(actual_version)s"
 msgstr ""
 
-#: handlers/update_mirror.py:115
+#: handlers/update_mirror.py:118
 msgid "Scheduled mirror update process completed"
 msgstr ""
 
-#: handlers/update_mirror.py:115
+#: handlers/update_mirror.py:118
 msgid "Manual mirror update process completed"
 msgstr ""
 
@@ -331,7 +341,7 @@ msgstr ""
 msgid "Update available!"
 msgstr ""
 
-#: templates/index.html:24 templates/index.html:377
+#: templates/index.html:24 templates/index.html:384
 msgid "CHECKING"
 msgstr ""
 
@@ -384,140 +394,151 @@ msgid "IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)"
 msgstr ""
 
 #: templates/index.html:128
+msgid ""
+"Update Snort template via mirror\n"
+"To update, you need to add download.kerio.com with the mirror address in "
+"DNS"
+msgstr ""
+
+#: templates/index.html:129
+msgid "Update Snort template"
+msgstr ""
+
+#: templates/index.html:134
 msgid "IDSv2 - Lists of compromised addresses for blocking"
 msgstr ""
 
-#: templates/index.html:133
+#: templates/index.html:139
 msgid "IDSv4 - GeoIP databases for geolocation/visitor blocking"
 msgstr ""
 
-#: templates/index.html:138
+#: templates/index.html:144
 msgid "Use GitHub as a source for GeoIP database updates"
 msgstr ""
 
-#: templates/index.html:143
+#: templates/index.html:149
 msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
 msgstr ""
 
-#: templates/index.html:149
+#: templates/index.html:155
 msgid "Use TOR to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/index.html:154
+#: templates/index.html:160
 msgid "Use proxy server to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/index.html:158
+#: templates/index.html:164
 msgid "Host:"
 msgstr ""
 
-#: templates/index.html:163
+#: templates/index.html:169
 msgid "Port:"
 msgstr ""
 
-#: templates/index.html:168
+#: templates/index.html:174
 msgid "Login:"
 msgstr ""
 
-#: templates/index.html:173 templates/index.html:281 templates/login.html:19
+#: templates/index.html:179 templates/index.html:287 templates/login.html:19
 msgid "Password:"
 msgstr ""
 
-#: templates/index.html:182
+#: templates/index.html:188
 msgid "Alternative mirror modes"
 msgstr ""
 
-#: templates/index.html:187
+#: templates/index.html:193
 msgid "Antivirus update source URL:"
 msgstr ""
 
-#: templates/index.html:211
+#: templates/index.html:217
 msgid "Antispam update source URL:"
 msgstr ""
 
-#: templates/index.html:237
+#: templates/index.html:243
 msgid "Update Bitdefender without using Mirror"
 msgstr ""
 
-#: templates/index.html:244
+#: templates/index.html:250
 msgid "Download Bitdefender antivirus signatures through Mirror"
 msgstr ""
 
-#: templates/index.html:249
+#: templates/index.html:255
 msgid "Other"
 msgstr ""
 
-#: templates/index.html:253
+#: templates/index.html:259
 msgid "Log client IP addresses in system logs"
 msgstr ""
 
-#: templates/index.html:259
+#: templates/index.html:265
 msgid ""
 "Allow access only from the following IP\n"
 "                                    addresses:"
 msgstr ""
 
-#: templates/index.html:270
+#: templates/index.html:276
 msgid "Use authentication"
 msgstr ""
 
-#: templates/index.html:275 templates/login.html:15
+#: templates/index.html:281 templates/login.html:15
 msgid "Username:"
 msgstr ""
 
-#: templates/index.html:278
+#: templates/index.html:284
 msgid "To change the username, enter password and confirm it!"
 msgstr ""
 
-#: templates/index.html:285 templates/index.html:293
+#: templates/index.html:291 templates/index.html:299
 msgid "Leave empty not to change it"
 msgstr ""
 
-#: templates/index.html:288
+#: templates/index.html:294
 msgid "Confirm:"
 msgstr ""
 
-#: templates/index.html:299
+#: templates/index.html:305
 msgid "Apply"
 msgstr ""
 
-#: templates/index.html:308
+#: templates/index.html:314
 msgid "Check for Application Updates"
 msgstr ""
 
-#: templates/index.html:311
+#: templates/index.html:317
 msgid "Current version:"
 msgstr ""
 
-#: templates/index.html:312
+#: templates/index.html:318
 msgid "Latest version:"
 msgstr ""
 
-#: templates/index.html:313 templates/index.html:379
+#: templates/index.html:319 templates/index.html:386
 msgid "Last check:"
 msgstr ""
 
-#: templates/index.html:316
+#: templates/index.html:322
 msgid "New version available!"
 msgstr ""
 
-#: templates/index.html:320
+#: templates/index.html:326
 msgid "Check for updates"
 msgstr ""
 
-#: templates/index.html:325
+#: templates/index.html:331
 msgid "Manual update check"
 msgstr ""
 
-#: templates/index.html:327
+#: templates/index.html:333
 msgid "Run check"
 msgstr ""
 
-#: templates/index.html:329
+#: templates/index.html:335
 msgid "It is not recommended to run check more than once a day."
 msgstr ""
 
-#: templates/index.html:332
+#: templates/index.html:338
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local\n"
@@ -531,18 +552,18 @@ msgid ""
 "updates."
 msgstr ""
 
-#: templates/index.html:339
+#: templates/index.html:345
 msgid ""
 "To work, you must specify the IP address of the update mirror for the "
 "following hosts\n"
 "                        in the DNS settings of Kerio products"
 msgstr ""
 
-#: templates/index.html:352
+#: templates/index.html:359
 msgid "License"
 msgstr ""
 
-#: templates/index.html:353
+#: templates/index.html:360
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\" "
 "class=\"license-link\"\n"
@@ -551,7 +572,7 @@ msgid ""
 "solutions/keriocontrol/free-trial\">here</a>."
 msgstr ""
 
-#: templates/index.html:355
+#: templates/index.html:362
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\" class=\"license-link\"\n"
@@ -559,31 +580,31 @@ msgid ""
 "href=\"https://secure.kerio.com/reg/?lang=en\">here</a>."
 msgstr ""
 
-#: templates/index.html:375
+#: templates/index.html:382
 msgid "CONNECTED"
 msgstr ""
 
-#: templates/index.html:376
+#: templates/index.html:383
 msgid "DISABLED"
 msgstr ""
 
-#: templates/index.html:378
+#: templates/index.html:385
 msgid "ERROR"
 msgstr ""
 
-#: templates/index.html:380
+#: templates/index.html:387
 msgid "Checks completed:"
 msgstr ""
 
-#: templates/index.html:381
+#: templates/index.html:388
 msgid "Confirm new password"
 msgstr ""
 
-#: templates/index.html:382
+#: templates/index.html:389
 msgid "Enter new password"
 msgstr ""
 
-#: templates/index.html:383
+#: templates/index.html:390
 msgid "Passwords do not match"
 msgstr ""
 

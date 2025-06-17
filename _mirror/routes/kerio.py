@@ -1,7 +1,7 @@
 from flask import Blueprint, request, abort
 
 from handlers.bitdefender import handle_bitdefender
-from handlers.ids import handler_control_update, handler_checknew, handle_update
+from handlers.ids import handler_ids_update, handler_checknew, handle_update
 from handlers.webfilter import handle_webfilter
 from utils.ip_auth import check_ip
 
@@ -32,8 +32,9 @@ def kerio_checknew():
 @kerio_bp.route("/control-update/<path:subpath>")
 @check_ip()
 def kerio_control_update(subpath):
-    """Processing the Kerio IDS update request"""
-    return handler_control_update()
+    """Processing the Kerio IDS or Snort update request"""
+    update_type = "Snort" if "snort.tpl" in subpath else "IDS"
+    return handler_ids_update(update_type)
 
 
 @kerio_bp.route("/<path:subpath>")

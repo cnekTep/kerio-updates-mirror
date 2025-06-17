@@ -28,7 +28,7 @@
                     <a href="#" class="lang-link" data-lang="ru">RU</a>
                 </div>
                 <a href="/logout" class="logout-btn" title="{{ _('Logout') }}"
-                    {% if not auth %}style="display: none;"{% endif %}>
+                   {% if not auth %}style="display: none;"{% endif %}>
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             </div>
@@ -121,6 +121,12 @@
                             <input type="checkbox" id="IDSv5" name="IDSv5" value="true"
                                    {% if update_ids_5 %}checked{% endif %}>
                             <label for="IDSv5">{{ _('IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)') }}</label>
+                        </div>
+                        <div class="checkbox-group nested-option">
+                            <input type="checkbox" id="snort_template" name="snort_template" value="true"
+                                   {% if update_snort_template %}checked{% endif %}
+                                   title="{{ _('Update Snort template via mirror\nTo update, you need to add download.kerio.com with the mirror address in DNS') }}">
+                            <label for="snort_template">{{ _('Update Snort template') }}</label>
                         </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="IDSv2" name="IDSv2" value="true"
@@ -346,6 +352,7 @@
                         <div class="host-item">bdupdate.kerio.com</div>
                         <div class="host-item">bda-update.kerio.com</div>
                         <div class="host-item">update.kerio.com</div>
+                        <div class="host-item">download.kerio.com</div>
                     </div>
                 </details>
                 <details>

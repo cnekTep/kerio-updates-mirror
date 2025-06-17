@@ -7,7 +7,7 @@ from flask_babel import gettext as _
 from config.config_env import config
 from db.database import get_ids, get_all_ids_file_names
 from handlers.geo import download_and_process_geo, combine_and_compress_geo_files
-from handlers.ids import download_ids_update_files
+from handlers.ids import download_ids_update_files, download_snort_template
 from handlers.webfilter import update_web_filter_key
 from utils.file_utils import clean_update_files
 from utils.logging import write_log
@@ -101,8 +101,11 @@ def update_mirror(scheduler=False) -> None:
     if config.update_ids_5:  # IPS/IDS Snort (Linux versions from 9.5)
         download_ids_update_files(version="5")
 
+    if config.update_snort_template:  # Download Snort template files
+        download_snort_template()
+
     all_ids_file_names = get_all_ids_file_names()
-    files_to_keep = ["locations.csv", "v4.csv", "v6.csv"]
+    files_to_keep = [".gitkeep", "locations.csv", "v4.csv", "v6.csv", "snort.tpl", "snort.tpl.md5"]
     for file_name in all_ids_file_names:
         files_to_keep.append(file_name)
         files_to_keep.append(f"{file_name}.sig")

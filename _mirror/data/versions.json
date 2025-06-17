@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.3.0",
+    "description": {
+      "en": "Added ability to update Snort template via mirror. Necessary for IPS update in Kerio 9.5 with kerio.com limitations",
+      "ru": "Добавлена возможность обновления шаблона Snort через зеркало. Необходимо для обновления IPS в Kerio 9.5 при ограничениях kerio.com"
+    }
+  },
+  {
     "version": "2.2.0",
     "description": {
       "en": "Added the ability to launch a mirror with a pre-generated certificate",

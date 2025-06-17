@@ -10,18 +10,26 @@ from utils.internet_utils import add_proxy_to_params, prepare_request_params
 from utils.logging import write_log
 
 
-def handler_control_update():
-    """Handler for providing IDS update files"""
+def handler_ids_update(update_type: str):
+    """Handler for providing IDS or Snort update files"""
     write_log(
         log_type="system",
-        message=_("Received request for IDS update: %(request_path)s", request_path=request.path),
+        message=_(
+            "Received request for %(update_type)s update: %(request_path)s",
+            update_type=update_type,
+            request_path=request.path,
+        ),
         ip=request.remote_addr if config.ip_logging else None,
     )
 
     current_directory = os.getcwd()  # Get the current directory
     target_directory = os.path.join(current_directory, "update_files")  # Construct the target directory
 
-    request_path = request.path.replace("/control-update", target_directory)
+    if update_type == "IDS":  # Check if the update type is "IDS"
+        request_path = request.path.replace("/control-update", target_directory)
+    else:  # Otherwise, it's "Snort"
+        filename = request.path.split("/")[-1]
+        request_path = os.path.join(target_directory, filename)
 
     return send_file(path_or_file=request_path, as_attachment=True)
 
@@ -287,6 +295,66 @@ def download_ids_update_files(version: str) -> None:
     # If we get here, all attempts failed
     log_message = _("IDSv%(version)s: error downloading update", version=version)
     write_log(log_type=["system", "updates"], message=log_message)
+
+
+def download_snort_template() -> None:
+    snort_template_url = "http://download.kerio.com/control-update/config/v1/snort.tpl"
+    snort_template_md5_url = "http://download.kerio.com/control-update/config/v1/snort.tpl.md5"
+
+    download_urls = [snort_template_url, snort_template_md5_url]
+
+    for url in download_urls:
+        # Attempt order: direct, TOR (if enabled), proxy (if enabled)
+        connection_attempts = [{"type": "direct"}]
+
+        if config.tor:
+            connection_attempts.append({"type": "tor"})
+
+        if config.proxy:
+            connection_attempts.append({"type": "proxy"})
+
+        for attempt in connection_attempts:
+            attempt_desc = {
+                "direct": "without proxy",
+                "tor": "via TOR",
+                "proxy": "with proxy",
+            }[attempt["type"]]
+
+            proxy_type = None
+
+            # Apply proxy settings for TOR or regular proxy
+            if attempt["type"] in ("tor", "proxy"):
+                proxy_type = attempt["type"]
+
+            # Create directory for saving files
+            save_directory = "update_files"
+            os.makedirs(name=save_directory, exist_ok=True)
+
+            # Get filename from URL
+            filename = url.split("/")[-1]
+            save_path = os.path.join(save_directory, filename)
+
+            # Download file
+            if not download_file(url=url, save_path=save_path, proxy_type=proxy_type):
+                write_log(
+                    log_type="system",
+                    message=_(
+                        "[%(proxy_status)s] Failed to download Snort template: %(url)s",
+                        proxy_status=attempt_desc,
+                        url=url,
+                    ),
+                )
+                continue
+            else:
+                write_log(
+                    log_type="system",
+                    message=_(
+                        "[%(proxy_status)s] Successfully downloaded Snort template: %(url)s",
+                        proxy_status=attempt_desc,
+                        url=url,
+                    ),
+                )
+                break
 
 
 def download_file(url: str, save_path: str, proxy_type: str = None):
