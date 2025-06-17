@@ -5,7 +5,7 @@
 ### Local update mirror for Kerio Control and Kerio Connect products
 
 ![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=flat&logo=docker&logoColor=white)
-![Kerio](https://img.shields.io/badge/Kerio-Connect_&_Control-0078D4?style=flat)
+![Kerio](https://img.shields.io/badge/Kerio-Connect_&_Control-2CA5E0?style=flat)
 ![Telegram](https://img.shields.io/badge/Telegram-Channel-2CA5E0?style=flat&logo=telegram&logoColor=white)
 
 **English** · [Русский](./docs/ru/README.ru.md)
@@ -212,10 +212,75 @@ However, it can be more difficult and take more time. It is recommended to use D
 
 Link to download the assembly of the finished exe file: [Kerio Updates Mirror](https://t.me/my_store_files_bot?start=kerio-updates-mirror)
 
-###### Installation and launch
+#### Installation and launch
 
 1. Download and unzip the archive
 2. Run the file `app.exe `
+
+---
+
+#### 🛠 Installing a Windows service via NSSM
+
+NSSM (Non-Sucking Service Manager) — is a handy tool for running arbitrary .exe files in the background as Windows services.
+
+---
+
+##### ⚙️ 1. Downloading NSSM
+
+Download the latest version: [https://nssm.cc/download](https://nssm.cc/download)
+
+1. Unpack the archive.
+2. Go to the folder `win64` (or `win32` for 32-bit systems).
+3. Copy path to `nssm.exe`.
+
+---
+
+##### ⚙️ 2. Installing the service
+
+Open the **command prompt as an administrator** and run:
+
+```cmd
+cd "path_to_nssm_folder"
+nssm install kerio-updates-mirror
+```
+
+The NSSM configuration window will appear.
+
+###### 🧩 Tab **Application**:
+
+| Field           | Value                                     |
+|-----------------|-------------------------------------------|
+| **Path**        | `C:\kerio-updates-mirror v.x.y.z\app.exe` |
+| **Startup dir** | `C:\kerio-updates-mirror v.x.y.z`         |
+
+Please note that everyone has their own path.
+
+After filling in the form, click **Install service**.
+
+---
+
+##### ▶️ 3. Launching the service
+
+After installing the service, run it:
+
+```cmd
+net start kerio-updates-mirror
+```
+
+If everything is specified correctly, the service will launch your application in the background.
+
+---
+
+##### ❌ Deleting a service
+
+To delete a service:
+
+```cmd
+nssm remove kerio-updates-mirror confirm
+```
+
+---
+
 
 </details>
 
