@@ -430,6 +430,13 @@ TOR bridges are used to ensure reliable access to updates even in case of access
 - New bridges can be obtained from the [official website](https://bridges.torproject.org) or
   via [Telegram bot](https://t.me/GetBridgesBot)
 
+### Changing time zone
+
+The default time zone is UTC
+
+- The time zone can be changed in the `.env` file
+- After changing the time zone, you need to rebuild the container using the `docker compose up -d` command
+
 ### Monitoring and Management
 
 - Access to the web management interface, depending on the settings in docker-compose.yml:
