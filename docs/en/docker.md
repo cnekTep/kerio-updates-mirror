@@ -8,9 +8,9 @@ Comprehensive guide for installing Docker and Docker Compose on Ubuntu 24 and De
 
 ## 📋 Table of Contents
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Installation Verification](#installation-verification)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+- [Installation Verification](#-installation-verification)
 
 ## 🔧 Requirements
 
