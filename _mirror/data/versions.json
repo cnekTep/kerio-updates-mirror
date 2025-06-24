@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.4.0",
+    "description": {
+      "en": "Added ability to select the order of connections (TOR, proxy, direct connection) when downloading updates",
+      "ru": "Добавлена возможность выбора порядка соединений (TOR, прокси, прямое соединение) при скачивании обновлений"
+    }
+  },
+  {
     "version": "2.3.0",
     "description": {
       "en": "Added ability to update Snort template via mirror. Necessary for IPS update in Kerio 9.5 with kerio.com limitations",

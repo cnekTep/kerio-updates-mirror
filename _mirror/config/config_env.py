@@ -29,6 +29,7 @@ class Config:
             "LOCALE": "en",  # Locale
             "DB": "mirror.db",  # Database path
             "LICENSE_NUMBER": None,  # License number
+            "DIRECT": True,  # Use direct connection or not
             "TOR": True,  # Use TOR or not
             "TOR_HOST": "172.222.0.5",  # TOR host
             "TOR_PORT": "9050",  # TOR port
@@ -37,6 +38,7 @@ class Config:
             "PROXY_PORT": None,  # Proxy port
             "PROXY_LOGIN": None,  # Proxy login (if required)
             "PROXY_PASSWORD": None,  # Proxy password (if required)
+            "DOWNLOAD_PRIORITY": "tor, proxy, direct",  # Download priority
             "UPDATE_WEB_FILTER_KEY": False,  # Whether to update Web Filter key
             "UPDATE_IDS_1": False,  # Update IPS/IDS Snort system (Windows version)
             "UPDATE_IDS_2": False,  # Update compromised address lists for blocking

@@ -34,12 +34,14 @@ def main_page():
         "geoip_github": config.geoip_github,
         "update_web_filter_key": config.update_web_filter_key,
         "update_snort_template": config.update_snort_template,
+        "direct": config.direct,
         "tor": config.tor,
         "proxy": config.proxy,
         "proxy_host": config.proxy_host,
         "proxy_port": config.proxy_port,
         "proxy_login": config.proxy_login,
         "proxy_password": config.proxy_password,
+        "download_priority": config.download_priority,
         "allowed_ips": config.allowed_ips,
         "ip_logging": config.ip_logging,
         "tor_status": tor_checker.get_status(),
@@ -78,6 +80,8 @@ def save_settings():
     config.update_snort_template = "snort_template" in request.form
     config.ip_logging = "ip_logging" in request.form
     config.tor = "use_tor" in request.form
+    config.direct = "use_direct" in request.form
+    config.download_priority = build_connection_order(request.form.get("download_priority"))
 
     # Update proxy settings if enabled
     config.proxy = "use_proxy" in request.form
@@ -115,3 +119,19 @@ def save_settings():
     write_log(log_type="system", message=_("Settings have been changed"))
 
     return redirect("/#settings")
+
+
+def build_connection_order(connection_str: str) -> str:
+    """
+    Build a complete connection order by adding missing connection types.
+
+    Args:
+        connection_str: Partial connection order, e.g. "tor,direct".
+
+    Returns:
+        Full connection order including all types, e.g. "tor,direct,proxy".
+    """
+    all_options = ["tor", "proxy", "direct"]
+    parts = [part.strip() for part in connection_str.split(",") if part.strip()]
+    missing = [opt for opt in all_options if opt not in parts]
+    return ", ".join(parts + missing)

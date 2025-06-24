@@ -22,6 +22,13 @@ const App = {
             proxyPort: document.getElementById("proxy_port"),
             form: document.querySelector("form")
         },
+        priorityElements: {
+            container: document.querySelector('.priority-methods'),
+            input: document.getElementById('download_priority'),
+            directCheckbox: document.getElementById('use_direct'),
+            proxyCheckbox: document.getElementById('use_proxy'),
+            torCheckbox: document.getElementById('use_tor')
+        },
         updateElements: {
             updateStatus: document.getElementById('update-status'),
             currentVersion: document.getElementById('current-version'),
@@ -60,6 +67,7 @@ const App = {
         this.setupLanguageSwitcher();
         this.setupGeoCheckboxes();
         this.setupProxySettings();
+        this.setupPrioritySystem();
         this.setupUpdateChecker();
         this.setupAlternativeMethods();
         this.setupAuthSettings();
@@ -256,6 +264,156 @@ const App = {
 
         // Handle checkbox change
         useProxyCheckbox.addEventListener("change", toggleProxySettings);
+    },
+
+    setupPrioritySystem() {
+        const {container, input, directCheckbox, proxyCheckbox, torCheckbox} = this.elements.priorityElements;
+
+        if (!container) return;
+
+        // Initialize priority from hidden input
+        const currentPriority = input.value.split(',').map(item => item.trim());
+        this.reorderPriorityItems(currentPriority);
+
+        // Handle checkbox changes to show/hide methods
+        if (directCheckbox) {
+            directCheckbox.addEventListener('change', () => {
+                const directItem = document.querySelector('.priority-item[data-method="direct"]');
+                if (directItem) {
+                    directItem.style.display = directCheckbox.checked ? 'flex' : 'none';
+                    this.updatePriorityNumbers();
+                    this.savePriorityOrder();
+                }
+            });
+        }
+
+        if (proxyCheckbox) {
+            proxyCheckbox.addEventListener('change', () => {
+                const proxyItem = document.querySelector('.priority-item[data-method="proxy"]');
+                if (proxyItem) {
+                    proxyItem.style.display = proxyCheckbox.checked ? 'flex' : 'none';
+                    this.updatePriorityNumbers();
+                    this.savePriorityOrder();
+                }
+            });
+        }
+
+        if (torCheckbox) {
+            torCheckbox.addEventListener('change', () => {
+                const torItem = document.querySelector('.priority-item[data-method="tor"]');
+                if (torItem) {
+                    torItem.style.display = torCheckbox.checked ? 'flex' : 'none';
+                    this.updatePriorityNumbers();
+                    this.savePriorityOrder();
+                }
+            });
+        }
+
+        // Initialize drag and drop
+        this.initializeDragAndDrop();
+
+        // Initial update
+        this.updatePriorityNumbers();
+    },
+
+    reorderPriorityItems(priority) {
+        const container = this.elements.priorityElements.container;
+        if (!container || !priority.length) return;
+
+        priority.forEach((method, index) => {
+            const item = container.querySelector(`[data-method="${method}"]`);
+            if (item) {
+                const numberElement = item.querySelector('.priority-number');
+                if (numberElement) {
+                    numberElement.textContent = index + 1;
+                }
+                container.appendChild(item);
+            }
+        });
+    },
+
+    updatePriorityNumbers() {
+        const visibleItems = document.querySelectorAll('.priority-item:not([style*="display: none"])');
+        visibleItems.forEach((item, index) => {
+            const numberElement = item.querySelector('.priority-number');
+            if (numberElement) {
+                numberElement.textContent = index + 1;
+            }
+        });
+    },
+
+    savePriorityOrder() {
+        const visibleItems = document.querySelectorAll('.priority-item:not([style*="display: none"])');
+        const order = Array.from(visibleItems).map(item => item.dataset.method);
+        const priorityInput = this.elements.priorityElements.input;
+        if (priorityInput) {
+            priorityInput.value = order.join(',');
+        }
+    },
+
+    initializeDragAndDrop() {
+        const items = document.querySelectorAll('.priority-item');
+
+        items.forEach(item => {
+            item.draggable = true;
+
+            item.addEventListener('dragstart', (e) => {
+                if (!this.isVisible(item)) return false;
+                item.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', item.outerHTML);
+                e.dataTransfer.setData('text/plain', item.dataset.method);
+            });
+
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+
+            item.addEventListener('dragover', (e) => {
+                if (!this.isVisible(item)) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+
+            item.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const draggedMethod = e.dataTransfer.getData('text/plain');
+                const draggedElement = document.querySelector(`[data-method="${draggedMethod}"]`);
+
+                if (draggedElement && draggedElement !== item && this.isVisible(item) && this.isVisible(draggedElement)) {
+                    const container = item.parentNode;
+                    const afterElement = this.getDragAfterElement(container, e.clientX);
+
+                    if (afterElement == null) {
+                        container.appendChild(draggedElement);
+                    } else {
+                        container.insertBefore(draggedElement, afterElement);
+                    }
+
+                    this.updatePriorityNumbers();
+                    this.savePriorityOrder();
+                }
+            });
+        });
+    },
+
+    isVisible(element) {
+        return element.style.display !== 'none';
+    },
+
+    getDragAfterElement(container, x) {
+        const draggableElements = [...container.querySelectorAll('.priority-item:not(.dragging):not([style*="display: none"])')];
+
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = x - box.left - box.width / 2;
+
+            if (offset < 0 && offset > closest.offset) {
+                return {offset: offset, element: child};
+            } else {
+                return closest;
+            }
+        }, {offset: Number.NEGATIVE_INFINITY}).element;
     },
 
     // Setting up update check functionality

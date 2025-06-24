@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  2.3.0\n"
+"Project-Id-Version:  2.4.0\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -161,57 +161,61 @@ msgstr "Пауза на %(delay)s секунд перед следующей п�
 msgid "File %(input_path)s not found"
 msgstr "Файл %(input_path)s не найден"
 
-#: handlers/ids.py:18
+#: handlers/ids.py:17
 #, python-format
 msgid "Received request for %(update_type)s update: %(request_path)s"
 msgstr "Получен запрос на обновление %(update_type)s: %(request_path)s"
 
-#: handlers/ids.py:51
+#: handlers/ids.py:50
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr "Ошибка при обработке URL %(request_url)s в запросе на обновление"
 
-#: handlers/ids.py:58
+#: handlers/ids.py:57
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr "Получен запрос на обновление версии: %(version)s"
 
-#: handlers/ids.py:68
+#: handlers/ids.py:67
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr "Недопустимый формат версии: %(version)s"
 
-#: handlers/ids.py:115
-#, python-format
-msgid "Error occurred while receiving a link to an antivirus update: %(err)s"
-msgstr "Ошибка при получении ссылки на обновление антивируса: %(err)s"
+#: handlers/ids.py:104
+msgid "Error occurred while receiving a link to an antivirus update"
+msgstr "Произошла ошибка при получении ссылки на обновление антивируса"
 
-#: handlers/ids.py:122
+#: handlers/ids.py:110
 #, python-format
 msgid "Update link sent: %(url)s"
 msgstr "Отправлена ссылка на обновление: %(url)s"
 
-#: handlers/ids.py:143
+#: handlers/ids.py:131
 #, python-format
 msgid "Error occurred while processing IDS update: %(err)s"
 msgstr "Ошибка при обработке обновлений IDS: %(err)s"
 
-#: handlers/ids.py:150
+#: handlers/ids.py:138
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr "Получен неизвестный запрос на загрузку: %(version)s"
 
-#: handlers/ids.py:169
+#: handlers/ids.py:156
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr "IDSv%(version)s: пропуск, поскольку лицензионный ключ не настроен"
 
-#: handlers/ids.py:210
+#: handlers/ids.py:163
+#, python-format
+msgid "IDSv%(version)s: error downloading update"
+msgstr "IDSv%(version)s: ошибка при загрузке обновления"
+
+#: handlers/ids.py:179
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr "IDSv%(version)s ошибка: %(err)s"
 
-#: handlers/ids.py:224
+#: handlers/ids.py:193
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
@@ -220,47 +224,37 @@ msgstr ""
 "IDSv%(version)s: нет новой версии, текущая версия: "
 "%(version)s.%(result_version)s"
 
-#: handlers/ids.py:235
+#: handlers/ids.py:204
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr "IDSv%(version)s: загрузка новой версии: %(version)s.%(result_version)s"
 
-#: handlers/ids.py:252
+#: handlers/ids.py:222
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr "Не удалось загрузить основной файл для IDSv%(version)s"
 
-#: handlers/ids.py:264
+#: handlers/ids.py:233
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr "Не удалось загрузить файл подписи для IDSv%(version)s"
 
-#: handlers/ids.py:271
+#: handlers/ids.py:240
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr "IDSv%(version)s: загружена новая версия - %(version)s.%(result_version)s"
 
-#: handlers/ids.py:288
+#: handlers/ids.py:266
 #, python-format
-msgid "Error downloading IDSv%(version)s %(proxy_status)s: %(err)s"
-msgstr "Ошибка при загрузке IDSv%(version)s %(proxy_status)s: %(err)s"
+msgid "Successfully downloaded Snort template: %(url)s"
+msgstr "Шаблон Snort успешно загружен: %(url)s"
 
-#: handlers/ids.py:296
+#: handlers/ids.py:271
 #, python-format
-msgid "IDSv%(version)s: error downloading update"
-msgstr "IDSv%(version)s: ошибка при загрузке обновления"
+msgid "Failed to download Snort template: %(url)s"
+msgstr "Не удалось загрузить шаблон Snort: %(url)s"
 
-#: handlers/ids.py:342
-#, python-format
-msgid "[%(proxy_status)s] Failed to download Snort template: %(url)s"
-msgstr "[%(proxy_status)s] Не удалось загрузить шаблон Snort: %(url)s"
-
-#: handlers/ids.py:352
-#, python-format
-msgid "[%(proxy_status)s] Successfully downloaded Snort template: %(url)s"
-msgstr "[%(proxy_status)s] Шаблон Snort успешно загружен: %(url)s"
-
-#: handlers/pages.py:115
+#: handlers/pages.py:119
 msgid "Settings have been changed"
 msgstr "Настройки были изменены"
 
@@ -295,45 +289,40 @@ msgstr "Завершен запланированный процесс обно�
 msgid "Manual mirror update process completed"
 msgstr "Завершен ручной процесс обновления зеркала"
 
-#: handlers/webfilter.py:16
+#: handlers/webfilter.py:15
 msgid "Received request for Web Filter key"
 msgstr "Получен запрос на Web Filter ключ"
 
-#: handlers/webfilter.py:31
+#: handlers/webfilter.py:30
 msgid "Web Filter: passing because license key is not configured"
 msgstr "Web Filter: пропуск, поскольку лицензионный ключ не настроен"
 
-#: handlers/webfilter.py:38
+#: handlers/webfilter.py:37
 msgid "Web Filter: database already contains an actual Web Filter key"
 msgstr "Web Filter: база данных уже содержит актуальный Web Filter ключ"
 
-#: handlers/webfilter.py:42
+#: handlers/webfilter.py:41
 msgid "Fetching new Web Filter key from wf-activation.kerio.com server"
 msgstr "Получение нового Web Filter ключа с сервера wf-activation.kerio.com"
 
-#: handlers/webfilter.py:68
+#: handlers/webfilter.py:49
+msgid "Web Filter: error fetching Web Filter key"
+msgstr "Web Filter: ошибка получения Web Filter ключа"
+
+#: handlers/webfilter.py:53
 #, python-format
 msgid "Web Filter: invalid license key. %(lic_number)s"
 msgstr "Web Filter: недействительный лицензионный ключ. %(lic_number)s"
 
-#: handlers/webfilter.py:74
+#: handlers/webfilter.py:59
 #, python-format
 msgid "Web Filter: license key expired. %(lic_number)s"
 msgstr "Web Filter: срок действия лицензионного ключа истек. %(lic_number)s"
 
-#: handlers/webfilter.py:81
+#: handlers/webfilter.py:65
 #, python-format
 msgid "Web Filter: received new key - %(key)s"
 msgstr "Web Filter: получен новый ключ - %(key)s"
-
-#: handlers/webfilter.py:94
-#, python-format
-msgid "Error fetching Web Filter key %(proxy_status)s: %(err)s"
-msgstr "Ошибка получения Web Filter ключа %(proxy_status)s: %(err)s"
-
-#: handlers/webfilter.py:98
-msgid "Web Filter: error fetching Web Filter key"
-msgstr "Web Filter: ошибка получения Web Filter ключа"
 
 #: routes/admin.py:37
 #, python-format
@@ -344,7 +333,7 @@ msgstr "Язык изменен на: %(lang)s"
 msgid "Update available!"
 msgstr "Доступно обновление!"
 
-#: templates/index.html:24 templates/index.html:384
+#: templates/index.html:24 templates/index.html:423
 msgid "CHECKING"
 msgstr "ПРОВЕРКА"
 
@@ -425,127 +414,153 @@ msgstr "Использовать GitHub в качестве источника �
 msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
 msgstr "Ключ подсистемы фильтрации контента Kerio Control Web Filter"
 
-#: templates/index.html:155
+#: templates/index.html:154
+msgid "Alternative mirror modes"
+msgstr "Альтернативные режимы работы зеркала"
+
+#: templates/index.html:159
+msgid "Antivirus update source URL:"
+msgstr "URL обновления антивируса:"
+
+#: templates/index.html:183
+msgid "Antispam update source URL:"
+msgstr "URL обновления антиспама:"
+
+#: templates/index.html:209
+msgid "Update Bitdefender without using Mirror"
+msgstr "Обновление Bitdefender без использования зеркала"
+
+#: templates/index.html:216
+msgid "Download Bitdefender antivirus signatures through Mirror"
+msgstr "Загрузка антивирусных сигнатур Bitdefender через зеркало"
+
+#: templates/index.html:221
+msgid "Connection Settings"
+msgstr "Настройки Подключения"
+
+#: templates/index.html:225
+msgid "Use Direct connection to update Bitdefender and download other updates"
+msgstr ""
+"Использовать прямое подключение для обновления Bitdefender и загрузки "
+"других обновлений"
+
+#: templates/index.html:231
 msgid "Use TOR to update Bitdefender and download other updates"
 msgstr "Использовать TOR для обновления Bitdefender и загрузки других обновлений"
 
-#: templates/index.html:160
+#: templates/index.html:236
 msgid "Use proxy server to update Bitdefender and download other updates"
 msgstr ""
 "Использовать прокси-сервер для обновления Bitdefender и загрузки других "
 "обновлений"
 
-#: templates/index.html:164
+#: templates/index.html:240
 msgid "Host:"
 msgstr "Адрес:"
 
-#: templates/index.html:169
+#: templates/index.html:245
 msgid "Port:"
 msgstr "Порт:"
 
-#: templates/index.html:174
+#: templates/index.html:250
 msgid "Login:"
 msgstr "Логин:"
 
-#: templates/index.html:179 templates/index.html:287 templates/login.html:19
+#: templates/index.html:255 templates/index.html:326 templates/login.html:19
 msgid "Password:"
 msgstr "Пароль:"
 
-#: templates/index.html:188
-msgid "Alternative mirror modes"
-msgstr "Альтернативные режимы работы зеркала"
+#: templates/index.html:261
+msgid "Connection priority"
+msgstr "Приоритет подключений"
 
-#: templates/index.html:193
-msgid "Antivirus update source URL:"
-msgstr "URL обновления антивируса:"
+#: templates/index.html:269
+msgid "Direct connection"
+msgstr "Прямое подключение"
 
-#: templates/index.html:217
-msgid "Antispam update source URL:"
-msgstr "URL обновления антиспама:"
+#: templates/index.html:276
+msgid "Proxy server"
+msgstr "Прокси-сервер"
 
-#: templates/index.html:243
-msgid "Update Bitdefender without using Mirror"
-msgstr "Обновление Bitdefender без использования зеркала"
+#: templates/index.html:283
+msgid "TOR network"
+msgstr "Сеть TOR"
 
-#: templates/index.html:250
-msgid "Download Bitdefender antivirus signatures through Mirror"
-msgstr "Загрузка антивирусных сигнатур Bitdefender через зеркало"
-
-#: templates/index.html:255
+#: templates/index.html:294
 msgid "Other"
 msgstr "Дополнительно"
 
-#: templates/index.html:259
+#: templates/index.html:298
 msgid "Log client IP addresses in system logs"
 msgstr "Записывать IP-адреса клиентов в системном журнале"
 
-#: templates/index.html:265
+#: templates/index.html:304
 msgid ""
 "Allow access only from the following IP\n"
 "                                    addresses:"
 msgstr "Разрешить доступ только со следующих IP-адресов:"
 
-#: templates/index.html:276
+#: templates/index.html:315
 msgid "Use authentication"
 msgstr "Использовать аутентификацию"
 
-#: templates/index.html:281 templates/login.html:15
+#: templates/index.html:320 templates/login.html:15
 msgid "Username:"
 msgstr "Логин:"
 
-#: templates/index.html:284
+#: templates/index.html:323
 msgid "To change the username, enter password and confirm it!"
 msgstr "Чтобы изменить имя пользователя, введите пароль и подтвердите его!"
 
-#: templates/index.html:291 templates/index.html:299
+#: templates/index.html:330 templates/index.html:338
 msgid "Leave empty not to change it"
 msgstr "Оставьте пустым, чтобы не изменять"
 
-#: templates/index.html:294
+#: templates/index.html:333
 msgid "Confirm:"
 msgstr "Подтверждение:"
 
-#: templates/index.html:305
+#: templates/index.html:344
 msgid "Apply"
 msgstr "Применить"
 
-#: templates/index.html:314
+#: templates/index.html:353
 msgid "Check for Application Updates"
 msgstr "Проверка обновлений приложения"
 
-#: templates/index.html:317
+#: templates/index.html:356
 msgid "Current version:"
 msgstr "Текущая версия:"
 
-#: templates/index.html:318
+#: templates/index.html:357
 msgid "Latest version:"
 msgstr "Последняя версия:"
 
-#: templates/index.html:319 templates/index.html:386
+#: templates/index.html:358 templates/index.html:425
 msgid "Last check:"
 msgstr "Последняя проверка:"
 
-#: templates/index.html:322
+#: templates/index.html:361
 msgid "New version available!"
 msgstr "Доступна новая версия!"
 
-#: templates/index.html:326
+#: templates/index.html:365
 msgid "Check for updates"
 msgstr "Проверить обновления"
 
-#: templates/index.html:331
+#: templates/index.html:370
 msgid "Manual update check"
 msgstr "Ручная проверка обновлений"
 
-#: templates/index.html:333
+#: templates/index.html:372
 msgid "Run check"
 msgstr "Выполнить проверку"
 
-#: templates/index.html:335
+#: templates/index.html:374
 msgid "It is not recommended to run check more than once a day."
 msgstr "Не рекомендуется проводить проверку чаще одного раза в день."
 
-#: templates/index.html:338
+#: templates/index.html:377
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local\n"
@@ -565,7 +580,7 @@ msgstr ""
 "трафик и автоматизирует борьбу с уязвимостями и ошибками в программных "
 "продуктах, а также позволяет централизованно управлять обновлениями."
 
-#: templates/index.html:345
+#: templates/index.html:384
 msgid ""
 "To work, you must specify the IP address of the update mirror for the "
 "following hosts\n"
@@ -574,11 +589,11 @@ msgstr ""
 "Для работы необходимо указать IP-адрес зеркала обновлений для следующих "
 "хостов в настройках DNS продуктов Kerio"
 
-#: templates/index.html:359
+#: templates/index.html:398
 msgid "License"
 msgstr "Лицензия"
 
-#: templates/index.html:360
+#: templates/index.html:399
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\" "
 "class=\"license-link\"\n"
@@ -591,7 +606,7 @@ msgstr ""
 " href=\"https://gfi.ai/products-and-solutions/network-security-"
 "solutions/keriocontrol/free-trial\">здесь</a>."
 
-#: templates/index.html:362
+#: templates/index.html:401
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\" class=\"license-link\"\n"
@@ -602,31 +617,31 @@ msgstr ""
 "rel=\"noopener noreferrer\" class=\"license-link\"\n"
 " href=\"https://secure.kerio.com/reg/?lang=en\">здесь</a>."
 
-#: templates/index.html:382
+#: templates/index.html:421
 msgid "CONNECTED"
 msgstr "ПОДКЛЮЧЕН"
 
-#: templates/index.html:383
+#: templates/index.html:422
 msgid "DISABLED"
 msgstr "ОТКЛЮЧЕН"
 
-#: templates/index.html:385
+#: templates/index.html:424
 msgid "ERROR"
 msgstr "ОШИБКА"
 
-#: templates/index.html:387
+#: templates/index.html:426
 msgid "Checks completed:"
 msgstr "Проверок завершено:"
 
-#: templates/index.html:388
+#: templates/index.html:427
 msgid "Confirm new password"
 msgstr "Подтвердите новый пароль"
 
-#: templates/index.html:389
+#: templates/index.html:428
 msgid "Enter new password"
 msgstr "Введите новый пароль"
 
-#: templates/index.html:390
+#: templates/index.html:429
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
@@ -634,9 +649,19 @@ msgstr "Пароли не совпадают"
 msgid "Login"
 msgstr "Вход"
 
-#: utils/internet_utils.py:30
+#: utils/internet_utils.py:31
 msgid "No certificates were found, temporary SSL (adhoc) is used"
 msgstr "Сертификаты не найдены, используется временный SSL (adhoc)"
+
+#: utils/internet_utils.py:185
+#, python-format
+msgid "[%(proxy_status)s] Error %(context)s: %(err)s"
+msgstr "[%(proxy_status)s] Ошибка %(context)s: %(err)s"
+
+#: utils/internet_utils.py:236
+#, python-format
+msgid "[%(proxy_status)s] Error downloading %(context)s: %(err)s"
+msgstr "[%(proxy_status)s] Ошибка загрузки %(context)s: %(err)s"
 
 #: utils/ip_auth.py:89
 #, python-format

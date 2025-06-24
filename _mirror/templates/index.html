@@ -149,40 +149,6 @@
                             <label for="wfkey">{{ _('Kerio Control Web Filter Content Filtering Subsystem Key') }}</label>
                         </div>
                         <div class="checkbox-group">
-                            <input type="checkbox" id="use_tor" name="use_tor" value="true"
-                                   {% if tor and not compile %}checked{% endif %}
-                                   {% if compile %}disabled{% endif %}>
-                            <label for="use_tor">{{ _('Use TOR to update Bitdefender and download other updates') }}</label>
-                        </div>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="use_proxy" name="use_proxy" value="true"
-                                   {% if proxy %}checked{% endif %}>
-                            <label for="use_proxy">{{ _('Use proxy server to update Bitdefender and download other updates') }}</label>
-                        </div>
-                        <div id="proxy_settings" style="display: {% if proxy %}flex{% else %}none{% endif %};">
-                            <div class="form-group">
-                                <label for="proxy_host">{{ _('Host:') }}</label>
-                                <input type="text" id="proxy_host" name="proxy_host" class="form-control"
-                                       value="{{ proxy_host or '' }}">
-                            </div>
-                            <div class="form-group">
-                                <label for="proxy_port">{{ _('Port:') }}</label>
-                                <input type="number" id="proxy_port" name="proxy_port" class="form-control"
-                                       min="1" max="65535" value="{{ proxy_port or '' }}">
-                            </div>
-                            <div class="form-group">
-                                <label for="proxy_login">{{ _('Login:') }}</label>
-                                <input type="text" id="proxy_login" name="proxy_login" class="form-control"
-                                       value="{{ proxy_login or '' }}">
-                            </div>
-                            <div class="form-group">
-                                <label for="proxy_password">{{ _('Password:') }}</label>
-                                <input type="password" id="proxy_password" name="proxy_password" class="form-control"
-                                       value="{{ proxy_password or '' }}">
-                            </div>
-                        </div>
-
-                        <div class="checkbox-group">
                             <input type="checkbox" id="alternative_mode" name="alternative_mode" value="true"
                                    {% if alternative_mode %}checked{% endif %}>
                             <label for="alternative_mode">{{ _('Alternative mirror modes') }}</label>
@@ -250,6 +216,79 @@
                                 <label for="bitdefender_via_mirror">{{ _('Download Bitdefender antivirus signatures through Mirror') }}</label>
                             </div>
                         </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ _('Connection Settings') }}</legend>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="use_direct" name="use_direct" value="true"
+                                   {% if direct %}checked{% endif %}>
+                            <label for="use_direct">{{ _('Use Direct connection to update Bitdefender and download other updates') }}</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="use_tor" name="use_tor" value="true"
+                                   {% if tor and not compile %}checked{% endif %}
+                                   {% if compile %}disabled{% endif %}>
+                            <label for="use_tor">{{ _('Use TOR to update Bitdefender and download other updates') }}</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="use_proxy" name="use_proxy" value="true"
+                                   {% if proxy %}checked{% endif %}>
+                            <label for="use_proxy">{{ _('Use proxy server to update Bitdefender and download other updates') }}</label>
+                        </div>
+                        <div id="proxy_settings" style="display: {% if proxy %}flex{% else %}none{% endif %};">
+                            <div class="form-group">
+                                <label for="proxy_host">{{ _('Host:') }}</label>
+                                <input type="text" id="proxy_host" name="proxy_host" class="form-control"
+                                       value="{{ proxy_host or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_port">{{ _('Port:') }}</label>
+                                <input type="number" id="proxy_port" name="proxy_port" class="form-control"
+                                       min="1" max="65535" value="{{ proxy_port or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_login">{{ _('Login:') }}</label>
+                                <input type="text" id="proxy_login" name="proxy_login" class="form-control"
+                                       value="{{ proxy_login or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="proxy_password">{{ _('Password:') }}</label>
+                                <input type="password" id="proxy_password" name="proxy_password" class="form-control"
+                                       value="{{ proxy_password or '' }}">
+                            </div>
+                        </div>
+                        <details class="no-margin">
+                            <summary class="not-bold">{{ _('Connection priority') }}</summary>
+                            <div class="form-group">
+                                <div class="priority-container">
+                                    <div class="priority-methods">
+                                        <div class="priority-item" data-method="direct"
+                                             {% if not direct %}style="display: none;"{% endif %}>
+                                            <div class="priority-info">
+                                                <i class="fas fa-globe"></i>
+                                                <span>{{ _('Direct connection') }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="priority-item" data-method="proxy"
+                                             {% if not proxy %}style="display: none;"{% endif %}>
+                                            <div class="priority-info">
+                                                <i class="fas fa-server"></i>
+                                                <span>{{ _('Proxy server') }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="priority-item" data-method="tor"
+                                             {% if not tor or compile %}style="display: none;"{% endif %}>
+                                            <div class="priority-info">
+                                                <i class="fas fa-user-secret"></i>
+                                                <span>{{ _('TOR network') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="download_priority" id="download_priority"
+                                           value="{{ download_priority }}">
+                                </div>
+                            </div>
+                        </details>
                     </fieldset>
                     <fieldset>
                         <legend>{{ _('Other') }}</legend>

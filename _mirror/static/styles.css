@@ -421,7 +421,7 @@ legend {
 #proxy_settings, #auth_settings {
     padding-top: 8px;
     padding-bottom: 5px;
-    padding-left: 10px;
+    padding-left: 20px;
     display: flex;
     flex-wrap: nowrap;
     gap: 12px;
@@ -561,6 +561,130 @@ legend {
     font-weight: normal;
     cursor: pointer;
     margin: 0;
+}
+
+/* Priority download order styles */
+details.no-margin {
+    margin-bottom: 0;
+    margin-left: 20px;
+}
+
+summary.not-bold {
+    font-weight: normal;
+}
+
+.priority-container {
+    margin-top: 10px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    background-color: #f9f9f9;
+}
+
+.priority-methods {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.priority-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    cursor: move;
+    flex: 1;
+    min-width: 250px;
+}
+
+.priority-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: var(--secondary-color);
+}
+
+.priority-item.dragging {
+    opacity: 0.5;
+    transform: rotate(2deg);
+}
+
+.priority-item * {
+    pointer-events: none;
+}
+
+.priority-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: var(--secondary-color);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 12px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.priority-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 8px;
+}
+
+.priority-info i {
+    color: var(--primary-color);
+    width: 16px;
+}
+
+.priority-info span {
+    font-weight: 500;
+}
+
+.priority-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.priority-btn {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    width: 24px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    color: #666;
+}
+
+.priority-btn:hover {
+    background-color: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+
+.priority-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.priority-btn:disabled:hover {
+    background: none;
+    color: #666;
+    border-color: #ccc;
+}
+
+.priority-btn i {
+    font-size: 10px;
 }
 
 /* Information Section */
@@ -848,5 +972,33 @@ body.login-page {
     #proxy_settings .form-control, #auth_settings .form-control {
         flex-grow: 1;
         width: calc(100% - 90px) !important;
+    }
+
+    /* Priority download order */
+    .priority-methods {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .priority-item {
+        padding: 8px 10px;
+        min-width: auto;
+        flex: none;
+    }
+
+    .priority-number {
+        width: 20px;
+        height: 20px;
+        font-size: 11px;
+        margin-right: 10px;
+    }
+
+    .priority-info span {
+        font-size: 14px;
+    }
+
+    .priority-btn {
+        width: 20px;
+        height: 18px;
     }
 }

@@ -1,6 +1,7 @@
 import os
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Callable
 
+import requests
 from flask_babel import gettext as _
 
 from config.config_env import config
@@ -107,3 +108,136 @@ def add_proxy_to_params(proxy_type: str, params: dict) -> dict:
     }
 
     return params
+
+
+def get_connection_attempts() -> list:
+    """
+    Generate connection attempts list based on download priority and available configurations.
+
+    Returns:
+        List of connection attempt dictionaries with 'type' key
+    """
+    connection_attempts = []
+
+    # Parse priority string and create attempts based on available configs
+    priorities = [p.strip() for p in config.download_priority.split(",")]
+    for priority in priorities:
+        if priority == "direct" and config.direct:
+            connection_attempts.append({"type": "direct"})
+        elif priority == "tor" and config.tor:
+            connection_attempts.append({"type": "tor"})
+        elif priority == "proxy" and config.proxy:
+            connection_attempts.append({"type": "proxy"})
+
+    return connection_attempts
+
+
+def make_request_with_retries(
+    url: str,
+    headers: Optional[Dict[str, Any]] = None,
+    success_validator: Optional[Callable[[requests.Response], bool]] = None,
+    context: str = "request",
+) -> Optional[requests.Response]:
+    """
+    Makes HTTP request with automatic retries through different connection methods.
+
+    Args:
+        url: URL to request
+        headers: Optional headers
+        success_validator: Function to validate response success (default: response.ok)
+        context: Context description for logging
+
+    Returns:
+        Response object if successful, None if all attempts failed
+    """
+    connection_attempts = get_connection_attempts()
+
+    for attempt in connection_attempts:
+        try:
+            request_params = prepare_request_params(url=url, headers=headers)
+
+            # Apply proxy settings for TOR or regular proxy
+            if attempt["type"] in ("tor", "proxy"):
+                request_params = add_proxy_to_params(proxy_type=attempt["type"], params=request_params)
+
+            response = requests.get(**request_params)
+
+            # Use custom validator if provided, otherwise check response.ok
+            if success_validator:
+                if not success_validator(response):
+                    continue
+            else:
+                if not response.ok:
+                    continue
+
+            return response
+
+        except requests.RequestException as err:
+            attempt_desc = {
+                "direct": "without proxy",
+                "tor": "via TOR",
+                "proxy": "with proxy",
+            }[attempt["type"]]
+
+            write_log(
+                log_type="system",
+                message=_(
+                    "[%(proxy_status)s] Error %(context)s: %(err)s",
+                    context=context,
+                    proxy_status=attempt_desc,
+                    err=str(err),
+                ),
+            )
+
+    return None
+
+
+def download_file_with_retries(url: str, save_path: str, context: str = "file") -> bool:
+    """
+    Downloads a file with automatic retries through different connection methods.
+
+    Args:
+        url: URL to download from
+        save_path: Path to save the file to
+        context: Context description for logging
+
+    Returns:
+        bool: True if download successful, False otherwise
+    """
+    connection_attempts = get_connection_attempts()
+
+    for attempt in connection_attempts:
+        try:
+            request_params = prepare_request_params(url=url, stream=True)
+
+            if attempt["type"] in ("tor", "proxy"):
+                request_params = add_proxy_to_params(proxy_type=attempt["type"], params=request_params)
+
+            response = requests.get(**request_params)
+            response.raise_for_status()
+
+            # Save the file
+            with open(save_path, "wb") as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+
+            return True
+
+        except requests.RequestException as err:
+            attempt_desc = {
+                "direct": "without proxy",
+                "tor": "via TOR",
+                "proxy": "with proxy",
+            }[attempt["type"]]
+
+            write_log(
+                log_type="system",
+                message=_(
+                    "[%(proxy_status)s] Error downloading %(context)s: %(err)s",
+                    context=context,
+                    proxy_status=attempt_desc,
+                    err=str(err),
+                ),
+            )
+
+    return False
