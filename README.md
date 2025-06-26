@@ -46,11 +46,14 @@ products, which allows you to:
 
 #### Option 1: Running from pre-built Docker images (recommended)
 
+> **Please note:** the Docker image version may differ from the mirror version - this is normal. The image is only updated when necessary (for example, when dependencies change) and is not synchronised with each version of a mirror.  
+> If you install a mirror in any other way, the version of Docker's image will be the same as the current one.
+
 1. [Download Docker images](https://t.me/my_store_files_bot?start=kerio-updates-mirror)
 2. Load images from archives:
    ```bash
    sudo docker load -i tor_v1.1.2.tar
-   sudo docker load -i mirror_v1.2.0.tar
+   sudo docker load -i mirror_v2.1.0.tar
    ```
 3. Download or clone the repository:
    ```bash
