@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  2.4.0\n"
+"Project-Id-Version:  2.4.1\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -85,28 +85,23 @@ msgstr "Неверное имя пользователя или пароль"
 msgid "User logged out: %(username)s"
 msgstr "Пользователь вышел из системы: %(username)s"
 
-#: handlers/bitdefender.py:29
+#: handlers/bitdefender.py:28
 msgid "Received antivirus signatures request"
 msgstr "Получен запрос на антивирусные сигнатуры"
 
-#: handlers/bitdefender.py:35
+#: handlers/bitdefender.py:34
 msgid "Received antispam signatures request"
 msgstr "Получен запрос на сигнатуры антиспама"
 
-#: handlers/bitdefender.py:41
+#: handlers/bitdefender.py:40
 #, python-format
 msgid "Received unknown download request: %(request_path)s"
 msgstr "Получен неизвестный запрос на загрузку: %(request_path)s"
 
-#: handlers/bitdefender.py:98
+#: handlers/bitdefender.py:85
 #, python-format
 msgid "Downloading file: %(request_path)s"
 msgstr "Загружается файл: %(request_path)s"
-
-#: handlers/bitdefender.py:114
-#, python-format
-msgid "Error %(err)s while loading file %(request_path)s"
-msgstr "Ошибка %(err)s при загрузке файла %(request_path)s"
 
 #: handlers/geo.py:34
 #, python-format
@@ -648,12 +643,12 @@ msgstr "Вход"
 msgid "No certificates were found, temporary SSL (adhoc) is used"
 msgstr "Сертификаты не найдены, используется временный SSL (adhoc)"
 
-#: utils/internet_utils.py:185
+#: utils/internet_utils.py:192
 #, python-format
 msgid "[%(proxy_status)s] Error %(context)s: %(err)s"
 msgstr "[%(proxy_status)s] Ошибка %(context)s: %(err)s"
 
-#: utils/internet_utils.py:236
+#: utils/internet_utils.py:243
 #, python-format
 msgid "[%(proxy_status)s] Error downloading %(context)s: %(err)s"
 msgstr "[%(proxy_status)s] Ошибка загрузки %(context)s: %(err)s"

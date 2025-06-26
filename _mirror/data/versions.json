@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.4.1",
+    "description": {
+      "en": "Now all updates (geo from GitHub, antivirus signatures, mirror update check) follow the connection sequence (TOR, proxy, direct connection)",
+      "ru": "Теперь все обновления (geo с GitHub, антивирусные сигнатуры, проверка обновлений зеркала) придерживаются очередности соединений (TOR, прокси, прямое соединение)"
+    }
+  },
+  {
     "version": "2.4.0",
     "description": {
       "en": "Added ability to select the order of connections (TOR, proxy, direct connection) when downloading updates",

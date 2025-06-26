@@ -1,11 +1,10 @@
 import re
 
-import requests
 from flask import request, Response
 from flask_babel import gettext as _
 
 from config.config_env import config
-from utils.internet_utils import prepare_request_params, add_proxy_to_params
+from utils.internet_utils import make_request_with_retries
 from utils.logging import write_log
 
 
@@ -75,42 +74,24 @@ def handle_bitdefender() -> Response:
     additional_headers = {key: value for key, value in request.headers.items() if key.lower() not in excluded_headers}
     headers = {**default_headers, **additional_headers}
 
-    try:
-        request_params = prepare_request_params(
-            url=url,
-            headers=headers,
-            data=request.get_data(),
-            params=request.args,
-            stream=True,
-        )
-        # Setup proxy if configured
-        if config.tor:
-            request_params = add_proxy_to_params(proxy_type="tor", params=request_params)
-        elif config.proxy:
-            request_params = add_proxy_to_params(proxy_type="proxy", params=request_params)
+    # Forward the request to the Bitdefender server
+    response = make_request_with_retries(
+        url=url, headers=headers, skip_error_codes=[404], context=f"downloading bitdefender file: {url}"
+    )
 
-        # Forward the request to the Bitdefender server
-        response = requests.get(**request_params)
+    # Enable automatic decompression of gzip stream
+    response.raw.decode_content = True
 
-        # Enable automatic decompression of gzip stream
-        response.raw.decode_content = True
+    write_log(log_type="system", message=_("Downloading file: %(request_path)s", request_path=clean_path))
 
-        write_log(log_type="system", message=_("Downloading file: %(request_path)s", request_path=clean_path))
+    # Copy and clear headers
+    response_headers = dict(response.headers)
+    for h in ("Content-Encoding", "Content-Length"):
+        response_headers.pop(h, None)
 
-        # Copy and clear headers
-        response_headers = dict(response.headers)
-        for h in ("Content-Encoding", "Content-Length"):
-            response_headers.pop(h, None)
-
-        flask_response = Response(
-            response=response.iter_content(chunk_size=1024),
-            status=response.status_code,
-            headers=response_headers,
-        )
-        return flask_response
-    except requests.RequestException as e:
-        write_log(
-            log_type="system",
-            message=_("Error %(err)s while loading file %(request_path)s", err=str(e), request_path=clean_path),
-        )
-        return Response(response="404 Not found", status=404, mimetype="text/plain")
+    flask_response = Response(
+        response=response.iter_content(chunk_size=1024),
+        status=response.status_code,
+        headers=response_headers,
+    )
+    return flask_response

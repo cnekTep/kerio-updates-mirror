@@ -86,27 +86,22 @@ msgstr ""
 msgid "User logged out: %(username)s"
 msgstr ""
 
-#: handlers/bitdefender.py:29
+#: handlers/bitdefender.py:28
 msgid "Received antivirus signatures request"
 msgstr ""
 
-#: handlers/bitdefender.py:35
+#: handlers/bitdefender.py:34
 msgid "Received antispam signatures request"
 msgstr ""
 
-#: handlers/bitdefender.py:41
+#: handlers/bitdefender.py:40
 #, python-format
 msgid "Received unknown download request: %(request_path)s"
 msgstr ""
 
-#: handlers/bitdefender.py:98
+#: handlers/bitdefender.py:85
 #, python-format
 msgid "Downloading file: %(request_path)s"
-msgstr ""
-
-#: handlers/bitdefender.py:114
-#, python-format
-msgid "Error %(err)s while loading file %(request_path)s"
 msgstr ""
 
 #: handlers/geo.py:34
@@ -624,12 +619,12 @@ msgstr ""
 msgid "No certificates were found, temporary SSL (adhoc) is used"
 msgstr ""
 
-#: utils/internet_utils.py:185
+#: utils/internet_utils.py:192
 #, python-format
 msgid "[%(proxy_status)s] Error %(context)s: %(err)s"
 msgstr ""
 
-#: utils/internet_utils.py:236
+#: utils/internet_utils.py:243
 #, python-format
 msgid "[%(proxy_status)s] Error downloading %(context)s: %(err)s"
 msgstr ""

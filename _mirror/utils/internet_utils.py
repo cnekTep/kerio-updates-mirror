@@ -136,6 +136,7 @@ def make_request_with_retries(
     url: str,
     headers: Optional[Dict[str, Any]] = None,
     success_validator: Optional[Callable[[requests.Response], bool]] = None,
+    skip_error_codes: Optional[list[int]] = None,
     context: str = "request",
 ) -> Optional[requests.Response]:
     """
@@ -145,11 +146,13 @@ def make_request_with_retries(
         url: URL to request
         headers: Optional headers
         success_validator: Function to validate response success (default: response.ok)
+        skip_error_codes: List of HTTP status codes to return immediately without retrying (e.g. 404, 429)
         context: Context description for logging
 
     Returns:
         Response object if successful, None if all attempts failed
     """
+    skip_error_codes = skip_error_codes or []
     connection_attempts = get_connection_attempts()
 
     for attempt in connection_attempts:
@@ -161,6 +164,10 @@ def make_request_with_retries(
                 request_params = add_proxy_to_params(proxy_type=attempt["type"], params=request_params)
 
             response = requests.get(**request_params)
+
+            # Return response if status code is in skip_error_codes
+            if response.status_code in skip_error_codes:
+                return response
 
             # Use custom validator if provided, otherwise check response.ok
             if success_validator:
