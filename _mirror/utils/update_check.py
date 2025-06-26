@@ -2,8 +2,7 @@ import json
 import os
 from datetime import datetime
 
-import requests
-
+from utils.internet_utils import make_request_with_retries
 from utils.logging import write_log
 
 
@@ -51,8 +50,7 @@ class UpdateChecker:
         )
 
         try:
-            response = requests.get(url)
-            response.raise_for_status()
+            response = make_request_with_retries(url=url, context="check for mirror updates")
             return response.json()
         except Exception as err:
             write_log(log_type="system", message=f"Error fetching remote versions: {err}")
