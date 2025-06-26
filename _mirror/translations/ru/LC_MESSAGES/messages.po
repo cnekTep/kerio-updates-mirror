@@ -108,37 +108,32 @@ msgstr "Загружается файл: %(request_path)s"
 msgid "Error %(err)s while loading file %(request_path)s"
 msgstr "Ошибка %(err)s при загрузке файла %(request_path)s"
 
-#: handlers/geo.py:35
+#: handlers/geo.py:34
 #, python-format
 msgid "Downloading file: %(url)s"
 msgstr "Загружается файл: %(url)s"
 
-#: handlers/geo.py:71
+#: handlers/geo.py:69
 #, python-format
 msgid "File downloaded, processed and saved successfully at %(output_path)s"
 msgstr "Файл загружен, обработан и успешно сохранён в %(output_path)s"
 
-#: handlers/geo.py:76
-#, python-format
-msgid "Error during file download and processing: %(err)s"
-msgstr "Ошибка при загрузке и обработке файла: %(err)s"
-
-#: handlers/geo.py:119
+#: handlers/geo.py:113
 #, python-format
 msgid "File created successfully. Size: %(file_size)s bytes"
 msgstr "Файл успешно создан. Размер: %(file_size)s байт"
 
-#: handlers/geo.py:123
+#: handlers/geo.py:117
 #, python-format
 msgid "File %(output_gz_path)s was not created or is empty"
 msgstr "Файл %(output_gz_path)s не был создан или является пустым"
 
-#: handlers/geo.py:128
+#: handlers/geo.py:122
 #, python-format
 msgid "IDSv4: new version loaded (from GitHub) - 4.%(file_version)s"
 msgstr "IDSv4: загружена новая версия (с GitHub) — 4.%(file_version)s"
 
-#: handlers/geo.py:136
+#: handlers/geo.py:130
 #, python-format
 msgid ""
 "Attempt %(attempt)s/%(max_attempts)s: error during file processing and "
@@ -147,16 +142,16 @@ msgstr ""
 "Попытка %(attempt)s/%(max_attempts)s: ошибка при обработке и сжатии "
 "файла: %(err)s"
 
-#: handlers/geo.py:144
+#: handlers/geo.py:138
 msgid "IDSv4: error during download"
 msgstr "IDSv4: ошибка во время загрузки"
 
-#: handlers/geo.py:149
+#: handlers/geo.py:143
 #, python-format
 msgid "Pausing for %(delay)s seconds before the next attempt..."
 msgstr "Пауза на %(delay)s секунд перед следующей попыткой..."
 
-#: handlers/geo.py:172
+#: handlers/geo.py:166
 #, python-format
 msgid "File %(input_path)s not found"
 msgstr "Файл %(input_path)s не найден"
@@ -728,4 +723,3 @@ msgstr "Настроено обновление зеркала каждые %(in
 #, python-format
 msgid "Configured to check for updates every %(interval_minutes)s minutes"
 msgstr "Настроена проверка обновлений каждые %(interval_minutes)s минут"
-

@@ -5,10 +5,10 @@ import os
 import time
 from io import StringIO
 
-import requests
 from flask_babel import gettext as _
 
 from db.database import update_ids
+from utils.internet_utils import make_request_with_retries
 from utils.logging import write_log
 
 
@@ -25,56 +25,50 @@ def download_and_process_geo(url: str, output_filename: str, modify: bool = True
     Returns:
         str: The path to the saved output file, or None if an error occurs.
     """
-    try:
-        # Directory for saving files; create if it does not exist.
-        save_directory = "update_files"
-        os.makedirs(name=save_directory, exist_ok=True)
-        output_path = os.path.join(save_directory, output_filename)  # full path to save the processed file
+    # Directory for saving files; create if it does not exist.
+    save_directory = "update_files"
+    os.makedirs(name=save_directory, exist_ok=True)
+    output_path = os.path.join(save_directory, output_filename)  # full path to save the processed file
 
-        # Download the file
-        write_log(log_type="system", message=_("Downloading file: %(url)s", url=url))
-        response = requests.get(url=url, stream=True)
-        response.raise_for_status()  # Raise exception for HTTP errors
+    # Download the file
+    write_log(log_type="system", message=_("Downloading file: %(url)s", url=url))
+    response = make_request_with_retries(url=url, context=f"downloading geo: {url}")
 
-        if modify:  # Processing the data
-            # Process data in memory without creating a temporary file
-            content = response.content.decode("utf-8")
-            csv_data = StringIO(content)
+    if modify:  # Processing the data
+        # Process data in memory without creating a temporary file
+        content = response.content.decode("utf-8")
+        csv_data = StringIO(content)
 
-            reader = csv.reader(csv_data)
-            header = next(reader)  # Save header
-            rows = list(reader)  # Read all the lines
+        reader = csv.reader(csv_data)
+        header = next(reader)  # Save header
+        rows = list(reader)  # Read all the lines
 
-            # Process rows: if second column is non-empty, copy its value to the third column;
-            # if the second is empty and third is present, copy third to second.
-            for row in rows:
-                if len(row) >= 3:
-                    if row[1]:
-                        row[2] = row[1]
-                    elif not row[1] and row[2]:
-                        row[1] = row[2]
+        # Process rows: if second column is non-empty, copy its value to the third column;
+        # if the second is empty and third is present, copy third to second.
+        for row in rows:
+            if len(row) >= 3:
+                if row[1]:
+                    row[2] = row[1]
+                elif not row[1] and row[2]:
+                    row[1] = row[2]
 
-            # Write processed data to the output file
-            with open(output_path, "w", newline="\n") as outfile:
-                writer = csv.writer(outfile)
-                writer.writerow(header)
-                writer.writerows(rows)
+        # Write processed data to the output file
+        with open(output_path, "w", newline="\n") as outfile:
+            writer = csv.writer(outfile)
+            writer.writerow(header)
+            writer.writerows(rows)
 
-        else:
-            # Save file without modifications.
-            with open(output_path, "wb") as file:
-                for chunk in response.iter_content(chunk_size=8192):
-                    file.write(chunk)
+    else:
+        # Save file without modifications.
+        with open(output_path, "wb") as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
 
-        write_log(
-            log_type="system",
-            message=_("File downloaded, processed and saved successfully at %(output_path)s", output_path=output_path),
-        )
-        return output_path
-
-    except requests.RequestException as err:
-        write_log(log_type="system", message=_("Error during file download and processing: %(err)s", err=str(err)))
-        return None
+    write_log(
+        log_type="system",
+        message=_("File downloaded, processed and saved successfully at %(output_path)s", output_path=output_path),
+    )
+    return output_path
 
 
 def combine_and_compress_geo_files(v4_filename: str, v6_filename: str) -> str or None:
