@@ -245,34 +245,34 @@ msgstr ""
 msgid "Settings have been changed"
 msgstr ""
 
-#: handlers/update_mirror.py:47
+#: handlers/update_mirror.py:55
 msgid "Scheduled mirror update process started"
 msgstr ""
 
-#: handlers/update_mirror.py:47
+#: handlers/update_mirror.py:55
 msgid "Manual mirror update process started"
 msgstr ""
 
-#: handlers/update_mirror.py:51
+#: handlers/update_mirror.py:59
 #, python-format
 msgid "Using license key: %(license_number)s"
 msgstr ""
 
-#: handlers/update_mirror.py:77
+#: handlers/update_mirror.py:85
 #, python-format
 msgid "Downloading new version: 4.%(version)s"
 msgstr ""
 
-#: handlers/update_mirror.py:94
+#: handlers/update_mirror.py:102
 #, python-format
 msgid "IDSv4: no new version available, current version: 4.%(actual_version)s"
 msgstr ""
 
-#: handlers/update_mirror.py:118
+#: handlers/update_mirror.py:126
 msgid "Scheduled mirror update process completed"
 msgstr ""
 
-#: handlers/update_mirror.py:118
+#: handlers/update_mirror.py:126
 msgid "Manual mirror update process completed"
 msgstr ""
 
@@ -320,7 +320,7 @@ msgstr ""
 msgid "Update available!"
 msgstr ""
 
-#: templates/index.html:24 templates/index.html:445
+#: templates/index.html:24 templates/index.html:454
 msgid "CHECKING"
 msgstr ""
 
@@ -527,7 +527,7 @@ msgstr ""
 msgid "Latest version:"
 msgstr ""
 
-#: templates/index.html:380 templates/index.html:447
+#: templates/index.html:380 templates/index.html:456
 msgid "Last check:"
 msgstr ""
 
@@ -543,15 +543,25 @@ msgstr ""
 msgid "Manual update check"
 msgstr ""
 
-#: templates/index.html:394
+#: templates/index.html:396
+msgid "Force update for webfilter key and all IDS"
+msgstr ""
+
+#: templates/index.html:399 templates/index.html:461
 msgid "Run check"
 msgstr ""
 
-#: templates/index.html:396
+#: templates/index.html:402
 msgid "It is not recommended to run check more than once a day."
 msgstr ""
 
-#: templates/index.html:399
+#: templates/index.html:404
+msgid ""
+"The Web filter key will be forcefully updated, and all IDS files will be "
+"reuploaded."
+msgstr ""
+
+#: templates/index.html:408
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local\n"
@@ -565,18 +575,18 @@ msgid ""
 "updates."
 msgstr ""
 
-#: templates/index.html:406
+#: templates/index.html:415
 msgid ""
 "To work, you must specify the IP address of the update mirror for the "
 "following hosts\n"
 "                        in the DNS settings of Kerio products"
 msgstr ""
 
-#: templates/index.html:420
+#: templates/index.html:429
 msgid "License"
 msgstr ""
 
-#: templates/index.html:421
+#: templates/index.html:430
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\" "
 "class=\"license-link\"\n"
@@ -585,7 +595,7 @@ msgid ""
 "solutions/keriocontrol/free-trial\">here</a>."
 msgstr ""
 
-#: templates/index.html:423
+#: templates/index.html:432
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\" class=\"license-link\"\n"
@@ -593,32 +603,36 @@ msgid ""
 "href=\"https://secure.kerio.com/reg/?lang=en\">here</a>."
 msgstr ""
 
-#: templates/index.html:443
+#: templates/index.html:452
 msgid "CONNECTED"
 msgstr ""
 
-#: templates/index.html:444
+#: templates/index.html:453
 msgid "DISABLED"
 msgstr ""
 
-#: templates/index.html:446
+#: templates/index.html:455
 msgid "ERROR"
 msgstr ""
 
-#: templates/index.html:448
+#: templates/index.html:457
 msgid "Checks completed:"
 msgstr ""
 
-#: templates/index.html:449
+#: templates/index.html:458
 msgid "Confirm new password"
 msgstr ""
 
-#: templates/index.html:450
+#: templates/index.html:459
 msgid "Enter new password"
 msgstr ""
 
-#: templates/index.html:451
+#: templates/index.html:460
 msgid "Passwords do not match"
+msgstr ""
+
+#: templates/index.html:462
+msgid "Force update"
 msgstr ""
 
 #: templates/login.html:22

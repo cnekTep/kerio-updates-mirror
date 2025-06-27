@@ -763,6 +763,21 @@ summary {
     color: white;
 }
 
+/* Force Update */
+.update-link.force-update {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+}
+
+.update-link.force-update:hover {
+    background-color: #e67e22;
+}
+
+.force-update-warning {
+    color: var(--warning-color);
+    font-weight: 500;
+}
+
 .update-link i {
     margin-right: 8px;
 }

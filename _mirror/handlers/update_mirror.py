@@ -5,7 +5,7 @@ from flask import redirect, current_app
 from flask_babel import gettext as _
 
 from config.config_env import config
-from db.database import get_ids, get_all_ids_file_names
+from db.database import get_ids, get_all_ids_file_names, clear_webfilter_table, clear_ids_table
 from handlers.geo import download_and_process_geo, combine_and_compress_geo_files
 from handlers.ids import download_ids_update_files, download_snort_template
 from handlers.webfilter import update_web_filter_key
@@ -13,15 +13,23 @@ from utils.file_utils import clean_update_files
 from utils.logging import write_log
 
 
-def handler_update_mirror():
+def handler_update_mirror(forced=False):
     """
     Flask route handler for mirror update process.
     Launches the update process in a background thread and redirects user to the log page.
+
+    Args:
+        forced: True if update is forced, False if not
 
     Returns:
         Flask redirect to the log page
     """
     app = current_app._get_current_object()  # Get current Flask application
+
+    # Clear database tables if forced
+    if forced:
+        clear_webfilter_table()
+        clear_ids_table()
 
     # Start update in a separate thread
     thread = threading.Thread(target=background_update_mirror, args=(app,))

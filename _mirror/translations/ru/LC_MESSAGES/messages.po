@@ -248,34 +248,34 @@ msgstr "Не удалось загрузить шаблон Snort: %(url)s"
 msgid "Settings have been changed"
 msgstr "Настройки были изменены"
 
-#: handlers/update_mirror.py:47
+#: handlers/update_mirror.py:55
 msgid "Scheduled mirror update process started"
 msgstr "Запущен запланированный процесс обновления зеркала"
 
-#: handlers/update_mirror.py:47
+#: handlers/update_mirror.py:55
 msgid "Manual mirror update process started"
 msgstr "Запущен ручной процесс обновления зеркала"
 
-#: handlers/update_mirror.py:51
+#: handlers/update_mirror.py:59
 #, python-format
 msgid "Using license key: %(license_number)s"
 msgstr "Используется лицензионный ключ: %(license_number)s"
 
-#: handlers/update_mirror.py:77
+#: handlers/update_mirror.py:85
 #, python-format
 msgid "Downloading new version: 4.%(version)s"
 msgstr "Загрузка новой версии: 4.%(version)s"
 
-#: handlers/update_mirror.py:94
+#: handlers/update_mirror.py:102
 #, python-format
 msgid "IDSv4: no new version available, current version: 4.%(actual_version)s"
 msgstr "IDSv4: новая версия недоступна, текущая версия: 4.%(actual_version)s"
 
-#: handlers/update_mirror.py:118
+#: handlers/update_mirror.py:126
 msgid "Scheduled mirror update process completed"
 msgstr "Завершен запланированный процесс обновления зеркала"
 
-#: handlers/update_mirror.py:118
+#: handlers/update_mirror.py:126
 msgid "Manual mirror update process completed"
 msgstr "Завершен ручной процесс обновления зеркала"
 
@@ -323,7 +323,7 @@ msgstr "Язык изменен на: %(lang)s"
 msgid "Update available!"
 msgstr "Доступно обновление!"
 
-#: templates/index.html:24 templates/index.html:445
+#: templates/index.html:24 templates/index.html:454
 msgid "CHECKING"
 msgstr "ПРОВЕРКА"
 
@@ -536,7 +536,7 @@ msgstr "Текущая версия:"
 msgid "Latest version:"
 msgstr "Последняя версия:"
 
-#: templates/index.html:380 templates/index.html:447
+#: templates/index.html:380 templates/index.html:456
 msgid "Last check:"
 msgstr "Последняя проверка:"
 
@@ -552,15 +552,27 @@ msgstr "Проверить обновления"
 msgid "Manual update check"
 msgstr "Ручная проверка обновлений"
 
-#: templates/index.html:394
+#: templates/index.html:396
+msgid "Force update for webfilter key and all IDS"
+msgstr "Принудительное обновление ключа веб-фильтра и IDS"
+
+#: templates/index.html:399 templates/index.html:461
 msgid "Run check"
 msgstr "Выполнить проверку"
 
-#: templates/index.html:396
+#: templates/index.html:402
 msgid "It is not recommended to run check more than once a day."
 msgstr "Не рекомендуется проводить проверку чаще одного раза в день."
 
-#: templates/index.html:399
+#: templates/index.html:404
+msgid ""
+"The Web filter key will be forcefully updated, and all IDS files will be "
+"reuploaded."
+msgstr ""
+"Ключ веб-фильтра будет принудительно обновлен, и все файлы IDS будут "
+"загружены повторно."
+
+#: templates/index.html:408
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local\n"
@@ -580,7 +592,7 @@ msgstr ""
 "трафик и автоматизирует борьбу с уязвимостями и ошибками в программных "
 "продуктах, а также позволяет централизованно управлять обновлениями."
 
-#: templates/index.html:406
+#: templates/index.html:415
 msgid ""
 "To work, you must specify the IP address of the update mirror for the "
 "following hosts\n"
@@ -589,11 +601,11 @@ msgstr ""
 "Для работы необходимо указать IP-адрес зеркала обновлений для следующих "
 "хостов в настройках DNS продуктов Kerio"
 
-#: templates/index.html:420
+#: templates/index.html:429
 msgid "License"
 msgstr "Лицензия"
 
-#: templates/index.html:421
+#: templates/index.html:430
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\" "
 "class=\"license-link\"\n"
@@ -606,7 +618,7 @@ msgstr ""
 " href=\"https://gfi.ai/products-and-solutions/network-security-"
 "solutions/keriocontrol/free-trial\">здесь</a>."
 
-#: templates/index.html:423
+#: templates/index.html:432
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\" class=\"license-link\"\n"
@@ -617,33 +629,37 @@ msgstr ""
 "rel=\"noopener noreferrer\" class=\"license-link\"\n"
 " href=\"https://secure.kerio.com/reg/?lang=en\">здесь</a>."
 
-#: templates/index.html:443
+#: templates/index.html:452
 msgid "CONNECTED"
 msgstr "ПОДКЛЮЧЕН"
 
-#: templates/index.html:444
+#: templates/index.html:453
 msgid "DISABLED"
 msgstr "ОТКЛЮЧЕН"
 
-#: templates/index.html:446
+#: templates/index.html:455
 msgid "ERROR"
 msgstr "ОШИБКА"
 
-#: templates/index.html:448
+#: templates/index.html:457
 msgid "Checks completed:"
 msgstr "Проверок завершено:"
 
-#: templates/index.html:449
+#: templates/index.html:458
 msgid "Confirm new password"
 msgstr "Подтвердите новый пароль"
 
-#: templates/index.html:450
+#: templates/index.html:459
 msgid "Enter new password"
 msgstr "Введите новый пароль"
 
-#: templates/index.html:451
+#: templates/index.html:460
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
+
+#: templates/index.html:462
+msgid "Force update"
+msgstr "Принудительное обновление"
 
 #: templates/login.html:22
 msgid "Login"
@@ -728,4 +744,3 @@ msgstr "Настроено обновление зеркала каждые %(in
 #, python-format
 msgid "Configured to check for updates every %(interval_minutes)s minutes"
 msgstr "Настроена проверка обновлений каждые %(interval_minutes)s минут"
-

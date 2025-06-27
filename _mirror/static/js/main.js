@@ -71,6 +71,7 @@ const App = {
         this.setupUpdateChecker();
         this.setupAlternativeMethods();
         this.setupRestrictedSettings();
+        this.setupForceUpdateSettings();
         this.setupAuthSettings();
         setInterval(this.updateLogs.bind(this), this.LOG_UPDATE_INTERVAL);
         window.addEventListener('hashchange', this.handleHashChange.bind(this));
@@ -655,21 +656,46 @@ const App = {
 
     // Setting up restricted access functionality
     setupRestrictedSettings() {
-    const restrictedAccessCheckbox = document.getElementById('restricted_access');
-    const restrictedSettings = document.getElementById('restricted_settings');
+        const restrictedAccessCheckbox = document.getElementById('restricted_access');
+        const restrictedSettings = document.getElementById('restricted_settings');
 
-    // Initial toggle of restricted settings visibility
-    function toggleRestrictedSettings() {
-        if (restrictedAccessCheckbox && restrictedSettings) {
-            restrictedSettings.style.display = restrictedAccessCheckbox.checked ? 'block' : 'none';
+        // Initial toggle of restricted settings visibility
+        function toggleRestrictedSettings() {
+            if (restrictedAccessCheckbox && restrictedSettings) {
+                restrictedSettings.style.display = restrictedAccessCheckbox.checked ? 'block' : 'none';
+            }
         }
-    }
 
-    toggleRestrictedSettings(); // set initial state
+        toggleRestrictedSettings(); // set initial state
 
-    // Listen for checkbox changes
-    restrictedAccessCheckbox?.addEventListener('change', toggleRestrictedSettings);
-},
+        // Listen for checkbox changes
+        restrictedAccessCheckbox?.addEventListener('change', toggleRestrictedSettings);
+    },
+
+    // Setting up force update functionality
+    setupForceUpdateSettings() {
+        const forceUpdateCheckbox = document.getElementById('force_update_checkbox');
+        const manualUpdateBtn = document.getElementById('manual_update_btn');
+        const forceUpdateWarning = document.getElementById('force_update_warning');
+
+        if (forceUpdateCheckbox && manualUpdateBtn && forceUpdateWarning) {
+            forceUpdateCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    // Change button to force update mode
+                    manualUpdateBtn.href = '/update_mirror_force';
+                    manualUpdateBtn.innerHTML = '<i class="fas fa-download"></i>' + (window.TRANSLATIONS?.FORCE_UPDATE || 'Force update');
+                    manualUpdateBtn.classList.add('force-update');
+                    forceUpdateWarning.style.display = 'block';
+                } else {
+                    // Reset to normal mode
+                    manualUpdateBtn.href = '/update_mirror';
+                    manualUpdateBtn.innerHTML = '<i class="fas fa-sync"></i>' + (window.TRANSLATIONS?.RUN_CHECK || 'Run check');
+                    manualUpdateBtn.classList.remove('force-update');
+                    forceUpdateWarning.style.display = 'none';
+                }
+            });
+        }
+    },
 
     setupAuthSettings() {
         const useAuthCheckbox = document.getElementById('use_auth');
@@ -683,7 +709,7 @@ const App = {
             return;
         }
 
-        // Функция переключения видимости настроек
+        // Settings visibility toggle function
         const toggleAuthSettings = () => {
             authSettings.style.display = useAuthCheckbox.checked ? 'block' : 'none';
         };

@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.4.3",
+    "description": {
+      "en": "Added ability to force update web filter key and all IDS files",
+      "ru": "Добавлена возможность принудительного обновления ключа веб-фильтра и всех файлов IDS"
+    }
+  },
+  {
     "version": "2.4.2",
     "description": {
       "en": "IP access restrictions are divided into two parts: access to the web interface and access for Kerio updates",

@@ -54,6 +54,14 @@ def update_mirror():
     return handler_update_mirror()
 
 
+@admin_bp.route("/update_mirror_force")
+@check_ip("web")
+@conditional_login_required
+def update_mirror_force():
+    """Force mirror update"""
+    return handler_update_mirror(forced=True)
+
+
 @admin_bp.route("/get_system_log")
 @check_ip("web")
 @conditional_login_required

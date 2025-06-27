@@ -172,3 +172,23 @@ def update_ids(name: str, version: int, file_name: str) -> bool:
         return True
     except sqlite3.Error:
         return False
+
+
+def clear_webfilter_table() -> bool:
+    """Clear the webfilter table in the database."""
+    try:
+        with transaction() as db:
+            db.execute("DELETE FROM webfilter")
+        return True
+    except sqlite3.Error:
+        return False
+
+
+def clear_ids_table() -> bool:
+    """Clear the ids table in the database."""
+    try:
+        with transaction() as db:
+            db.execute("DELETE FROM ids")
+        return True
+    except sqlite3.Error:
+        return False
