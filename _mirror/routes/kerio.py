@@ -9,28 +9,28 @@ kerio_bp = Blueprint("kerio", __name__)
 
 
 @kerio_bp.route("/update.php")
-@check_ip()
+@check_ip("kerio")
 def kerio_update():
     """Initial processing of the Kerio update request and sending the required path"""
     return handle_update()
 
 
 @kerio_bp.route("/getkey.php")
-@check_ip()
+@check_ip("kerio")
 def kerio_webfilter():
     """Kerio Web Filter Request Processing"""
     return handle_webfilter()
 
 
 @kerio_bp.route("/checknew.php", methods=["GET", "POST"])
-@check_ip()
+@check_ip("kerio")
 def kerio_checknew():
     """Processing a request to check for new versions of Kerio"""
     return handler_checknew()
 
 
 @kerio_bp.route("/control-update/<path:subpath>")
-@check_ip()
+@check_ip("kerio")
 def kerio_control_update(subpath):
     """Processing the Kerio IDS or Snort update request"""
     update_type = "Snort" if "snort.tpl" in subpath else "IDS"
@@ -38,7 +38,7 @@ def kerio_control_update(subpath):
 
 
 @kerio_bp.route("/<path:subpath>")
-@check_ip()
+@check_ip("kerio")
 def kerio_dynamic_routes(subpath):
     """Dynamic path processing, mainly for antivirus and antispam updates"""
     host = request.headers.get("Host", "")

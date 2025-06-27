@@ -8,17 +8,18 @@ from config.config_env import config
 from utils.logging import write_log
 
 
-def get_allowed_ips() -> list:
+def get_allowed_ips(access_type: str) -> list:
     """
     Getting the list of allowed IP addresses from the configuration.
 
-    Returns:
-        List of allowed IP addresses, ranges, and networks
-    """
-    if not hasattr(config, "allowed_ips") or not config.allowed_ips:
-        return []
+    Args:
+        access_type: Type of access, e.g., 'web' or 'kerio'
 
-    return [ip.strip().replace(" ", "") for ip in config.allowed_ips.split(",")]
+    Returns:
+        List of allowed IP addresses, ranges, or CIDR networks.
+    """
+    allowed = getattr(config, f"{access_type}_allowed_ips", "")
+    return [ip.strip().replace(" ", "") for ip in allowed.split(",")] if allowed else []
 
 
 def parse_ip_range(ip_range: str) -> tuple:
@@ -97,15 +98,18 @@ def is_ip_allowed(client_ip: str, allowed_ips: list) -> bool:
         return False
 
 
-def check_ip() -> callable:
+def check_ip(access_type: str) -> callable:
     """
-    Decorator for verifying the client's IP address.
+    Decorator for verifying the client's IP address against allowed IPs for a given access type.
     If the IP is not in the allowed list, it returns 403 Forbidden.
 
     Supports:
     - Individual IP addresses: 192.168.1.1
     - IP address ranges: 192.168.1.1-192.168.1.10
     - CIDR networks: 192.168.1.0/24
+
+    Args:
+        access_type: Type of access, e.g., 'web' or 'kerio'
 
     Returns:
         Decorated function
@@ -114,7 +118,7 @@ def check_ip() -> callable:
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            allowed_ips = get_allowed_ips()
+            allowed_ips = get_allowed_ips(access_type)
 
             # If the list is empty, allow access to all
             if not allowed_ips:

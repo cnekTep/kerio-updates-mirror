@@ -241,7 +241,7 @@ msgstr ""
 msgid "Failed to download Snort template: %(url)s"
 msgstr ""
 
-#: handlers/pages.py:119
+#: handlers/pages.py:128
 msgid "Settings have been changed"
 msgstr ""
 
@@ -320,7 +320,7 @@ msgstr ""
 msgid "Update available!"
 msgstr ""
 
-#: templates/index.html:24 templates/index.html:423
+#: templates/index.html:24 templates/index.html:445
 msgid "CHECKING"
 msgstr ""
 
@@ -447,7 +447,7 @@ msgstr ""
 msgid "Login:"
 msgstr ""
 
-#: templates/index.html:255 templates/index.html:326 templates/login.html:19
+#: templates/index.html:255 templates/index.html:348 templates/login.html:19
 msgid "Password:"
 msgstr ""
 
@@ -476,72 +476,82 @@ msgid "Log client IP addresses in system logs"
 msgstr ""
 
 #: templates/index.html:304
-msgid ""
-"Allow access only from the following IP\n"
-"                                    addresses:"
+msgid "Restricted access"
 msgstr ""
 
-#: templates/index.html:315
+#: templates/index.html:307
+msgid "Allow access only from specific IP addresses"
+msgstr ""
+
+#: templates/index.html:313
+msgid "Kerio updates"
+msgstr ""
+
+#: templates/index.html:325
+msgid "Access to webpage"
+msgstr ""
+
+#: templates/index.html:337
 msgid "Use authentication"
 msgstr ""
 
-#: templates/index.html:320 templates/login.html:15
+#: templates/index.html:342 templates/login.html:15
 msgid "Username:"
 msgstr ""
 
-#: templates/index.html:323
+#: templates/index.html:345
 msgid "To change the username, enter password and confirm it!"
 msgstr ""
 
-#: templates/index.html:330 templates/index.html:338
+#: templates/index.html:352 templates/index.html:360
 msgid "Leave empty not to change it"
 msgstr ""
 
-#: templates/index.html:333
+#: templates/index.html:355
 msgid "Confirm:"
 msgstr ""
 
-#: templates/index.html:344
+#: templates/index.html:366
 msgid "Apply"
 msgstr ""
 
-#: templates/index.html:353
+#: templates/index.html:375
 msgid "Check for Application Updates"
 msgstr ""
 
-#: templates/index.html:356
+#: templates/index.html:378
 msgid "Current version:"
 msgstr ""
 
-#: templates/index.html:357
+#: templates/index.html:379
 msgid "Latest version:"
 msgstr ""
 
-#: templates/index.html:358 templates/index.html:425
+#: templates/index.html:380 templates/index.html:447
 msgid "Last check:"
 msgstr ""
 
-#: templates/index.html:361
+#: templates/index.html:383
 msgid "New version available!"
 msgstr ""
 
-#: templates/index.html:365
+#: templates/index.html:387
 msgid "Check for updates"
 msgstr ""
 
-#: templates/index.html:370
+#: templates/index.html:392
 msgid "Manual update check"
 msgstr ""
 
-#: templates/index.html:372
+#: templates/index.html:394
 msgid "Run check"
 msgstr ""
 
-#: templates/index.html:374
+#: templates/index.html:396
 msgid "It is not recommended to run check more than once a day."
 msgstr ""
 
-#: templates/index.html:377
+#: templates/index.html:399
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local\n"
@@ -555,18 +565,18 @@ msgid ""
 "updates."
 msgstr ""
 
-#: templates/index.html:384
+#: templates/index.html:406
 msgid ""
 "To work, you must specify the IP address of the update mirror for the "
 "following hosts\n"
 "                        in the DNS settings of Kerio products"
 msgstr ""
 
-#: templates/index.html:398
+#: templates/index.html:420
 msgid "License"
 msgstr ""
 
-#: templates/index.html:399
+#: templates/index.html:421
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\" "
 "class=\"license-link\"\n"
@@ -575,7 +585,7 @@ msgid ""
 "solutions/keriocontrol/free-trial\">here</a>."
 msgstr ""
 
-#: templates/index.html:401
+#: templates/index.html:423
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\" class=\"license-link\"\n"
@@ -583,31 +593,31 @@ msgid ""
 "href=\"https://secure.kerio.com/reg/?lang=en\">here</a>."
 msgstr ""
 
-#: templates/index.html:421
+#: templates/index.html:443
 msgid "CONNECTED"
 msgstr ""
 
-#: templates/index.html:422
+#: templates/index.html:444
 msgid "DISABLED"
 msgstr ""
 
-#: templates/index.html:424
+#: templates/index.html:446
 msgid "ERROR"
 msgstr ""
 
-#: templates/index.html:426
+#: templates/index.html:448
 msgid "Checks completed:"
 msgstr ""
 
-#: templates/index.html:427
+#: templates/index.html:449
 msgid "Confirm new password"
 msgstr ""
 
-#: templates/index.html:428
+#: templates/index.html:450
 msgid "Enter new password"
 msgstr ""
 
-#: templates/index.html:429
+#: templates/index.html:451
 msgid "Passwords do not match"
 msgstr ""
 
@@ -629,17 +639,17 @@ msgstr ""
 msgid "[%(proxy_status)s] Error downloading %(context)s: %(err)s"
 msgstr ""
 
-#: utils/ip_auth.py:89
+#: utils/ip_auth.py:90
 #, python-format
 msgid "Incorrect IP address format in the allowed list: %(ip)s"
 msgstr ""
 
-#: utils/ip_auth.py:96
+#: utils/ip_auth.py:97
 #, python-format
 msgid "Incorrect format of the client's IP address: %(ip)s"
 msgstr ""
 
-#: utils/ip_auth.py:126
+#: utils/ip_auth.py:130
 #, python-format
 msgid "Access is denied for IP: %(ip)s"
 msgstr ""

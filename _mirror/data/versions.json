@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.4.2",
+    "description": {
+      "en": "IP access restrictions are divided into two parts: access to the web interface and access for Kerio updates",
+      "ru": "Ограничения доступа по IP разделено на две части: доступ к веб-интерфейсу и доступ для обновления Kerio"
+    }
+  },
+  {
     "version": "2.4.1",
     "description": {
       "en": "Now all updates (geo from GitHub, antivirus signatures, mirror update check) follow the connection sequence (TOR, proxy, direct connection)",

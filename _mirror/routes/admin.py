@@ -15,7 +15,7 @@ admin_bp = Blueprint("admin", __name__)
 
 
 @admin_bp.route("/", methods=["GET", "POST"])
-@check_ip()
+@check_ip("web")
 @conditional_login_required
 def main():
     """Home Administration page"""
@@ -27,7 +27,7 @@ def main():
 
 
 @admin_bp.route("/set_language")
-@check_ip()
+@check_ip("web")
 @conditional_login_required
 def set_language():
     """Changing interface language"""
@@ -47,7 +47,7 @@ def set_language():
 
 
 @admin_bp.route("/update_mirror")
-@check_ip()
+@check_ip("web")
 @conditional_login_required
 def update_mirror():
     """Mirror update"""
@@ -55,7 +55,7 @@ def update_mirror():
 
 
 @admin_bp.route("/get_system_log")
-@check_ip()
+@check_ip("web")
 @conditional_login_required
 def system_log():
     """Getting system log"""
@@ -63,7 +63,7 @@ def system_log():
 
 
 @admin_bp.route("/get_updates_log")
-@check_ip()
+@check_ip("web")
 @conditional_login_required
 def updates_log():
     """Getting update log"""
@@ -71,7 +71,7 @@ def updates_log():
 
 
 @admin_bp.route("/tor_status")
-@check_ip()
+@check_ip("web")
 @conditional_login_required
 def tor_status():
     """Checking Tor Status"""
@@ -79,7 +79,7 @@ def tor_status():
 
 
 @admin_bp.route("/check_update_status")
-@check_ip()
+@check_ip("web")
 @conditional_login_required
 def check_update_status():
     """Checking the status of updates"""
@@ -87,7 +87,7 @@ def check_update_status():
 
 
 @admin_bp.route("/check_for_updates")
-@check_ip()
+@check_ip("web")
 @conditional_login_required
 def check_for_updates():
     """Manual check for updates"""

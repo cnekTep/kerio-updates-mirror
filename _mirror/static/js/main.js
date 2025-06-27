@@ -70,6 +70,7 @@ const App = {
         this.setupPrioritySystem();
         this.setupUpdateChecker();
         this.setupAlternativeMethods();
+        this.setupRestrictedSettings();
         this.setupAuthSettings();
         setInterval(this.updateLogs.bind(this), this.LOG_UPDATE_INTERVAL);
         window.addEventListener('hashchange', this.handleHashChange.bind(this));
@@ -651,6 +652,24 @@ const App = {
             e.stopPropagation();
         });
     },
+
+    // Setting up restricted access functionality
+    setupRestrictedSettings() {
+    const restrictedAccessCheckbox = document.getElementById('restricted_access');
+    const restrictedSettings = document.getElementById('restricted_settings');
+
+    // Initial toggle of restricted settings visibility
+    function toggleRestrictedSettings() {
+        if (restrictedAccessCheckbox && restrictedSettings) {
+            restrictedSettings.style.display = restrictedAccessCheckbox.checked ? 'block' : 'none';
+        }
+    }
+
+    toggleRestrictedSettings(); // set initial state
+
+    // Listen for checkbox changes
+    restrictedAccessCheckbox?.addEventListener('change', toggleRestrictedSettings);
+},
 
     setupAuthSettings() {
         const useAuthCheckbox = document.getElementById('use_auth');

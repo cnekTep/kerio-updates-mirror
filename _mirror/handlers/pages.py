@@ -42,7 +42,9 @@ def main_page():
         "proxy_login": config.proxy_login,
         "proxy_password": config.proxy_password,
         "download_priority": config.download_priority,
-        "allowed_ips": config.allowed_ips,
+        "restricted_access": config.restricted_access,
+        "web_allowed_ips": config.web_allowed_ips,
+        "kerio_allowed_ips": config.kerio_allowed_ips,
         "ip_logging": config.ip_logging,
         "tor_status": tor_checker.get_status(),
         "locale": config.locale,
@@ -114,7 +116,14 @@ def save_settings():
         config.admin_password_hash = None
 
     # Update allowed IPs if enabled
-    config.allowed_ips = request.form.get("allowed_ips") if "allowed_ips_enabled" in request.form else ""
+    config.restricted_access = "restricted_access" in request.form
+    if config.restricted_access:
+        config.kerio_allowed_ips = request.form.get(
+            "kerio_allowed_ips") if "kerio_allowed_ips_enabled" in request.form else ""
+        config.web_allowed_ips = request.form.get(
+            "web_allowed_ips") if "web_allowed_ips_enabled" in request.form else ""
+    else:
+        config.kerio_allowed_ips = config.web_allowed_ips = ""
 
     write_log(log_type="system", message=_("Settings have been changed"))
 
