@@ -101,8 +101,8 @@ class UpdateChecker:
                 with open(self.results_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     #  If the latest version is greater than the current version, return that update is available
-                    if data["latest_version"] > self.get_current_version():
-                        return data
+                    data["has_updates"] = data["latest_version"] > self.get_current_version()
+                    return data
             return {
                 "timestamp": None,
                 "current_version": self.get_current_version(),
