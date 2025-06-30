@@ -1,29 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kerio Updates Mirror</title>
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body class="login-page">
-<div class="login-container">
-    <h2 class="login-title">Kerio Updates Mirror</h2>
-    <form method="post">
-        <div class="form-group">
-            <label for="username">{{ _('Username:') }}</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div class="form-group">
-            <label for="password">{{ _('Password:') }}</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button type="submit" class="login-btn">{{ _('Login') }}</button>
-        {% if error %}
-            <div class="error">{{ error }}</div>
-        {% endif %}
-    </form>
-</div>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% set body_class = 'login-page' %}
+
+{% block body %}
+    <div class="login-container">
+        <h2 class="login-title">Kerio Updates Mirror</h2>
+        <form method="post">
+            <div class="form-group">
+                <label for="username">{{ _('Username:') }}</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">{{ _('Password:') }}</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="login-btn">{{ _('Login') }}</button>
+            {% if error %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
+        </form>
+    </div>
+{% endblock %}

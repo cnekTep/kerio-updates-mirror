@@ -1,0 +1,17 @@
+<script>
+    window.APP_CONFIG = {locale: "{{ locale }}"};
+    window.TRANSLATIONS = {
+        CONNECTED: "{{ _('CONNECTED') }}",
+        DISABLED: "{{ _('DISABLED') }}",
+        CHECKING: "{{ _('CHECKING') }}",
+        ERROR: "{{ _('ERROR') }}",
+        LAST_CHECK: "{{ _('Last check:') }}",
+        CHECKS_COMPLETED: "{{ _('Checks completed:') }}",
+        CONFIRM_NEW_PASSWORD: "{{ _('Confirm new password') }}",
+        ENTER_NEW_PASSWORD: "{{ _('Enter new password') }}",
+        PASSWORDS_DO_NOT_MATCH: "{{ _('Passwords do not match') }}",
+        RUN_CHECK: "{{ _('Run check') }}",
+        FORCE_UPDATE: "{{ _('Force update') }}",
+    };
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}" defer></script>

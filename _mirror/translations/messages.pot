@@ -150,93 +150,102 @@ msgstr ""
 msgid "File %(input_path)s not found"
 msgstr ""
 
-#: handlers/ids.py:17
+#: handlers/ids.py:18
 #, python-format
 msgid "Received request for %(update_type)s update: %(request_path)s"
 msgstr ""
 
-#: handlers/ids.py:50
+#: handlers/ids.py:51
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr ""
 
-#: handlers/ids.py:57
+#: handlers/ids.py:58
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:67
+#: handlers/ids.py:68
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:104
+#: handlers/ids.py:79
+msgid "Received update request for antivirus"
+msgstr ""
+
+#: handlers/ids.py:111
 msgid "Error occurred while receiving a link to an antivirus update"
 msgstr ""
 
-#: handlers/ids.py:110
+#: handlers/ids.py:117
 #, python-format
 msgid "Update link sent: %(url)s"
 msgstr ""
 
-#: handlers/ids.py:131
+#: handlers/ids.py:130
+#, python-format
+msgid "Received update request for IDSv%(version)s"
+msgstr ""
+
+#: handlers/ids.py:143
 #, python-format
 msgid "Error occurred while processing IDS update: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:138
+#: handlers/ids.py:150
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:156
+#: handlers/ids.py:168
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr ""
 
-#: handlers/ids.py:163
+#: handlers/ids.py:175
 #, python-format
 msgid "IDSv%(version)s: error downloading update"
 msgstr ""
 
-#: handlers/ids.py:179
+#: handlers/ids.py:191
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:193
+#: handlers/ids.py:205
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
 "%(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:204
+#: handlers/ids.py:216
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:222
+#: handlers/ids.py:234
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:233
+#: handlers/ids.py:245
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:240
+#: handlers/ids.py:252
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:266
+#: handlers/ids.py:278
 #, python-format
 msgid "Successfully downloaded Snort template: %(url)s"
 msgstr ""
 
-#: handlers/ids.py:271
+#: handlers/ids.py:283
 #, python-format
 msgid "Failed to download Snort template: %(url)s"
 msgstr ""
@@ -316,252 +325,134 @@ msgstr ""
 msgid "Language changed to: %(lang)s"
 msgstr ""
 
-#: templates/index.html:18
-msgid "Update available!"
-msgstr ""
-
-#: templates/index.html:24 templates/index.html:454
-msgid "CHECKING"
-msgstr ""
-
-#: templates/index.html:30
-msgid "Logout"
-msgstr ""
-
-#: templates/index.html:43
-msgid "System Log"
-msgstr ""
-
-#: templates/index.html:46
-msgid "Mirror Update Log"
-msgstr ""
-
-#: templates/index.html:49
-msgid "Settings"
-msgstr ""
-
-#: templates/index.html:52
-msgid "Information"
-msgstr ""
-
-#: templates/index.html:64 templates/index.html:86
-msgid "Autoupdate"
-msgstr ""
-
-#: templates/index.html:71 templates/index.html:93
-msgid "Autoscroll"
-msgstr ""
-
-#: templates/index.html:104
-msgid "Update"
-msgstr ""
-
-#: templates/index.html:106
-msgid "License:"
-msgstr ""
-
-#: templates/index.html:113
-msgid "IDSv1 - IPS/IDS Snort (Windows versions)"
-msgstr ""
-
-#: templates/index.html:118
-msgid "IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)"
-msgstr ""
-
-#: templates/index.html:123
-msgid "IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)"
-msgstr ""
-
-#: templates/index.html:128
-msgid ""
-"Update Snort template via mirror\n"
-"To update, you need to add download.kerio.com with the mirror address in "
-"DNS"
-msgstr ""
-
-#: templates/index.html:129
-msgid "Update Snort template"
-msgstr ""
-
-#: templates/index.html:134
-msgid "IDSv2 - Lists of compromised addresses for blocking"
-msgstr ""
-
-#: templates/index.html:139
-msgid "IDSv4 - GeoIP databases for geolocation/visitor blocking"
-msgstr ""
-
-#: templates/index.html:144
-msgid "Use GitHub as a source for GeoIP database updates"
-msgstr ""
-
-#: templates/index.html:149
-msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
-msgstr ""
-
-#: templates/index.html:154
-msgid "Alternative mirror modes"
-msgstr ""
-
-#: templates/index.html:159
-msgid "Antivirus update source URL:"
-msgstr ""
-
-#: templates/index.html:183
-msgid "Antispam update source URL:"
-msgstr ""
-
-#: templates/index.html:209
-msgid "Update Bitdefender without using Mirror"
-msgstr ""
-
-#: templates/index.html:216
-msgid "Download Bitdefender antivirus signatures through Mirror"
-msgstr ""
-
-#: templates/index.html:221
-msgid "Connection Settings"
-msgstr ""
-
-#: templates/index.html:225
-msgid "Use Direct connection to update Bitdefender and download other updates"
-msgstr ""
-
-#: templates/index.html:231
-msgid "Use TOR to update Bitdefender and download other updates"
-msgstr ""
-
-#: templates/index.html:236
-msgid "Use proxy server to update Bitdefender and download other updates"
-msgstr ""
-
-#: templates/index.html:240
-msgid "Host:"
-msgstr ""
-
-#: templates/index.html:245
-msgid "Port:"
-msgstr ""
-
-#: templates/index.html:250
-msgid "Login:"
-msgstr ""
-
-#: templates/index.html:255 templates/index.html:348 templates/login.html:19
-msgid "Password:"
-msgstr ""
-
-#: templates/index.html:261
-msgid "Connection priority"
-msgstr ""
-
-#: templates/index.html:269
-msgid "Direct connection"
-msgstr ""
-
-#: templates/index.html:276
-msgid "Proxy server"
-msgstr ""
-
-#: templates/index.html:283
-msgid "TOR network"
-msgstr ""
-
-#: templates/index.html:294
-msgid "Other"
-msgstr ""
-
-#: templates/index.html:298
-msgid "Log client IP addresses in system logs"
-msgstr ""
-
-#: templates/index.html:304
-msgid "Restricted access"
-msgstr ""
-
-#: templates/index.html:307
-msgid "Allow access only from specific IP addresses"
-msgstr ""
-
-#: templates/index.html:313
-msgid "Kerio updates"
-msgstr ""
-
-#: templates/index.html:325
-msgid "Access to webpage"
-msgstr ""
-
-#: templates/index.html:337
-msgid "Use authentication"
-msgstr ""
-
-#: templates/index.html:342 templates/login.html:15
+#: templates/login.html:10 templates/tabs/settings.html:245
 msgid "Username:"
 msgstr ""
 
-#: templates/index.html:345
-msgid "To change the username, enter password and confirm it!"
+#: templates/login.html:14 templates/tabs/settings.html:157
+#: templates/tabs/settings.html:251
+msgid "Password:"
 msgstr ""
 
-#: templates/index.html:352 templates/index.html:360
-msgid "Leave empty not to change it"
+#: templates/login.html:17
+msgid "Login"
 msgstr ""
 
-#: templates/index.html:355
-msgid "Confirm:"
+#: templates/components/header.html:7
+msgid "Update available!"
 msgstr ""
 
-#: templates/index.html:366
-msgid "Apply"
+#: templates/components/header.html:13 templates/components/scripts.html:6
+msgid "CHECKING"
 msgstr ""
 
-#: templates/index.html:375
-msgid "Check for Application Updates"
+#: templates/components/header.html:19
+msgid "Logout"
 msgstr ""
 
-#: templates/index.html:378
-msgid "Current version:"
+#: templates/components/scripts.html:4
+msgid "CONNECTED"
 msgstr ""
 
-#: templates/index.html:379
-msgid "Latest version:"
+#: templates/components/scripts.html:5
+msgid "DISABLED"
 msgstr ""
 
-#: templates/index.html:380 templates/index.html:456
+#: templates/components/scripts.html:7
+msgid "ERROR"
+msgstr ""
+
+#: templates/components/scripts.html:8 templates/tabs/information.html:9
 msgid "Last check:"
 msgstr ""
 
-#: templates/index.html:383
-msgid "New version available!"
+#: templates/components/scripts.html:9
+msgid "Checks completed:"
 msgstr ""
 
-#: templates/index.html:387
-msgid "Check for updates"
+#: templates/components/scripts.html:10
+msgid "Confirm new password"
 msgstr ""
 
-#: templates/index.html:392
-msgid "Manual update check"
+#: templates/components/scripts.html:11
+msgid "Enter new password"
 msgstr ""
 
-#: templates/index.html:396
-msgid "Force update for webfilter key and all IDS"
+#: templates/components/scripts.html:12
+msgid "Passwords do not match"
 msgstr ""
 
-#: templates/index.html:399 templates/index.html:461
+#: templates/components/scripts.html:13 templates/tabs/information.html:28
 msgid "Run check"
 msgstr ""
 
-#: templates/index.html:402
+#: templates/components/scripts.html:14
+msgid "Force update"
+msgstr ""
+
+#: templates/components/tabs.html:3
+msgid "Logs"
+msgstr ""
+
+#: templates/components/tabs.html:6
+msgid "Settings"
+msgstr ""
+
+#: templates/components/tabs.html:9
+msgid "Information"
+msgstr ""
+
+#: templates/components/tabs.html:15
+msgid "System Log"
+msgstr ""
+
+#: templates/components/tabs.html:18
+msgid "Mirror Update Log"
+msgstr ""
+
+#: templates/components/tabs.html:21
+msgid "Connections Log"
+msgstr ""
+
+#: templates/tabs/information.html:4
+msgid "Check for Application Updates"
+msgstr ""
+
+#: templates/tabs/information.html:7
+msgid "Current version:"
+msgstr ""
+
+#: templates/tabs/information.html:8
+msgid "Latest version:"
+msgstr ""
+
+#: templates/tabs/information.html:12
+msgid "New version available!"
+msgstr ""
+
+#: templates/tabs/information.html:16
+msgid "Check for updates"
+msgstr ""
+
+#: templates/tabs/information.html:21
+msgid "Manual update check"
+msgstr ""
+
+#: templates/tabs/information.html:25
+msgid "Force update for webfilter key and all IDS"
+msgstr ""
+
+#: templates/tabs/information.html:31
 msgid "It is not recommended to run check more than once a day."
 msgstr ""
 
-#: templates/index.html:404
+#: templates/tabs/information.html:33
 msgid ""
 "The Web filter key will be forcefully updated, and all IDS files will be "
 "reuploaded."
 msgstr ""
 
-#: templates/index.html:408
+#: templates/tabs/information.html:37
 msgid ""
 "The update mirror is designed to update Kerio Control and Kerio Connect "
 "on the local\n"
@@ -575,68 +466,196 @@ msgid ""
 "updates."
 msgstr ""
 
-#: templates/index.html:415
+#: templates/tabs/information.html:44
 msgid ""
 "To work, you must specify the IP address of the update mirror for the "
 "following hosts\n"
 "                        in the DNS settings of Kerio products"
 msgstr ""
 
-#: templates/index.html:429
+#: templates/tabs/information.html:58
 msgid "License"
 msgstr ""
 
-#: templates/index.html:430
+#: templates/tabs/information.html:59
 msgid ""
 "You can get a trial key <a target=\"_blank\" rel=\"noopener noreferrer\" "
 "class=\"license-link\"\n"
-"                                                        "
-"href=\"https://gfi.ai/products-and-solutions/network-security-"
-"solutions/keriocontrol/free-trial\">here</a>."
+"            href=\"https://gfi.ai/products-and-solutions/network-"
+"security-solutions/keriocontrol/free-trial\">here</a>."
 msgstr ""
 
-#: templates/index.html:432
+#: templates/tabs/information.html:61
 msgid ""
 "Check the key expiration date <a target=\"_blank\" rel=\"noopener "
 "noreferrer\" class=\"license-link\"\n"
-"                                                              "
-"href=\"https://secure.kerio.com/reg/?lang=en\">here</a>."
+"            href=\"https://secure.kerio.com/reg/?lang=en\">here</a>."
 msgstr ""
 
-#: templates/index.html:452
-msgid "CONNECTED"
+#: templates/tabs/settings.html:5
+msgid "Update"
 msgstr ""
 
-#: templates/index.html:453
-msgid "DISABLED"
+#: templates/tabs/settings.html:7
+msgid "License:"
 msgstr ""
 
-#: templates/index.html:455
-msgid "ERROR"
+#: templates/tabs/settings.html:14
+msgid "IDSv1 - IPS/IDS Snort (Windows versions)"
 msgstr ""
 
-#: templates/index.html:457
-msgid "Checks completed:"
+#: templates/tabs/settings.html:19
+msgid "IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)"
 msgstr ""
 
-#: templates/index.html:458
-msgid "Confirm new password"
+#: templates/tabs/settings.html:24
+msgid "IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)"
 msgstr ""
 
-#: templates/index.html:459
-msgid "Enter new password"
+#: templates/tabs/settings.html:29
+msgid ""
+"Update Snort template via mirror\n"
+"To update, you need to add download.kerio.com with the mirror address in "
+"DNS"
 msgstr ""
 
-#: templates/index.html:460
-msgid "Passwords do not match"
+#: templates/tabs/settings.html:30
+msgid "Update Snort template"
 msgstr ""
 
-#: templates/index.html:462
-msgid "Force update"
+#: templates/tabs/settings.html:35
+msgid "IDSv2 - Lists of compromised addresses for blocking"
 msgstr ""
 
-#: templates/login.html:22
-msgid "Login"
+#: templates/tabs/settings.html:40
+msgid "IDSv4 - GeoIP databases for geolocation/visitor blocking"
+msgstr ""
+
+#: templates/tabs/settings.html:45
+msgid "Use GitHub as a source for GeoIP database updates"
+msgstr ""
+
+#: templates/tabs/settings.html:50
+msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
+msgstr ""
+
+#: templates/tabs/settings.html:55
+msgid "Alternative mirror modes"
+msgstr ""
+
+#: templates/tabs/settings.html:60
+msgid "Antivirus update source URL:"
+msgstr ""
+
+#: templates/tabs/settings.html:84
+msgid "Antispam update source URL:"
+msgstr ""
+
+#: templates/tabs/settings.html:110
+msgid "Update Bitdefender without using Mirror"
+msgstr ""
+
+#: templates/tabs/settings.html:117
+msgid "Download Bitdefender antivirus signatures through Mirror"
+msgstr ""
+
+#: templates/tabs/settings.html:123
+msgid "Connection Settings"
+msgstr ""
+
+#: templates/tabs/settings.html:127
+msgid "Use Direct connection to update Bitdefender and download other updates"
+msgstr ""
+
+#: templates/tabs/settings.html:133
+msgid "Use TOR to update Bitdefender and download other updates"
+msgstr ""
+
+#: templates/tabs/settings.html:138
+msgid "Use proxy server to update Bitdefender and download other updates"
+msgstr ""
+
+#: templates/tabs/settings.html:142
+msgid "Host:"
+msgstr ""
+
+#: templates/tabs/settings.html:147
+msgid "Port:"
+msgstr ""
+
+#: templates/tabs/settings.html:152
+msgid "Login:"
+msgstr ""
+
+#: templates/tabs/settings.html:163
+msgid "Connection priority"
+msgstr ""
+
+#: templates/tabs/settings.html:171
+msgid "Direct connection"
+msgstr ""
+
+#: templates/tabs/settings.html:178
+msgid "Proxy server"
+msgstr ""
+
+#: templates/tabs/settings.html:185
+msgid "TOR network"
+msgstr ""
+
+#: templates/tabs/settings.html:197
+msgid "Other"
+msgstr ""
+
+#: templates/tabs/settings.html:201
+msgid "Log client IP addresses in system logs"
+msgstr ""
+
+#: templates/tabs/settings.html:207
+msgid "Restricted access"
+msgstr ""
+
+#: templates/tabs/settings.html:210
+msgid "Allow access only from specific IP addresses"
+msgstr ""
+
+#: templates/tabs/settings.html:216
+msgid "Kerio updates"
+msgstr ""
+
+#: templates/tabs/settings.html:228
+msgid "Access to webpage"
+msgstr ""
+
+#: templates/tabs/settings.html:240
+msgid "Use authentication"
+msgstr ""
+
+#: templates/tabs/settings.html:248
+msgid "To change the username, enter password and confirm it!"
+msgstr ""
+
+#: templates/tabs/settings.html:255 templates/tabs/settings.html:263
+msgid "Leave empty not to change it"
+msgstr ""
+
+#: templates/tabs/settings.html:258
+msgid "Confirm:"
+msgstr ""
+
+#: templates/tabs/settings.html:268
+msgid "Apply"
+msgstr ""
+
+#: templates/tabs/logs/connections_log.html:9
+#: templates/tabs/logs/system_log.html:9 templates/tabs/logs/updates_log.html:9
+msgid "Autoupdate"
+msgstr ""
+
+#: templates/tabs/logs/connections_log.html:16
+#: templates/tabs/logs/system_log.html:16
+#: templates/tabs/logs/updates_log.html:16
+msgid "Autoscroll"
 msgstr ""
 
 #: utils/internet_utils.py:31

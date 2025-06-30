@@ -1,0 +1,21 @@
+<div id="connections_log" class="tab-content">
+    <div class="log-container">
+        <div id="connections_log_controls" class="log-controls">
+            <div class="control-group">
+                <label class="switch">
+                    <input type="checkbox" id="connections_log_autoupdate" checked>
+                    <span class="slider"></span>
+                </label>
+                <label for="connections_log_autoupdate">{{ _('Autoupdate') }}</label>
+            </div>
+            <div class="control-group">
+                <label class="switch">
+                    <input type="checkbox" id="connections_log_autoscroll" checked>
+                    <span class="slider"></span>
+                </label>
+                <label for="connections_log_autoscroll">{{ _('Autoscroll') }}</label>
+            </div>
+        </div>
+        <div class="log-content connections-log">{{ connections_log_content | e }}</div>
+    </div>
+</div>

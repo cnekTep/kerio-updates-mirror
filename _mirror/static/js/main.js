@@ -9,11 +9,14 @@ const App = {
         torStatus: document.getElementById('tor_status'),
         statusIndicator: document.querySelector('#tor_status .status-indicator'),
         tabLinks: document.querySelectorAll('.tab-link'),
+        submenuLinks: document.querySelectorAll('.submenu-link'),
+        logsSubmenu: document.getElementById('logs-submenu'),
         tabContents: document.querySelectorAll('.tab-content'),
         updateLabel: document.querySelector('.update-label'),
         logControls: {
             system: document.getElementById('system_log_controls'),
-            updates: document.getElementById('updates_log_controls')
+            updates: document.getElementById('updates_log_controls'),
+            connections: document.getElementById('connections_log_controls')
         },
         proxyElements: {
             useProxyCheckbox: document.getElementById("use_proxy"),
@@ -81,8 +84,33 @@ const App = {
     // Processing URL hash changes
     handleHashChange() {
         const tabId = location.hash.slice(1) || 'system_log';
-        const tabLink = document.querySelector(`.tab-link[data-tab="${tabId}"]`);
-        if (tabLink) this.activateTab(tabLink);
+
+        if (['system_log', 'updates_log', 'connections_log'].includes(tabId)) {
+            // Activate logs main tab and show submenu
+            const logsTab = document.querySelector('.tab-link[data-tab="logs"]');
+            if (logsTab) {
+                this.elements.tabLinks.forEach(l => l.classList.remove('active'));
+                logsTab.classList.add('active');
+                this.elements.logsSubmenu.classList.add('active');
+            }
+
+            // Activate specific submenu tab
+            const submenuTab = document.querySelector(`.submenu-link[data-tab="${tabId}"]`);
+            if (submenuTab) {
+                this.elements.submenuLinks.forEach(l => l.classList.remove('active'));
+                submenuTab.classList.add('active');
+            }
+        } else {
+            // Regular tab
+            const tabLink = document.querySelector(`.tab-link[data-tab="${tabId}"]`);
+            if (tabLink) {
+                this.elements.tabLinks.forEach(l => l.classList.remove('active'));
+                tabLink.classList.add('active');
+                this.elements.logsSubmenu.classList.remove('active');
+            }
+        }
+
+        this.activateTabContent(tabId);
     },
 
     // Tab activation
@@ -92,28 +120,74 @@ const App = {
         tabLink.classList.add('active');
         const tabId = tabLink.getAttribute('data-tab');
         document.getElementById(tabId).classList.add('active');
-        if (['system_log', 'updates_log'].includes(tabId)) {
+        if (['system_log', 'updates_log', 'connections_log'].includes(tabId)) {
             setTimeout(this.updateLogs.bind(this), 100);
         }
     },
 
     // Setting up Tab switching
     setupTabs() {
+        // Main tabs
         this.elements.tabLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const tabId = link.getAttribute('data-tab');
-                history.pushState(null, null, '#' + tabId);
-                this.activateTab(link);
+
+                // Remove active class from all main tabs
+                this.elements.tabLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                if (tabId === 'logs') {
+                    // Show submenu and default to system_log
+                    this.elements.logsSubmenu.classList.add('active');
+                    this.activateTabContent('system_log');
+                    // Make sure first submenu item is active
+                    this.elements.submenuLinks.forEach(sl => sl.classList.remove('active'));
+                    this.elements.submenuLinks[0].classList.add('active');
+                    history.pushState(null, null, '#system_log');
+                } else {
+                    // Hide submenu and show selected content
+                    this.elements.logsSubmenu.classList.remove('active');
+                    this.activateTabContent(tabId);
+                    history.pushState(null, null, '#' + tabId);
+                }
             });
         });
+
+        // Submenu tabs
+        this.elements.submenuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = link.getAttribute('data-tab');
+
+                // Remove active class from all submenu tabs
+                this.elements.submenuLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                this.activateTabContent(tabId);
+                history.pushState(null, null, '#' + tabId);
+            });
+        });
+    },
+
+    // Activate tab content
+    activateTabContent(tabId) {
+        this.elements.tabContents.forEach(content => content.classList.remove('active'));
+        const targetContent = document.getElementById(tabId);
+        if (targetContent) {
+            targetContent.classList.add('active');
+            if (['system_log', 'updates_log', 'connections_log'].includes(tabId)) {
+                setTimeout(this.updateLogs.bind(this), 100);
+            }
+        }
     },
 
     // Initializing log settings
     initLogSettings() {
         const settings = [
             'system_log_autoupdate', 'system_log_autoscroll',
-            'updates_log_autoupdate', 'updates_log_autoscroll'
+            'updates_log_autoupdate', 'updates_log_autoscroll',
+            'connections_log_autoupdate', 'connections_log_autoscroll'
         ];
         settings.forEach(id => {
             const el = document.getElementById(id);
@@ -126,6 +200,7 @@ const App = {
     updateLogs() {
         this.updateLog('system_log', '/get_system_log', 'system-log');
         this.updateLog('updates_log', '/get_updates_log', 'updates-log');
+        this.updateLog('connections_log', '/get_connections_log', 'connections-log');
     },
 
     // Updating a specific log

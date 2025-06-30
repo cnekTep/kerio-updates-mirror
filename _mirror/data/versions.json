@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.4.4",
+    "description": {
+      "en": "Added connection log. Only attempts to update via mirror are recorded there, without unnecessary data",
+      "ru": "Добавлен лог подключений. Там фиксируются только попытки обновления через зеркало, без лишних данных"
+    }
+  },
+  {
     "version": "2.4.3",
     "description": {
       "en": "Added ability to force update web filter key and all IDS files",

@@ -1,0 +1,26 @@
+<header>
+    <div class="container">
+        <div class="header-content">
+            <div class="header-title">
+                <h1>Kerio Updates Mirror</h1>
+                <span class="version-badge" id="ver">v.{{ current_version }}</span>
+                <span class="update-label" style="display: none; margin-left: 8px;">{{ _('Update available!') }}</span>
+            </div>
+            <div class="header-controls">
+                <div id="tor_status" class="tor-status" title="Click to check"
+                     {% if not tor %}style="display: none;"{% endif %}>
+                    <i class="fas fa-network-wired"></i>
+                    TOR: <span class="status-indicator status-loading">{{ _('CHECKING') }}</span>
+                </div>
+                <div class="language-switcher">
+                    <a href="#" class="lang-link" data-lang="en">EN</a>
+                    <a href="#" class="lang-link" data-lang="ru">RU</a>
+                </div>
+                <a href="/logout" class="logout-btn" title="{{ _('Logout') }}"
+                   {% if not auth %}style="display: none;"{% endif %}>
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>

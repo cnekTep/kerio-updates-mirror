@@ -19,3 +19,13 @@ def get_updates_log() -> str:
         str: Content of the mirror updates log file.
     """
     return read_last_lines("./logs/updates.log")
+
+
+def get_connections_log() -> str:
+    """
+    Returns the content of connections.log.
+
+    Returns:
+        str: Content of the mirror connections log file.
+    """
+    return read_last_lines("./logs/connections.log")

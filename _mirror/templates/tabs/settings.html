@@ -1,0 +1,272 @@
+<div id="settings" class="tab-content">
+    <div class="settings-container">
+        <form class="settings-form" action="/?action=save_settings" method="post">
+            <fieldset>
+                <legend>{{ _('Update') }}</legend>
+                <div class="form-group">
+                    <label for="LicenseNo">{{ _('License:') }}</label>
+                    <input type="text" id="LicenseNo" name="LicenseNo" class="form-control"
+                           value="{{ license_number or '' }}">
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="IDSv1" name="IDSv1" value="true"
+                           {% if update_ids_1 %}checked{% endif %}>
+                    <label for="IDSv1">{{ _('IDSv1 - IPS/IDS Snort (Windows versions)') }}</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="IDSv3" name="IDSv3" value="true"
+                           {% if update_ids_3 %}checked{% endif %}>
+                    <label for="IDSv3">{{ _('IDSv3 - IPS/IDS Snort (versions for Linux up to 9.5)') }}</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="IDSv5" name="IDSv5" value="true"
+                           {% if update_ids_5 %}checked{% endif %}>
+                    <label for="IDSv5">{{ _('IDSv5 - IPS/IDS Snort (versions for Linux starting from 9.5)') }}</label>
+                </div>
+                <div class="checkbox-group nested-option">
+                    <input type="checkbox" id="snort_template" name="snort_template" value="true"
+                           {% if update_snort_template %}checked{% endif %}
+                           title="{{ _('Update Snort template via mirror\nTo update, you need to add download.kerio.com with the mirror address in DNS') }}">
+                    <label for="snort_template">{{ _('Update Snort template') }}</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="IDSv2" name="IDSv2" value="true"
+                           {% if update_ids_2 %}checked{% endif %}>
+                    <label for="IDSv2">{{ _('IDSv2 - Lists of compromised addresses for blocking') }}</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="IDSv4" name="IDSv4" value="true"
+                           {% if update_ids_4 %}checked{% endif %}>
+                    <label for="IDSv4">{{ _('IDSv4 - GeoIP databases for geolocation/visitor blocking') }}</label>
+                </div>
+                <div class="checkbox-group nested-option">
+                    <input type="checkbox" id="geo_github" name="geo_github" value="true"
+                           {% if geoip_github %}checked{% endif %}>
+                    <label for="geo_github">{{ _('Use GitHub as a source for GeoIP database updates') }}</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="wfkey" name="wfkey" value="true"
+                           {% if update_web_filter_key %}checked{% endif %}>
+                    <label for="wfkey">{{ _('Kerio Control Web Filter Content Filtering Subsystem Key') }}</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="alternative_mode" name="alternative_mode" value="true"
+                           {% if alternative_mode %}checked{% endif %}>
+                    <label for="alternative_mode">{{ _('Alternative mirror modes') }}</label>
+                </div>
+
+                <div id="alternative_settings" class="alternative-methods">
+                    <div class="url-group">
+                        <label for="antivirus_url">{{ _('Antivirus update source URL:') }}</label>
+                        <div class="url-input-container">
+                            <input type="text" id="antivirus_url" name="antivirus_url"
+                                   class="url-input form-control"
+                                   value="{{ antivirus_update_url or 'https://bdupdate.kerio.com' }}" readonly>
+                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            <div class="url-dropdown" id="antivirus_dropdown">
+                                <div class="url-option" data-value="https://bdupdate.kerio.com">
+                                    https://bdupdate.kerio.com (Official Kerio site)
+                                </div>
+                                <div class="url-option" data-value="http://upgrade.bitdefender.com">
+                                    http://upgrade.bitdefender.com
+                                </div>
+                                <div class="url-option" data-value="http://breck-update.logicnow.us">
+                                    http://breck-update.logicnow.us
+                                </div>
+                                <div class="url-option" data-value="https://update-service.onesec.net">
+                                    https://update-service.onesec.net
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="url-group">
+                        <label for="antispam_url">{{ _('Antispam update source URL:') }}</label>
+                        <div class="url-input-container">
+                            <input type="text" id="antispam_url" name="antispam_url"
+                                   class="url-input form-control"
+                                   value="{{ antispam_update_url or 'https://bda-update.kerio.com' }}" readonly>
+                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            <div class="url-dropdown" id="antispam_dropdown">
+                                <div class="url-option" data-value="https://bda-update.kerio.com">
+                                    https://bda-update.kerio.com (Official Kerio site)
+                                </div>
+                                <div class="url-option" data-value="http://upgrade.bitdefender.com">
+                                    http://upgrade.bitdefender.com
+                                </div>
+                                <div class="url-option" data-value="http://breck-update.logicnow.us">
+                                    http://breck-update.logicnow.us
+                                </div>
+                                <div class="url-option" data-value="https://update-service.onesec.net">
+                                    https://update-service.onesec.net
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="radio-group">
+                        <input type="radio" id="bitdefender_no_mirror" name="bitdefender_mode" value="no_mirror"
+                               {% if bitdefender_mode == 'no_mirror' or not bitdefender_mode %}checked{% endif %}>
+                        <label for="bitdefender_no_mirror">{{ _('Update Bitdefender without using Mirror') }}</label>
+                    </div>
+
+                    <div class="radio-group">
+                        <input type="radio" id="bitdefender_via_mirror" name="bitdefender_mode"
+                               value="via_mirror"
+                               {% if bitdefender_mode == 'via_mirror' %}checked{% endif %}>
+                        <label for="bitdefender_via_mirror">{{ _('Download Bitdefender antivirus signatures through Mirror') }}</label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>{{ _('Connection Settings') }}</legend>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="use_direct" name="use_direct" value="true"
+                           {% if direct %}checked{% endif %}>
+                    <label for="use_direct">{{ _('Use Direct connection to update Bitdefender and download other updates') }}</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="use_tor" name="use_tor" value="true"
+                           {% if tor and not compile %}checked{% endif %}
+                           {% if compile %}disabled{% endif %}>
+                    <label for="use_tor">{{ _('Use TOR to update Bitdefender and download other updates') }}</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="use_proxy" name="use_proxy" value="true"
+                           {% if proxy %}checked{% endif %}>
+                    <label for="use_proxy">{{ _('Use proxy server to update Bitdefender and download other updates') }}</label>
+                </div>
+                <div id="proxy_settings" style="display: {% if proxy %}flex{% else %}none{% endif %};">
+                    <div class="form-group">
+                        <label for="proxy_host">{{ _('Host:') }}</label>
+                        <input type="text" id="proxy_host" name="proxy_host" class="form-control"
+                               value="{{ proxy_host or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="proxy_port">{{ _('Port:') }}</label>
+                        <input type="number" id="proxy_port" name="proxy_port" class="form-control"
+                               min="1" max="65535" value="{{ proxy_port or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="proxy_login">{{ _('Login:') }}</label>
+                        <input type="text" id="proxy_login" name="proxy_login" class="form-control"
+                               value="{{ proxy_login or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="proxy_password">{{ _('Password:') }}</label>
+                        <input type="password" id="proxy_password" name="proxy_password" class="form-control"
+                               value="{{ proxy_password or '' }}">
+                    </div>
+                </div>
+                <details class="no-margin">
+                    <summary class="not-bold">{{ _('Connection priority') }}</summary>
+                    <div class="form-group">
+                        <div class="priority-container">
+                            <div class="priority-methods">
+                                <div class="priority-item" data-method="direct"
+                                     {% if not direct %}style="display: none;"{% endif %}>
+                                    <div class="priority-info">
+                                        <i class="fas fa-globe"></i>
+                                        <span>{{ _('Direct connection') }}</span>
+                                    </div>
+                                </div>
+                                <div class="priority-item" data-method="proxy"
+                                     {% if not proxy %}style="display: none;"{% endif %}>
+                                    <div class="priority-info">
+                                        <i class="fas fa-server"></i>
+                                        <span>{{ _('Proxy server') }}</span>
+                                    </div>
+                                </div>
+                                <div class="priority-item" data-method="tor"
+                                     {% if not tor or compile %}style="display: none;"{% endif %}>
+                                    <div class="priority-info">
+                                        <i class="fas fa-user-secret"></i>
+                                        <span>{{ _('TOR network') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="download_priority" id="download_priority"
+                                   value="{{ download_priority }}">
+                        </div>
+                    </div>
+                </details>
+            </fieldset>
+
+            <fieldset>
+                <legend>{{ _('Other') }}</legend>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="ip_logging" name="ip_logging" value="true"
+                           {% if ip_logging %}checked{% endif %}>
+                    <label for="ip_logging">{{ _('Log client IP addresses in system logs') }}</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="restricted_access" name="restricted_access" value="true"
+                           {% if restricted_access %}checked{% endif %}>
+                    <label for="restricted_access">{{ _('Restricted access') }}</label>
+                </div>
+                <div id="restricted_settings" class="restricted-methods">
+                    <div class="restricted-header">{{ _('Allow access only from specific IP addresses') }}</div>
+
+                    <div class="restricted-option">
+                        <input type="checkbox" id="kerio_allowed_ips_enabled" name="kerio_allowed_ips_enabled"
+                               value="true"
+                               {% if kerio_allowed_ips %}checked{% endif %}>
+                        <label for="kerio_allowed_ips_enabled">{{ _('Kerio updates') }}</label>
+                        <input type="text" id="kerio_allowed_ips" name="kerio_allowed_ips"
+                               class="form-control restricted-input"
+                               value="{{ kerio_allowed_ips or '' }}"
+                               placeholder="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10"
+                               title="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10, 192.168.3.0/24">
+                    </div>
+
+                    <div class="restricted-option">
+                        <input type="checkbox" id="web_allowed_ips_enabled" name="web_allowed_ips_enabled"
+                               value="true"
+                               {% if web_allowed_ips %}checked{% endif %}>
+                        <label for="web_allowed_ips_enabled">{{ _('Access to webpage') }}</label>
+                        <input type="text" id="web_allowed_ips" name="web_allowed_ips"
+                               class="form-control restricted-input"
+                               value="{{ web_allowed_ips or '' }}"
+                               placeholder="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10"
+                               title="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10, 192.168.3.0/24">
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="use_auth" name="use_auth"
+                           {% if auth %}checked{% endif %}>
+                    <label for="use_auth">{{ _('Use authentication') }}</label>
+                </div>
+
+                <div id="auth_settings">
+                    <div class="form-group">
+                        <label for="auth_username">{{ _('Username:') }}</label>
+                        <input type="text" id="auth_username" name="auth_username" class="form-control"
+                               value="{{ auth_username or '' }}"
+                               title="{{ _('To change the username, enter password and confirm it!') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="auth_password">{{ _('Password:') }}</label>
+                        <input type="password" id="auth_password" name="auth_password" class="form-control"
+                               value="{{ auth_password or '' }}"
+                               placeholder="**********"
+                               title="{{ _('Leave empty not to change it') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="auth_password_confirm">{{ _('Confirm:') }}</label>
+                        <input type="password" id="auth_password_confirm" name="auth_password_confirm"
+                               class="form-control"
+                               value="{{ auth_password or '' }}"
+                               placeholder="**********"
+                               title="{{ _('Leave empty not to change it') }}">
+                    </div>
+                </div>
+            </fieldset>
+            <button type="submit" class="btn">
+                <i class="fas fa-save"></i>{{ _('Apply') }}
+            </button>
+        </form>
+    </div>
+</div>

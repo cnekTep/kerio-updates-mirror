@@ -1,0 +1,75 @@
+<div id="information" class="tab-content">
+    <div class="info-container">
+        <details>
+            <summary>{{ _('Check for Application Updates') }}</summary>
+            <div id="update-status" class="update-status">
+                <div class="update-status-info">
+                    <p>{{ _('Current version:') }} <span id="current-version">-</span></p>
+                    <p>{{ _('Latest version:') }} <span id="latest-version">-</span></p>
+                    <p>{{ _('Last check:') }} <span id="last-check">-</span></p>
+                </div>
+                <div id="update-available" class="update-available" style="display: none;">
+                    <h4>{{ _('New version available!') }}</h4>
+                    <div id="update-changes" class="update-changes"></div>
+                </div>
+                <button type="button" id="check-updates-btn" class="update-link">
+                    <i class="fas fa-search"></i>{{ _('Check for updates') }}
+                </button>
+            </div>
+        </details>
+        <details>
+            <summary>{{ _('Manual update check') }}</summary>
+            <div class="manual-update-container">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="force_update_checkbox">
+                    <label for="force_update_checkbox">{{ _('Force update for webfilter key and all IDS') }}</label>
+                </div>
+                <a href="/update_mirror" class="update-link" id="manual_update_btn">
+                    <i class="fas fa-sync"></i>{{ _('Run check') }}
+                </a>
+            </div>
+            <p><small>{{ _('It is not recommended to run check more than once a day.') }}</small></p>
+            <p><small id="force_update_warning" class="force-update-warning" style="display: none;">
+                {{ _('The Web filter key will be forcefully updated, and all IDS files will be reuploaded.') }}
+            </small></p>
+        </details>
+        <div class="info-section">
+            <p>{{ _('The update mirror is designed to update Kerio Control and Kerio Connect on the local
+                        network. It downloads updates for the services specified by the administrator from the Kerio
+                        update servers, after which updates can be distributed within the local network, which saves
+                        external traffic and automates the fight against vulnerabilities and bugs in software products,
+                        as well as allows centralized management of updates.') }}</p>
+        </div>
+        <details>
+            <summary>{{ _('To work, you must specify the IP address of the update mirror for the following hosts
+                        in the DNS settings of Kerio products') }}
+            </summary>
+            <div class="host-list">
+                <div class="host-item">ids-update.kerio.com</div>
+                <div class="host-item">wf-activation.kerio.com</div>
+                <div class="host-item">prod-update.kerio.com</div>
+                <div class="host-item">bdupdate.kerio.com</div>
+                <div class="host-item">bda-update.kerio.com</div>
+                <div class="host-item">update.kerio.com</div>
+                <div class="host-item">download.kerio.com</div>
+            </div>
+        </details>
+        <details>
+            <summary>{{ _('License') }}</summary>
+            <p>{{ _('You can get a trial key <a target="_blank" rel="noopener noreferrer" class="license-link"
+            href="https://gfi.ai/products-and-solutions/network-security-solutions/keriocontrol/free-trial">here</a>.') }}</p>
+            <p>{{ _('Check the key expiration date <a target="_blank" rel="noopener noreferrer" class="license-link"
+            href="https://secure.kerio.com/reg/?lang=en">here</a>.') }}</p>
+        </details>
+        <div class="footer">
+            <a href="https://github.com/cnekTep/kerio-updates-mirror" target="_blank" rel="noopener noreferrer"
+               class="github-link">
+                <i class="fab fa-github"></i>GitHub
+            </a>
+            <a href="https://t.me/kerio_updates_mirror" target="_blank" rel="noopener noreferrer"
+               class="telegram-link">
+                <i class="fab fa-telegram"></i>Telegram
+            </a>
+        </div>
+    </div>
+</div>

@@ -11,7 +11,7 @@ from utils.logging import write_log
 def handle_webfilter():
     """Handler for Web Filter key request"""
     write_log(
-        log_type="system",
+        log_type=["system", "connections"],
         message=_("Received request for Web Filter key"),
         ip=request.remote_addr if config.ip_logging else None,
     )

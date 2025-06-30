@@ -1,0 +1,21 @@
+<div id="updates_log" class="tab-content">
+    <div class="log-container">
+        <div id="updates_log_controls" class="log-controls">
+            <div class="control-group">
+                <label class="switch">
+                    <input type="checkbox" id="updates_log_autoupdate" checked>
+                    <span class="slider"></span>
+                </label>
+                <label for="updates_log_autoupdate">{{ _('Autoupdate') }}</label>
+            </div>
+            <div class="control-group">
+                <label class="switch">
+                    <input type="checkbox" id="updates_log_autoscroll" checked>
+                    <span class="slider"></span>
+                </label>
+                <label for="updates_log_autoscroll">{{ _('Autoscroll') }}</label>
+            </div>
+        </div>
+        <div class="log-content updates-log">{{ updates_log_content | e }}</div>
+    </div>
+</div>

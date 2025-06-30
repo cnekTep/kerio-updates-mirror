@@ -3,7 +3,7 @@ from flask_babel import gettext as _
 
 from config.config_env import config
 from handlers.auth import conditional_login_required
-from handlers.log_content import get_system_log, get_updates_log
+from handlers.log_content import get_system_log, get_updates_log, get_connections_log
 from handlers.pages import save_settings, main_page
 from handlers.update_mirror import handler_update_mirror
 from utils.ip_auth import check_ip
@@ -76,6 +76,14 @@ def system_log():
 def updates_log():
     """Getting update log"""
     return get_updates_log()
+
+
+@admin_bp.route("/get_connections_log")
+@check_ip("web")
+@conditional_login_required
+def connections_log():
+    """Getting connections log"""
+    return get_connections_log()
 
 
 @admin_bp.route("/tor_status")

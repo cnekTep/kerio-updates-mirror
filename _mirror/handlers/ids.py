@@ -1,3 +1,4 @@
+import logging
 import os
 
 from flask import request, Response, send_file
@@ -73,6 +74,12 @@ def handle_update():
     if major_version == 0:
         return Response(response="0:0.0", status=200)
     elif major_version in [9, 10]:
+        write_log(
+            log_type="connections",
+            message=_("Received update request for antivirus"),
+            ip=request.remote_addr if config.ip_logging else None,
+        )
+
         response_text = "THDdir=https://bdupdate.kerio.com/../"  # Default value
 
         # Check if alternative mode is enabled
@@ -118,6 +125,11 @@ def handle_update():
 
     # Regular versions (1-5)
     if 1 <= major_version <= 5:
+        write_log(
+            log_type="connections",
+            message=_("Received update request for IDSv%(version)s", version=major_version),
+            ip=request.remote_addr if config.ip_logging else None,
+        )
         try:
             result = get_ids(f"ids{major_version}")
             response_text = (
