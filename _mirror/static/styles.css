@@ -459,7 +459,6 @@ legend {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-top: 10px;
 }
 
 .btn:hover {
@@ -554,13 +553,13 @@ legend {
     width: 100%;
     padding: 8px 40px 8px 10px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: var(--border-radius);;
     font-size: 14px;
 }
 
 .dropdown-arrow {
     position: absolute;
-    right: 10px;
+    right: 15px;
     cursor: pointer;
     color: #666;
     pointer-events: none;
@@ -610,6 +609,107 @@ legend {
     font-weight: normal;
     cursor: pointer;
     margin: 0;
+}
+
+/* Distribution update settings */
+#distro_settings .form-group label {
+    width: 170px;
+}
+
+.form-group.margin-top {
+    margin-top: 10px;
+}
+
+.distro-methods {
+    margin-left: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    display: none;
+}
+
+/* File upload styles */
+.file-input {
+    display: none;
+}
+
+.file-name-display {
+    color: var(--primary-color);
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Upload notifications */
+.upload-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease-out;
+}
+
+.upload-notification.success {
+    background-color: #27ae60;
+}
+
+.upload-notification.error {
+    background-color: #e74c3c;
+}
+
+.upload-notification i {
+    margin-right: 8px;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Loading state for upload button */
+.file-upload-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.file-upload-btn .fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Select dropdown styling */
+select.form-control {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right center;
+    background-repeat: no-repeat;
+    background-size: 40px 30px;
+    appearance: none;
+    cursor: pointer;
+}
+
+select.form-control:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
 }
 
 /* Priority download order styles */
@@ -1046,6 +1146,24 @@ body.login-page {
 
     input:checked + .slider:before {
         transform: translateX(14px);
+    }
+
+    /* Distribution update settings */
+    .file-upload-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .file-name-display {
+        text-align: center;
+        margin-top: 5px;
+    }
+
+    .upload-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        text-align: center;
     }
 
     /* Proxy and auth Settings */

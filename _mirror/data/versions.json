@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.5.0",
+    "description": {
+      "en": "Added support for updating Kerio Control via a mirror — simply upload the update file to the mirror, and all connected Kerio Control instances will receive it automatically",
+      "ru": "Добавлена поддержка обновления Kerio Control через зеркало — теперь достаточно загрузить файл в зеркало, и все подключённые Kerio Control получат его автоматически"
+    }
+  },
+  {
     "version": "2.4.4",
     "description": {
       "en": "Added connection log. Only attempts to update via mirror are recorded there, without unnecessary data",

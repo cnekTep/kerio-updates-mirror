@@ -50,6 +50,9 @@ class Config:
             "GEOIP4_URL": "https://raw.githubusercontent.com/wyot1/GeoLite2-Unwalled/downloads/COUNTRY/CSV/GeoLite2-Country-Blocks-IPv4.csv",
             "GEOIP6_URL": "https://raw.githubusercontent.com/wyot1/GeoLite2-Unwalled/downloads/COUNTRY/CSV/GeoLite2-Country-Blocks-IPv6.csv",
             "GEOLOC_URL": "https://raw.githubusercontent.com/wyot1/GeoLite2-Unwalled/downloads/COUNTRY/CSV/GeoLite2-Country-Locations-en.csv",
+            "UPDATE_KERIO_CONTROL": False,  # Update Kerio Control Software
+            "KERIO_CONTROL_UPDATE_FILE": None,  # Kerio Control Software update file name
+            "KERIO_CONTROL_UPDATE_VERSION": None,  # Kerio Control Software update version
             "RESTRICTED_ACCESS": False,  # Restricted access
             "WEB_ALLOWED_IPS": "",  # Comma-separated list of allowed IP addresses for webpage, e.g. "1.1.1.1.1, 8.8.8.8.8"
             "KERIO_ALLOWED_IPS": "",  # Comma-separated list of allowed IP addresses for Kerio updates, e.g. "1.1.1.1.1, 8.8.8.8.8"

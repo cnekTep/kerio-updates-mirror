@@ -5,6 +5,7 @@ from flask_babel import gettext as _
 from werkzeug.security import generate_password_hash
 
 from config.config_env import config
+from utils.distributes_update import get_distributes_list, get_kerio_version_from_filename
 from utils.logging import write_log, read_last_lines
 from utils.tor_check import tor_checker
 from utils.update_check import checker
@@ -56,6 +57,9 @@ def main_page():
         "current_version": checker.get_current_version(),
         "auth": config.auth,
         "auth_username": config.admin_username,
+        "distro_update": config.update_kerio_control,
+        "distro_list": get_distributes_list(),
+        "distro_file": config.kerio_control_update_file,
     }
 
     return render_template(template_name_or_list="index.html", **template_data)
@@ -84,6 +88,17 @@ def save_settings():
     config.tor = "use_tor" in request.form
     config.direct = "use_direct" in request.form
     config.download_priority = build_connection_order(request.form.get("download_priority"))
+
+    if "distro_update" in request.form and request.form.get("distro_select"):
+        config.update_kerio_control = "distro_update" in request.form
+        config.kerio_control_update_file = request.form.get("distro_select")
+        config.kerio_control_update_version = get_kerio_version_from_filename(
+            filename=request.form.get("distro_select")
+        )
+    else:
+        config.update_kerio_control = False
+        config.kerio_control_update_file = None
+        config.kerio_control_update_version = None
 
     # Update proxy settings if enabled
     config.proxy = "use_proxy" in request.form
@@ -118,10 +133,12 @@ def save_settings():
     # Update allowed IPs if enabled
     config.restricted_access = "restricted_access" in request.form
     if config.restricted_access:
-        config.kerio_allowed_ips = request.form.get(
-            "kerio_allowed_ips") if "kerio_allowed_ips_enabled" in request.form else ""
-        config.web_allowed_ips = request.form.get(
-            "web_allowed_ips") if "web_allowed_ips_enabled" in request.form else ""
+        config.kerio_allowed_ips = (
+            request.form.get("kerio_allowed_ips") if "kerio_allowed_ips_enabled" in request.form else ""
+        )
+        config.web_allowed_ips = (
+            request.form.get("web_allowed_ips") if "web_allowed_ips_enabled" in request.form else ""
+        )
     else:
         config.kerio_allowed_ips = config.web_allowed_ips = ""
 

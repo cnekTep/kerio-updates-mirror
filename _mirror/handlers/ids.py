@@ -1,4 +1,3 @@
-import logging
 import os
 
 from flask import request, Response, send_file
@@ -6,6 +5,7 @@ from flask_babel import gettext as _
 
 from config.config_env import config
 from db.database import get_ids, update_ids
+from utils.distributes_update import is_update_available
 from utils.internet_utils import make_request_with_retries, download_file_with_retries
 from utils.logging import write_log
 
@@ -36,7 +36,30 @@ def handler_ids_update(update_type: str):
 
 def handler_checknew():
     """Handler for checking for new versions"""
-    response_text = "--INFO--\nReminderId='1'\nReminderAuth='1'\nVersion='0'"
+    if not config.update_kerio_control:
+        response_text = "--INFO--\nReminderId='1'\nReminderAuth='1'\nVersion='0'"
+        return Response(response=response_text, status=200, mimetype="text/plain")
+
+    form = dict(request.form)  # Convert the form data to a dictionary
+
+    # If the request is from Kerio Control, compare versions
+    if form.get("prod_code") == "KWF":
+        log_message = _(
+            "Received request for Kerio Control update: v.%(prod_major)s.%(prod_minor)s.%(prod_build)s (bild number: %(prod_build_number)s)",
+            prod_major=form["prod_major"],
+            prod_minor=form["prod_minor"],
+            prod_build=form["prod_build"],
+            prod_build_number=form["prod_build_number"],
+        )
+        write_log(
+            log_type=["system", "connections"],
+            message=log_message,
+            ip=request.remote_addr if config.ip_logging else None,
+        )
+        response_text = is_update_available(request_data=form)
+    else:  # Otherwise, send no update response
+        response_text = "--INFO--\nReminderId='1'\nReminderAuth='1'\nVersion='0'"
+
     return Response(response=response_text, status=200, mimetype="text/plain")
 
 

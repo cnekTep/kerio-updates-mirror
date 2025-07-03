@@ -49,6 +49,14 @@ const App = {
             antivirusDropdown: document.getElementById('antivirus_dropdown'),
             antispamDropdown: document.getElementById('antispam_dropdown')
         },
+        distroElements: {
+            checkbox: document.getElementById('distro_update'),
+            settings: document.getElementById('distro_settings'),
+            fileInput: document.getElementById('distro_file'),
+            fileNameDisplay: document.getElementById('file-name'),
+            fileUploadBtn: document.querySelector('.file-upload-btn'),
+            select: document.getElementById('distro_select')
+        },
         authElements: {
             useAuthCheckbox: document.getElementById('use_auth'),
             authSettings: document.getElementById('auth_settings')
@@ -75,6 +83,7 @@ const App = {
         this.setupAlternativeMethods();
         this.setupRestrictedSettings();
         this.setupForceUpdateSettings();
+        this.setupDistroSettings();
         this.setupAuthSettings();
         setInterval(this.updateLogs.bind(this), this.LOG_UPDATE_INTERVAL);
         window.addEventListener('hashchange', this.handleHashChange.bind(this));
@@ -728,6 +737,167 @@ const App = {
             e.stopPropagation();
         });
     },
+
+
+    // Setting up update distribution functionality
+    setupDistroSettings() {
+        const {
+            checkbox,
+            settings,
+            fileInput,
+            fileNameDisplay
+        } = this.elements.distroElements;
+
+
+        if (!checkbox || !settings) return;
+
+        // Toggle distribution settings visibility
+        const toggleDistroSettings = () => {
+            settings.style.display = checkbox.checked ? 'block' : 'none';
+        };
+
+        // Set initial state
+        toggleDistroSettings();
+
+        // Add event listener for checkbox
+        checkbox.addEventListener('change', toggleDistroSettings);
+
+        // File input handler for uploading new files (separate from selection)
+        if (fileInput && fileNameDisplay) {
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    fileNameDisplay.textContent = file.name;
+                    this.uploadFile(file);
+                } else {
+                    fileNameDisplay.textContent = '';
+                }
+            });
+        }
+    },
+
+    uploadFile(file) {
+        const formData = new FormData();
+        formData.append('distro_file', file);
+        formData.append('action', 'upload_distro');
+
+        // Show upload progress
+        this.showUploadProgress();
+
+        fetch('/upload_distro', {
+            method: 'POST',
+            body: formData
+        })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Server error');
+                }
+                return data;
+            })
+            .then(data => {
+                if (data.success) {
+                    this.showUploadSuccess(data.message || 'File uploaded successfully');
+                    // Update distribution list without changing current selection
+                    this.updateDistroList(data.distros);
+                    // Clear the file input after successful upload
+                    this.clearFileInput();
+                } else {
+                    this.showUploadError(data.error || 'File upload error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.showUploadError('File upload error: ' + error.message);
+            })
+            .finally(() => {
+                this.hideUploadProgress();
+            });
+    },
+
+    showUploadProgress() {
+        const btn = this.elements.distroElements.fileUploadBtn;
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>' + window.TRANSLATIONS.UPLOADING;
+            btn.disabled = true;
+        }
+    },
+
+    hideUploadProgress() {
+        const btn = this.elements.distroElements.fileUploadBtn;
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-upload"></i>' + window.TRANSLATIONS.SELECT_FILE;
+            btn.disabled = false;
+        }
+    },
+
+    showUploadSuccess(message) {
+        // Create temporary success notification
+        const notification = document.createElement('div');
+        notification.className = 'upload-notification success';
+        notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 5000);
+    },
+
+    showUploadError(message) {
+        // Create temporary error notification
+        const notification = document.createElement('div');
+        notification.className = 'upload-notification error';
+        notification.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 5000);
+    },
+
+    updateDistroList(distros) {
+        const select = this.elements.distroElements.select;
+        if (select && distros) {
+            // Save current selection
+            const currentSelection = select.value;
+
+            // Clear current options
+            while (select.children.length > 0) {
+                select.removeChild(select.lastChild);
+            }
+
+            // Add new options
+            distros.forEach(distro => {
+                const option = document.createElement('option');
+                option.value = distro;
+                option.textContent = distro;
+                select.appendChild(option);
+            });
+
+            // Restore previous selection if it still exists
+            if (currentSelection && distros.includes(currentSelection)) {
+                select.value = currentSelection;
+            }
+        }
+    },
+
+    clearFileInput() {
+        const fileInput = this.elements.distroElements.fileInput;
+        const fileNameDisplay = this.elements.distroElements.fileNameDisplay;
+
+        if (fileInput) {
+            fileInput.value = '';
+        }
+
+        if (fileNameDisplay) {
+            fileNameDisplay.textContent = '';
+        }
+    },
+
 
     // Setting up restricted access functionality
     setupRestrictedSettings() {

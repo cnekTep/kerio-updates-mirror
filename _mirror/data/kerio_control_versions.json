@@ -1,0 +1,107 @@
+{
+  "9.5.0-8778": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "5",
+    "prod_build_number": "9532",
+    "description": "Kerio Control 9.5.0 build 8778"
+  },
+  "9.5.0-8572": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "5",
+    "prod_build_number": "9311",
+    "description": "Kerio Control 9.5.0 build 8572"
+  },
+  "9.4.5-8629": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "5",
+    "prod_build_number": "9367",
+    "description": "Kerio Control 9.4.5 build 8629"
+  },
+  "9.4.5-8573": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "5",
+    "prod_build_number": "9312",
+    "description": "Kerio Control 9.4.5 build 8573"
+  },
+  "9.4.5-8526": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "5",
+    "prod_build_number": "9266",
+    "description": "Kerio Control 9.4.5 build 8526"
+  },
+  "9.4.4-8431": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "4",
+    "prod_build_number": "9171",
+    "description": "Kerio Control 9.4.4 build 8431"
+  },
+  "9.4.3-8388": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "3",
+    "prod_build_number": "9129",
+    "description": "Kerio Control 9.4.3 build 8388"
+  },
+  "9.4.3-8377": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "3",
+    "prod_build_number": "9118",
+    "description": "Kerio Control 9.4.3 build 8377"
+  },
+  "9.4.3-8353": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "3",
+    "prod_build_number": "9095",
+    "description": "Kerio Control 9.4.3 build 8353"
+  },
+  "9.4.3-8282": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "3",
+    "prod_build_number": "9024",
+    "description": "Kerio Control 9.4.3 build 8282"
+  },
+  "9.4.3-8243": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "3",
+    "prod_build_number": "8985",
+    "description": "Kerio Control 9.4.3 build 8243"
+  },
+  "9.4.2-7290": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "2",
+    "prod_build_number": "7910",
+    "description": "Kerio Control 9.4.2 patch 1 build 7290"
+  },
+  "9.4.2-7243": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "2",
+    "prod_build_number": "7523",
+    "description": "Kerio Control 9.4.2 build 7243"
+  },
+  "9.4.1-7208": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "1",
+    "prod_build_number": "7392",
+    "description": "Kerio Control 9.4.1 build 7208"
+  },
+  "9.4.0-7205": {
+    "prod_major": "9",
+    "prod_minor": "4",
+    "prod_build": "0",
+    "prod_build_number": "7284",
+    "description": "Kerio Control 9.4.0 build 7205"
+  }
+}

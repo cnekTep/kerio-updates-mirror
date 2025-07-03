@@ -155,102 +155,110 @@ msgstr ""
 msgid "Received request for %(update_type)s update: %(request_path)s"
 msgstr ""
 
-#: handlers/ids.py:51
+#: handlers/ids.py:48
+#, python-format
+msgid ""
+"Received request for Kerio Control update: "
+"v.%(prod_major)s.%(prod_minor)s.%(prod_build)s (bild number: "
+"%(prod_build_number)s)"
+msgstr ""
+
+#: handlers/ids.py:74
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr ""
 
-#: handlers/ids.py:58
+#: handlers/ids.py:81
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:68
+#: handlers/ids.py:91
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:79
+#: handlers/ids.py:102
 msgid "Received update request for antivirus"
 msgstr ""
 
-#: handlers/ids.py:111
+#: handlers/ids.py:134
 msgid "Error occurred while receiving a link to an antivirus update"
 msgstr ""
 
-#: handlers/ids.py:117
+#: handlers/ids.py:140
 #, python-format
 msgid "Update link sent: %(url)s"
 msgstr ""
 
-#: handlers/ids.py:130
+#: handlers/ids.py:153
 #, python-format
 msgid "Received update request for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:143
+#: handlers/ids.py:166
 #, python-format
 msgid "Error occurred while processing IDS update: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:150
+#: handlers/ids.py:173
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:168
+#: handlers/ids.py:191
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr ""
 
-#: handlers/ids.py:175
+#: handlers/ids.py:198
 #, python-format
 msgid "IDSv%(version)s: error downloading update"
 msgstr ""
 
-#: handlers/ids.py:191
+#: handlers/ids.py:214
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:205
+#: handlers/ids.py:228
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
 "%(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:216
+#: handlers/ids.py:239
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:234
+#: handlers/ids.py:257
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:245
+#: handlers/ids.py:268
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:252
+#: handlers/ids.py:275
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:278
+#: handlers/ids.py:301
 #, python-format
 msgid "Successfully downloaded Snort template: %(url)s"
 msgstr ""
 
-#: handlers/ids.py:283
+#: handlers/ids.py:306
 #, python-format
 msgid "Failed to download Snort template: %(url)s"
 msgstr ""
 
-#: handlers/pages.py:128
+#: handlers/pages.py:145
 msgid "Settings have been changed"
 msgstr ""
 
@@ -320,17 +328,17 @@ msgstr ""
 msgid "Web Filter: received new key - %(key)s"
 msgstr ""
 
-#: routes/admin.py:37
+#: routes/admin.py:38
 #, python-format
 msgid "Language changed to: %(lang)s"
 msgstr ""
 
-#: templates/login.html:10 templates/tabs/settings.html:245
+#: templates/login.html:10 templates/tabs/settings.html:281
 msgid "Username:"
 msgstr ""
 
-#: templates/login.html:14 templates/tabs/settings.html:157
-#: templates/tabs/settings.html:251
+#: templates/login.html:14 templates/tabs/settings.html:193
+#: templates/tabs/settings.html:287
 msgid "Password:"
 msgstr ""
 
@@ -388,6 +396,14 @@ msgstr ""
 
 #: templates/components/scripts.html:14
 msgid "Force update"
+msgstr ""
+
+#: templates/components/scripts.html:15
+msgid "Uploading..."
+msgstr ""
+
+#: templates/components/scripts.html:16 templates/tabs/settings.html:151
+msgid "Select file"
 msgstr ""
 
 #: templates/components/tabs.html:3
@@ -559,91 +575,109 @@ msgstr ""
 msgid "Download Bitdefender antivirus signatures through Mirror"
 msgstr ""
 
-#: templates/tabs/settings.html:123
+#: templates/tabs/settings.html:124
+msgid "Kerio Control Software Update"
+msgstr ""
+
+#: templates/tabs/settings.html:129
+msgid "Select the update file:"
+msgstr ""
+
+#: templates/tabs/settings.html:145 templates/tabs/settings.html:150
+msgid ""
+"Format: kerio-control-upgrade-w.x.y-zzzz_something.img\n"
+"E.g.: kerio-control-upgrade-9.5.0-8778-linux.img"
+msgstr ""
+
+#: templates/tabs/settings.html:145
+msgid "Upload new update:"
+msgstr ""
+
+#: templates/tabs/settings.html:159
 msgid "Connection Settings"
 msgstr ""
 
-#: templates/tabs/settings.html:127
+#: templates/tabs/settings.html:163
 msgid "Use Direct connection to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/tabs/settings.html:133
+#: templates/tabs/settings.html:169
 msgid "Use TOR to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/tabs/settings.html:138
+#: templates/tabs/settings.html:174
 msgid "Use proxy server to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/tabs/settings.html:142
+#: templates/tabs/settings.html:178
 msgid "Host:"
 msgstr ""
 
-#: templates/tabs/settings.html:147
+#: templates/tabs/settings.html:183
 msgid "Port:"
 msgstr ""
 
-#: templates/tabs/settings.html:152
+#: templates/tabs/settings.html:188
 msgid "Login:"
 msgstr ""
 
-#: templates/tabs/settings.html:163
+#: templates/tabs/settings.html:199
 msgid "Connection priority"
 msgstr ""
 
-#: templates/tabs/settings.html:171
+#: templates/tabs/settings.html:207
 msgid "Direct connection"
 msgstr ""
 
-#: templates/tabs/settings.html:178
+#: templates/tabs/settings.html:214
 msgid "Proxy server"
 msgstr ""
 
-#: templates/tabs/settings.html:185
+#: templates/tabs/settings.html:221
 msgid "TOR network"
 msgstr ""
 
-#: templates/tabs/settings.html:197
+#: templates/tabs/settings.html:233
 msgid "Other"
 msgstr ""
 
-#: templates/tabs/settings.html:201
+#: templates/tabs/settings.html:237
 msgid "Log client IP addresses in system logs"
 msgstr ""
 
-#: templates/tabs/settings.html:207
+#: templates/tabs/settings.html:243
 msgid "Restricted access"
 msgstr ""
 
-#: templates/tabs/settings.html:210
+#: templates/tabs/settings.html:246
 msgid "Allow access only from specific IP addresses"
 msgstr ""
 
-#: templates/tabs/settings.html:216
+#: templates/tabs/settings.html:252
 msgid "Kerio updates"
 msgstr ""
 
-#: templates/tabs/settings.html:228
+#: templates/tabs/settings.html:264
 msgid "Access to webpage"
 msgstr ""
 
-#: templates/tabs/settings.html:240
+#: templates/tabs/settings.html:276
 msgid "Use authentication"
 msgstr ""
 
-#: templates/tabs/settings.html:248
+#: templates/tabs/settings.html:284
 msgid "To change the username, enter password and confirm it!"
 msgstr ""
 
-#: templates/tabs/settings.html:255 templates/tabs/settings.html:263
+#: templates/tabs/settings.html:291 templates/tabs/settings.html:299
 msgid "Leave empty not to change it"
 msgstr ""
 
-#: templates/tabs/settings.html:258
+#: templates/tabs/settings.html:294
 msgid "Confirm:"
 msgstr ""
 
-#: templates/tabs/settings.html:268
+#: templates/tabs/settings.html:304
 msgid "Apply"
 msgstr ""
 
@@ -656,6 +690,33 @@ msgstr ""
 #: templates/tabs/logs/system_log.html:16
 #: templates/tabs/logs/updates_log.html:16
 msgid "Autoscroll"
+msgstr ""
+
+#: utils/distributes_update.py:40 utils/distributes_update.py:46
+msgid "No file selected"
+msgstr ""
+
+#: utils/distributes_update.py:58
+msgid "Invalid filename format"
+msgstr ""
+
+#: utils/distributes_update.py:63
+#, python-format
+msgid "Kerio Control Upgrade file uploaded: %(filename)s"
+msgstr ""
+
+#: utils/distributes_update.py:69
+#, python-format
+msgid "Kerio Control Upgrade file signed: %(filename)s"
+msgstr ""
+
+#: utils/distributes_update.py:80
+#, python-format
+msgid "File \"%(filename)s\" uploaded successfully"
+msgstr ""
+
+#: utils/distributes_update.py:87
+msgid "Internal server error"
 msgstr ""
 
 #: utils/internet_utils.py:31

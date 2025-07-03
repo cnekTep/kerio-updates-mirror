@@ -19,5 +19,7 @@ _mirror/update_files/*.gz
 _mirror/update_files/*.sig
 _mirror/update_files/*.tpl
 _mirror/update_files/*.md5
+_mirror/update_files/distros/*.img
+_mirror/update_files/distros/*.sig
 *.*~
 *.log

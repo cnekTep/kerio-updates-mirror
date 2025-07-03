@@ -6,6 +6,7 @@ from handlers.auth import conditional_login_required
 from handlers.log_content import get_system_log, get_updates_log, get_connections_log
 from handlers.pages import save_settings, main_page
 from handlers.update_mirror import handler_update_mirror
+from utils.distributes_update import handle_distro_upload
 from utils.ip_auth import check_ip
 from utils.logging import write_log
 from utils.tor_check import tor_checker
@@ -52,6 +53,14 @@ def set_language():
 def update_mirror():
     """Mirror update"""
     return handler_update_mirror()
+
+
+@admin_bp.route("/upload_distro", methods=["POST"])
+@check_ip("web")
+@conditional_login_required
+def distro_upload():
+    """Upload kerio distributive update file"""
+    return handle_distro_upload()
 
 
 @admin_bp.route("/update_mirror_force")

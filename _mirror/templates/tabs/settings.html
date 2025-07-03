@@ -117,6 +117,42 @@
                         <label for="bitdefender_via_mirror">{{ _('Download Bitdefender antivirus signatures through Mirror') }}</label>
                     </div>
                 </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="distro_update" name="distro_update" value="true"
+                           {% if distro_update %}checked{% endif %}>
+                    <label for="distro_update">{{ _('Kerio Control Software Update') }}</label>
+                </div>
+
+                <div id="distro_settings" class="distro-methods">
+                    <div class="form-group">
+                        <label for="distro_select">{{ _('Select the update file:') }}</label>
+                        <select id="distro_select" name="distro_select" class="form-control">
+                            {% if distro_list %}
+                                {% for distro in distro_list %}
+                                    {% set distro_clean = distro.strip() %}
+                                    <option value="{{ distro_clean }}"
+                                            {% if distro_file == distro_clean %}selected{% endif %}>
+                                        {{ distro_clean }}
+                                    </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="form-group margin-top">
+                        <label for="distro_file"
+                               title="{{ _('Format: kerio-control-upgrade-w.x.y-zzzz_something.img\nE.g.: kerio-control-upgrade-9.5.0-8778-linux.img') }}">{{ _('Upload new update:') }}</label>
+                        <input type="file" id="distro_file" name="distro_file"
+                               class="file-input" accept=".img">
+                        <button type="button" class="btn file-upload-btn"
+                                onclick="document.getElementById('distro_file').click();"
+                                title="{{ _('Format: kerio-control-upgrade-w.x.y-zzzz_something.img\nE.g.: kerio-control-upgrade-9.5.0-8778-linux.img') }}">
+                            <i class="fas fa-upload"></i>{{ _('Select file') }}
+                        </button>
+                        <span id="file-name" class="file-name-display"></span>
+                    </div>
+                </div>
             </fieldset>
 
             <fieldset>
