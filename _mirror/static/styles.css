@@ -35,6 +35,10 @@ body {
     line-height: 1.6;
 }
 
+input[type="checkbox"], input[type="radio"] {
+    accent-color: var(--secondary-color);
+}
+
 /* Containers */
 .container {
     width: 90%;
