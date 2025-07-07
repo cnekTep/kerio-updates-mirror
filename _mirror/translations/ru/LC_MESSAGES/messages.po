@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  2.5.0\n"
+"Project-Id-Version:  2.5.1\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -264,7 +264,7 @@ msgstr "Шаблон Snort успешно загружен: %(url)s"
 msgid "Failed to download Snort template: %(url)s"
 msgstr "Не удалось загрузить шаблон Snort: %(url)s"
 
-#: handlers/pages.py:145
+#: handlers/pages.py:150
 msgid "Settings have been changed"
 msgstr "Настройки были изменены"
 
@@ -339,12 +339,12 @@ msgstr "Web Filter: получен новый ключ - %(key)s"
 msgid "Language changed to: %(lang)s"
 msgstr "Язык изменен на: %(lang)s"
 
-#: templates/login.html:10 templates/tabs/settings.html:281
+#: templates/login.html:10 templates/tabs/settings.html:295
 msgid "Username:"
 msgstr "Логин:"
 
 #: templates/login.html:14 templates/tabs/settings.html:193
-#: templates/tabs/settings.html:287
+#: templates/tabs/settings.html:301
 msgid "Password:"
 msgstr "Пароль:"
 
@@ -681,34 +681,30 @@ msgid "Restricted access"
 msgstr "Ограниченный доступ"
 
 #: templates/tabs/settings.html:246
-msgid "Allow access only from specific IP addresses"
-msgstr "Разрешить доступ только с определенных IP-адресов"
+msgid "Allow access to Kerio updates"
+msgstr "Разрешить доступ к обновлениям Kerio"
 
-#: templates/tabs/settings.html:252
-msgid "Kerio updates"
-msgstr "Обновления Kerio"
+#: templates/tabs/settings.html:260
+msgid "Allow access to the web interface"
+msgstr "Разрешить доступ к веб-интерфейсу"
 
-#: templates/tabs/settings.html:264
-msgid "Access to webpage"
-msgstr "Доступ к веб-странице"
-
-#: templates/tabs/settings.html:276
+#: templates/tabs/settings.html:290
 msgid "Use authentication"
 msgstr "Использовать аутентификацию"
 
-#: templates/tabs/settings.html:284
+#: templates/tabs/settings.html:298
 msgid "To change the username, enter password and confirm it!"
 msgstr "Чтобы изменить имя пользователя, введите пароль и подтвердите его!"
 
-#: templates/tabs/settings.html:291 templates/tabs/settings.html:299
+#: templates/tabs/settings.html:305 templates/tabs/settings.html:313
 msgid "Leave empty not to change it"
 msgstr "Оставьте пустым, чтобы не изменять"
 
-#: templates/tabs/settings.html:294
+#: templates/tabs/settings.html:308
 msgid "Confirm:"
 msgstr "Подтверждение:"
 
-#: templates/tabs/settings.html:304
+#: templates/tabs/settings.html:318
 msgid "Apply"
 msgstr "Применить"
 
@@ -723,30 +719,30 @@ msgstr "Автообновление"
 msgid "Autoscroll"
 msgstr "Автопрокрутка"
 
-#: utils/distributes_update.py:40 utils/distributes_update.py:46
+#: utils/distributes_update.py:39 utils/distributes_update.py:45
 msgid "No file selected"
 msgstr "Файл не выбран"
 
-#: utils/distributes_update.py:58
+#: utils/distributes_update.py:57
 msgid "Invalid filename format"
 msgstr "Неверный формат имени файла"
 
-#: utils/distributes_update.py:63
+#: utils/distributes_update.py:62
 #, python-format
 msgid "Kerio Control Upgrade file uploaded: %(filename)s"
 msgstr "Файл обновления Kerio Control загружен: %(filename)s"
 
-#: utils/distributes_update.py:69
+#: utils/distributes_update.py:67
 #, python-format
 msgid "Kerio Control Upgrade file signed: %(filename)s"
 msgstr "Файл обновления Kerio Control подписан: %(filename)s"
 
-#: utils/distributes_update.py:80
+#: utils/distributes_update.py:76
 #, python-format
 msgid "File \"%(filename)s\" uploaded successfully"
 msgstr "Файл \"%(filename)s\" успешно загружен"
 
-#: utils/distributes_update.py:87
+#: utils/distributes_update.py:83
 msgid "Internal server error"
 msgstr "Внутренняя ошибка сервера"
 
@@ -764,17 +760,27 @@ msgstr "[%(proxy_status)s] Ошибка %(context)s: %(err)s"
 msgid "[%(proxy_status)s] Error downloading %(context)s: %(err)s"
 msgstr "[%(proxy_status)s] Ошибка загрузки %(context)s: %(err)s"
 
-#: utils/ip_auth.py:90
+#: utils/ip_auth.py:61
+#, python-format
+msgid "Updated DDNS IP: %(ip)s for domain %(domain)s"
+msgstr "Обновлен DDNS IP: %(ip)s для домена %(domain)s"
+
+#: utils/ip_auth.py:65
+#, python-format
+msgid "Failed to resolve DDNS domain %(domain)s"
+msgstr "Не удалось разрешить домен DDNS %(domain)s"
+
+#: utils/ip_auth.py:152
 #, python-format
 msgid "Incorrect IP address format in the allowed list: %(ip)s"
 msgstr "Неправильный формат IP-адреса в списке разрешенных: %(ip)s"
 
-#: utils/ip_auth.py:97
+#: utils/ip_auth.py:159
 #, python-format
 msgid "Incorrect format of the client's IP address: %(ip)s"
 msgstr "Неправильный формат IP-адреса клиента: %(ip)s"
 
-#: utils/ip_auth.py:130
+#: utils/ip_auth.py:192
 #, python-format
 msgid "Access is denied for IP: %(ip)s"
 msgstr "Доступ запрещен для IP-адреса: %(ip)s"
@@ -829,4 +835,3 @@ msgstr "Настроено обновление зеркала каждые %(in
 #, python-format
 msgid "Configured to check for updates every %(interval_minutes)s minutes"
 msgstr "Настроена проверка обновлений каждые %(interval_minutes)s минут"
-

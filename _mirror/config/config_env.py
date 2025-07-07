@@ -54,8 +54,11 @@ class Config:
             "KERIO_CONTROL_UPDATE_FILE": None,  # Kerio Control Software update file name
             "KERIO_CONTROL_UPDATE_VERSION": None,  # Kerio Control Software update version
             "RESTRICTED_ACCESS": False,  # Restricted access
-            "WEB_ALLOWED_IPS": "",  # Comma-separated list of allowed IP addresses for webpage, e.g. "1.1.1.1.1, 8.8.8.8.8"
             "KERIO_ALLOWED_IPS": "",  # Comma-separated list of allowed IP addresses for Kerio updates, e.g. "1.1.1.1.1, 8.8.8.8.8"
+            "WEB_ALLOWED_IPS": "",  # Comma-separated list of allowed IP addresses for webpage, e.g. "1.1.1.1.1, 8.8.8.8.8"
+            "WEB_ALLOWED_DDNS": "",  # DDNS domain for access, e.g. "somesite.ddns.com"
+            "WEB_ALLOWED_DDNS_IP": "",  # DDNS IP address for access, e.g. "1.1.1.1.1"
+            "WEB_ALLOWED_DDNS_LAST_CHECK": "",  # Last DDNS check time
             "IP_LOGGING": True,  # Enable IP logging
             "COMPILE": False,  # For .exe .deb compilation
             "ALTERNATIVE_MODE": False,  # Use mirror alternative mode

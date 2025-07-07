@@ -258,7 +258,7 @@ msgstr ""
 msgid "Failed to download Snort template: %(url)s"
 msgstr ""
 
-#: handlers/pages.py:145
+#: handlers/pages.py:150
 msgid "Settings have been changed"
 msgstr ""
 
@@ -333,12 +333,12 @@ msgstr ""
 msgid "Language changed to: %(lang)s"
 msgstr ""
 
-#: templates/login.html:10 templates/tabs/settings.html:281
+#: templates/login.html:10 templates/tabs/settings.html:295
 msgid "Username:"
 msgstr ""
 
 #: templates/login.html:14 templates/tabs/settings.html:193
-#: templates/tabs/settings.html:287
+#: templates/tabs/settings.html:301
 msgid "Password:"
 msgstr ""
 
@@ -650,34 +650,30 @@ msgid "Restricted access"
 msgstr ""
 
 #: templates/tabs/settings.html:246
-msgid "Allow access only from specific IP addresses"
+msgid "Allow access to Kerio updates"
 msgstr ""
 
-#: templates/tabs/settings.html:252
-msgid "Kerio updates"
+#: templates/tabs/settings.html:260
+msgid "Allow access to the web interface"
 msgstr ""
 
-#: templates/tabs/settings.html:264
-msgid "Access to webpage"
-msgstr ""
-
-#: templates/tabs/settings.html:276
+#: templates/tabs/settings.html:290
 msgid "Use authentication"
 msgstr ""
 
-#: templates/tabs/settings.html:284
+#: templates/tabs/settings.html:298
 msgid "To change the username, enter password and confirm it!"
 msgstr ""
 
-#: templates/tabs/settings.html:291 templates/tabs/settings.html:299
+#: templates/tabs/settings.html:305 templates/tabs/settings.html:313
 msgid "Leave empty not to change it"
 msgstr ""
 
-#: templates/tabs/settings.html:294
+#: templates/tabs/settings.html:308
 msgid "Confirm:"
 msgstr ""
 
-#: templates/tabs/settings.html:304
+#: templates/tabs/settings.html:318
 msgid "Apply"
 msgstr ""
 
@@ -692,30 +688,30 @@ msgstr ""
 msgid "Autoscroll"
 msgstr ""
 
-#: utils/distributes_update.py:40 utils/distributes_update.py:46
+#: utils/distributes_update.py:39 utils/distributes_update.py:45
 msgid "No file selected"
 msgstr ""
 
-#: utils/distributes_update.py:58
+#: utils/distributes_update.py:57
 msgid "Invalid filename format"
 msgstr ""
 
-#: utils/distributes_update.py:63
+#: utils/distributes_update.py:62
 #, python-format
 msgid "Kerio Control Upgrade file uploaded: %(filename)s"
 msgstr ""
 
-#: utils/distributes_update.py:69
+#: utils/distributes_update.py:67
 #, python-format
 msgid "Kerio Control Upgrade file signed: %(filename)s"
 msgstr ""
 
-#: utils/distributes_update.py:80
+#: utils/distributes_update.py:76
 #, python-format
 msgid "File \"%(filename)s\" uploaded successfully"
 msgstr ""
 
-#: utils/distributes_update.py:87
+#: utils/distributes_update.py:83
 msgid "Internal server error"
 msgstr ""
 
@@ -733,17 +729,27 @@ msgstr ""
 msgid "[%(proxy_status)s] Error downloading %(context)s: %(err)s"
 msgstr ""
 
-#: utils/ip_auth.py:90
+#: utils/ip_auth.py:61
+#, python-format
+msgid "Updated DDNS IP: %(ip)s for domain %(domain)s"
+msgstr ""
+
+#: utils/ip_auth.py:65
+#, python-format
+msgid "Failed to resolve DDNS domain %(domain)s"
+msgstr ""
+
+#: utils/ip_auth.py:152
 #, python-format
 msgid "Incorrect IP address format in the allowed list: %(ip)s"
 msgstr ""
 
-#: utils/ip_auth.py:97
+#: utils/ip_auth.py:159
 #, python-format
 msgid "Incorrect format of the client's IP address: %(ip)s"
 msgstr ""
 
-#: utils/ip_auth.py:130
+#: utils/ip_auth.py:192
 #, python-format
 msgid "Access is denied for IP: %(ip)s"
 msgstr ""

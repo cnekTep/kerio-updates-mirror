@@ -44,8 +44,9 @@ def main_page():
         "proxy_password": config.proxy_password,
         "download_priority": config.download_priority,
         "restricted_access": config.restricted_access,
-        "web_allowed_ips": config.web_allowed_ips,
         "kerio_allowed_ips": config.kerio_allowed_ips,
+        "web_allowed_ips": config.web_allowed_ips,
+        "web_allowed_ddns": config.web_allowed_ddns,
         "ip_logging": config.ip_logging,
         "tor_status": tor_checker.get_status(),
         "locale": config.locale,
@@ -139,6 +140,10 @@ def save_settings():
         config.web_allowed_ips = (
             request.form.get("web_allowed_ips") if "web_allowed_ips_enabled" in request.form else ""
         )
+        config.web_allowed_ddns = (
+            request.form.get("web_allowed_ddns") if "web_allowed_ddns_enabled" in request.form else ""
+        )
+        config.web_allowed_ddns_ip = config.web_allowed_ddns_last_check = ""
     else:
         config.kerio_allowed_ips = config.web_allowed_ips = ""
 

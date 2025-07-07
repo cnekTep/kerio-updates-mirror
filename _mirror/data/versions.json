@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.5.1",
+    "description": {
+      "en": "Added ability to restrict access to the web interface based on DDNS name",
+      "ru": "Добавлена возможность ограничивать доступ к веб-интерфейсу на основе DDNS-имени"
+    }
+  },
+  {
     "version": "2.5.0",
     "description": {
       "en": "Added support for updating Kerio Control via a mirror — simply upload the update file to the mirror, and all connected Kerio Control instances will receive it automatically",

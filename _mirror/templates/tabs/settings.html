@@ -243,13 +243,13 @@
                     <label for="restricted_access">{{ _('Restricted access') }}</label>
                 </div>
                 <div id="restricted_settings" class="restricted-methods">
-                    <div class="restricted-header">{{ _('Allow access only from specific IP addresses') }}</div>
+                    <div class="restricted-header">{{ _('Allow access to Kerio updates') }}</div>
 
                     <div class="restricted-option">
                         <input type="checkbox" id="kerio_allowed_ips_enabled" name="kerio_allowed_ips_enabled"
                                value="true"
                                {% if kerio_allowed_ips %}checked{% endif %}>
-                        <label for="kerio_allowed_ips_enabled">{{ _('Kerio updates') }}</label>
+                        <label for="kerio_allowed_ips_enabled">IP:</label>
                         <input type="text" id="kerio_allowed_ips" name="kerio_allowed_ips"
                                class="form-control restricted-input"
                                value="{{ kerio_allowed_ips or '' }}"
@@ -257,17 +257,31 @@
                                title="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10, 192.168.3.0/24">
                     </div>
 
+                    <div class="restricted-header">{{ _('Allow access to the web interface') }}</div>
+
                     <div class="restricted-option">
                         <input type="checkbox" id="web_allowed_ips_enabled" name="web_allowed_ips_enabled"
                                value="true"
                                {% if web_allowed_ips %}checked{% endif %}>
-                        <label for="web_allowed_ips_enabled">{{ _('Access to webpage') }}</label>
+                        <label for="web_allowed_ips_enabled">IP:</label>
                         <input type="text" id="web_allowed_ips" name="web_allowed_ips"
                                class="form-control restricted-input"
                                value="{{ web_allowed_ips or '' }}"
                                placeholder="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10"
                                title="192.168.1.1, 192.168.1.2, 192.168.2.1-192.168.2.10, 192.168.3.0/24">
                     </div>
+
+                    <div class="restricted-option">
+                            <input type="checkbox" id="web_allowed_ddns_enabled" name="web_allowed_ddns_enabled"
+                                   value="true"
+                                   {% if web_allowed_ddns %}checked{% endif %}>
+                            <label for="web_allowed_ddns_enabled">DDNS:</label>
+                            <input type="text" id="web_allowed_ddns" name="web_allowed_ddns"
+                                   class="form-control restricted-input"
+                                   value="{{ web_allowed_ddns or '' }}"
+                                   placeholder="somesite.ddns.com"
+                                   title="somesite.ddns.com">
+                        </div>
                 </div>
 
                 <div class="form-group checkbox-group">
