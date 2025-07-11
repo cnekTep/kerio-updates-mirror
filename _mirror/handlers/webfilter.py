@@ -3,7 +3,7 @@ from flask import request
 from flask_babel import gettext as _
 
 from config.config_env import config
-from db.database import get_webfilter_key, add_webfilter_key
+from db.database import get_webfilter_key, add_webfilter_key, add_stat_mirror_update, add_stat_kerio_update
 from utils.internet_utils import make_request_with_retries
 from utils.logging import write_log
 
@@ -20,6 +20,7 @@ def handle_webfilter():
     if not webfilter_key:
         return Response(response="404 Not found", status=404, mimetype="text/plain")
 
+    add_stat_kerio_update(ip_address=request.remote_addr, update_type="web_filter", bytes_transferred=0)
     # Create and return response with status code 200 and Web Filter key as response body
     return Response(response=webfilter_key, status=200)
 
@@ -64,3 +65,4 @@ def update_web_filter_key() -> None:
     add_webfilter_key(lic_number=config.license_number, key=response.text)  # Save key to database
     log_message = _("Web Filter: received new key - %(key)s", key=response.text.strip())
     write_log(log_type=["system", "updates"], message=log_message)
+    add_stat_mirror_update(update_type="web_filter", bytes_downloaded=0)  # Add update to statistics

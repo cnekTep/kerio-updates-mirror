@@ -1,15 +1,26 @@
 import datetime
 import threading
+from pathlib import Path
 
 from flask import redirect, current_app
 from flask_babel import gettext as _
 
 from config.config_env import config
-from db.database import get_ids, get_all_ids_file_names, clear_webfilter_table, clear_ids_table
+from db.database import (
+    get_ids,
+    get_all_ids_file_names,
+    clear_webfilter_table,
+    clear_ids_table,
+    cleanup_bitdefender_cache,
+    get_all_bitdefender_cache_file_names,
+    update_cache_last_usage_batch,
+    add_stat_mirror_update,
+)
 from handlers.geo import download_and_process_geo, combine_and_compress_geo_files
 from handlers.ids import download_ids_update_files, download_snort_template
 from handlers.webfilter import update_web_filter_key
-from utils.file_utils import clean_update_files
+from utils.file_utils import clean_directory
+from utils.internet_utils import make_request_with_retries
 from utils.logging import write_log
 
 
@@ -87,9 +98,18 @@ def update_mirror(scheduler=False) -> None:
                 )
 
                 # Download and process all necessary geo files
-                download_and_process_geo(url=config.geoip4_url, output_filename=f"v4.csv", modify=True)
-                download_and_process_geo(url=config.geoip6_url, output_filename=f"v6.csv", modify=True)
-                download_and_process_geo(url=config.geoloc_url, output_filename=f"locations.csv", modify=False)
+                geo_files = [
+                    (config.geoip4_url, "v4.csv", True),
+                    (config.geoip6_url, "v6.csv", True),
+                    (config.geoloc_url, "locations.csv", False),
+                ]
+
+                total_size = 0
+                for url, filename, modify in geo_files:
+                    file_size = download_and_process_geo(url=url, output_filename=filename, modify=modify)
+                    total_size += file_size
+
+                add_stat_mirror_update(update_type="ids_v4_github", bytes_downloaded=total_size)
 
                 combine_and_compress_geo_files(
                     v4_filename="v4.csv",
@@ -112,13 +132,28 @@ def update_mirror(scheduler=False) -> None:
     if config.update_snort_template:  # Download Snort template files
         download_snort_template()
 
+    # Create a list of files to keep in update_files directory
     all_ids_file_names = get_all_ids_file_names()
-    files_to_keep = [".gitkeep", "locations.csv", "v4.csv", "v6.csv", "snort.tpl", "snort.tpl.md5"]
+    update_files_to_keep = [".gitkeep", "locations.csv", "v4.csv", "v6.csv", "snort.tpl", "snort.tpl.md5"]
     for file_name in all_ids_file_names:
-        files_to_keep.append(file_name)
-        files_to_keep.append(f"{file_name}.sig")
+        update_files_to_keep.append(file_name)
+        update_files_to_keep.append(f"{file_name}.sig")
 
-    clean_update_files(files_to_keep=files_to_keep)
+    # Clean update_files directory
+    clean_directory(directory_path=Path("update_files"), files_to_keep=update_files_to_keep)
+
+    if config.bitdefender_update_mode == "via_mirror_cache":
+        # Upload actual files versions and update their last usage in database.
+        update_bitdefender_cache_last_usage()
+        # Delete old bitdefender cache files from database
+        cleanup_bitdefender_cache()
+        # Create a list of files to keep in bitdefender_cache directory
+        cache_files_to_keep = get_all_bitdefender_cache_file_names()
+
+        # Clean bitdefender_cache directory
+        clean_directory(directory_path=Path("update_files/bitdefender_cache"), files_to_keep=cache_files_to_keep)
+
+        write_log(log_type=["system", "updates"], message=_("Bitdefender old cache files removed"))
 
     write_log(
         log_type=["system", "updates"],
@@ -127,6 +162,51 @@ def update_mirror(scheduler=False) -> None:
         ),
     )
     write_log(log_type="updates", message="----------------------------------------------------------------")
+
+
+def update_bitdefender_cache_last_usage():
+    """Updates last usage date for actual bitdefender cache files in database"""
+    if config.antivirus_update_url == "https://bdupdate.kerio.com":
+        url = f"{config.kerio_cdn_url}/av64bit/versions.dat"
+    else:
+        url = f"{config.antivirus_update_url}/av64bit/versions.dat"
+
+    try:
+        response = make_request_with_retries(url=url, context=f"downloading bitdefender versions.dat file: {url}")
+
+        if not response:
+            write_log(log_type="system", message=_("Error downloading bitdefender versions.dat file"))
+            return
+        write_log(log_type="system", message=_("Successfully downloaded bitdefender versions.dat file"))
+
+        # Parse each line and extract hash
+        lines = response.text.strip().split("\n")
+
+        valid_hashes = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            # Parse line format: [+|-|0] <hash> <filename> <size>
+            parts = line.split()
+            if len(parts) < 4:
+                continue
+
+            # Extract hash (second column)
+            hash_value = parts[1]
+
+            # Basic hash validation - alphanumeric, reasonable length
+            if len(hash_value) >= 32 and hash_value.isalnum():
+                valid_hashes.append(hash_value)
+
+        if valid_hashes:
+            # Update last_usage for all valid hashes in database
+            update_cache_last_usage_batch(file_hashes=valid_hashes)
+    except Exception as e:
+        write_log(log_type="system",
+                  message=_("Error downloading bitdefender versions.dat file: %(error)s", error=str(e)))
+        return
 
 
 def background_update_mirror(app):

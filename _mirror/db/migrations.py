@@ -26,6 +26,50 @@ def create_initial_tables(db: sqlite3.Connection):
     db.execute("CREATE TABLE IF NOT EXISTS ids (name TEXT PRIMARY KEY, version INTEGER, file_name TEXT)")
 
 
+@migration(2.0)
+def create_bitdefender_cache_table(db: sqlite3.Connection):
+    """Create bitdefender_cache table for file caching"""
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bitdefender_cache (
+            file_name TEXT PRIMARY KEY,
+            last_usage TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """
+    )
+
+
+@migration(3.0)
+def create_stats_mirror_updates_table(db: sqlite3.Connection):
+    """Create stats_mirror_updates table for statistics"""
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS stats_mirror_updates (
+            id INTEGER PRIMARY KEY,
+            update_type TEXT NOT NULL,
+            bytes_downloaded INTEGER NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """
+    )
+
+
+@migration(3.1)
+def create_stats_kerio_updates_table(db: sqlite3.Connection):
+    """Create stats_kerio_updates table for statistics"""
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS stats_kerio_updates (
+            id INTEGER PRIMARY KEY,
+            ip_address TEXT NOT NULL,
+            update_type TEXT NOT NULL,
+            bytes_transferred INTEGER NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """
+    )
+
+
 def get_current_db_version(db: sqlite3.Connection) -> float:
     """Get the current version of the database"""
     try:

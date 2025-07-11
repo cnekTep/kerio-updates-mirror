@@ -4,7 +4,7 @@ from flask import request, Response, send_file
 from flask_babel import gettext as _
 
 from config.config_env import config
-from db.database import get_ids, update_ids
+from db.database import get_ids, update_ids, add_stat_mirror_update, add_stat_kerio_update
 from utils.distributes_update import is_update_available
 from utils.internet_utils import make_request_with_retries, download_file_with_retries
 from utils.logging import write_log
@@ -31,6 +31,25 @@ def handler_ids_update(update_type: str):
         filename = request.path.split("/")[-1]
         request_path = os.path.join(target_directory, filename)
 
+    # Add upload statistics
+    if not any(ext in request_path for ext in [".sig", ".md5"]):
+        update_types = {
+            "full-1": "ids_v1",
+            "full-2": "ids_v2",
+            "full-3": "ids_v3",
+            "full-4": "ids_v4",
+            "full-5": "ids_v5",
+            "snort": "snort",
+        }
+
+        for key, update_type in update_types.items():
+            if key in request_path:
+                add_stat_kerio_update(
+                    ip_address=request.remote_addr,
+                    update_type=update_type,
+                    bytes_transferred=os.path.getsize(request_path),
+                )
+                break
     return send_file(path_or_file=request_path, as_attachment=True)
 
 
@@ -124,7 +143,7 @@ def handle_update():
                 )
 
                 if response:
-                    if config.bitdefender_update_mode == "via_mirror":
+                    if "via_mirror" in config.bitdefender_update_mode:
                         config.kerio_cdn_url = response.text.replace("THDdir=", "").strip()
                     else:
                         response_text = response.text
@@ -140,6 +159,9 @@ def handle_update():
             message=_("Update link sent: %(url)s", url=response_text.replace("THDdir=", "").strip()),
             ip=request.remote_addr if config.ip_logging else None,
         )
+        add_stat_kerio_update(ip_address=request.remote_addr, update_type="antivirus", bytes_transferred=0)
+        if config.bitdefender_update_mode == "via_mirror_cache":  # Add stat for mirror antivirus update
+            add_stat_mirror_update(update_type="antivirus", bytes_downloaded=0)
         return Response(
             response=response_text,
             mimetype="text/plain",
@@ -277,6 +299,7 @@ def download_ids_update_files(version: str) -> None:
         result_version=result["version"],
     )
     write_log(log_type=["system", "updates"], message=log_message)
+    add_stat_mirror_update(update_type=f"ids_v{version}", bytes_downloaded=os.path.getsize(save_path))
 
 
 def download_snort_template() -> None:
@@ -300,6 +323,8 @@ def download_snort_template() -> None:
                 log_type="system",
                 message=_("Successfully downloaded Snort template: %(url)s", url=url),
             )
+            if url == snort_template_url:
+                add_stat_mirror_update(update_type="snort_template", bytes_downloaded=os.path.getsize(save_path))
         else:
             write_log(
                 log_type="system",

@@ -12,7 +12,7 @@ from utils.internet_utils import make_request_with_retries
 from utils.logging import write_log
 
 
-def download_and_process_geo(url: str, output_filename: str, modify: bool = True) -> str or None:
+def download_and_process_geo(url: str, output_filename: str, modify: bool = True) -> int:
     """
     Downloads a CSV file from the provided URL, processes its content, and saves the result.
     This function avoids the creation of temporary files.
@@ -23,7 +23,7 @@ def download_and_process_geo(url: str, output_filename: str, modify: bool = True
         modify (bool): Flag indicating whether to modify the data.
 
     Returns:
-        str: The path to the saved output file, or None if an error occurs.
+         int: File size in bytes.
     """
     # Directory for saving files; create if it does not exist.
     save_directory = "update_files"
@@ -37,6 +37,7 @@ def download_and_process_geo(url: str, output_filename: str, modify: bool = True
     if modify:  # Processing the data
         # Process data in memory without creating a temporary file
         content = response.content.decode("utf-8")
+        file_size = len(content)
         csv_data = StringIO(content)
 
         reader = csv.reader(csv_data)
@@ -63,12 +64,13 @@ def download_and_process_geo(url: str, output_filename: str, modify: bool = True
         with open(output_path, "wb") as file:
             for chunk in response.iter_content(chunk_size=8192):
                 file.write(chunk)
+        file_size = os.path.getsize(output_path)
 
     write_log(
         log_type="system",
         message=_("File downloaded, processed and saved successfully at %(output_path)s", output_path=output_path),
     )
-    return output_path
+    return file_size
 
 
 def combine_and_compress_geo_files(v4_filename: str, v6_filename: str) -> str or None:

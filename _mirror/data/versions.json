@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.6.0",
+    "description": {
+      "en": "Added ability to enable caching when updating antivirus databases via mirror",
+      "ru": "Добавлена возможность включения кэширования при обновлении антивирусных баз через зеркало"
+    }
+  },
+  {
     "version": "2.5.1",
     "description": {
       "en": "Added ability to restrict access to the web interface based on DDNS name",

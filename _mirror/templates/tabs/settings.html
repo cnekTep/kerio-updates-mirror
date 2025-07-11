@@ -116,7 +116,14 @@
                                {% if bitdefender_mode == 'via_mirror' %}checked{% endif %}>
                         <label for="bitdefender_via_mirror">{{ _('Download Bitdefender antivirus signatures through Mirror') }}</label>
                     </div>
-                </div>
+
+                    <div class="radio-group">
+                            <input type="radio" id="bitdefender_via_mirror" name="bitdefender_mode"
+                                   value="via_mirror_cache"
+                                   {% if bitdefender_mode == 'via_mirror_cache' %}checked{% endif %}>
+                            <label for="bitdefender_via_mirror_cache">{{ _('Download Bitdefender antivirus signatures through Mirror (use cache)') }}</label>
+                        </div>
+                    </div>
 
                 <div class="checkbox-group">
                     <input type="checkbox" id="distro_update" name="distro_update" value="true"

@@ -29,41 +29,41 @@ msgstr ""
 msgid "Critical error: %(error)s"
 msgstr ""
 
-#: db/database.py:19
+#: db/database.py:20
 #, python-format
 msgid "Database initialization error: %(error)s"
 msgstr ""
 
-#: db/migrations.py:64
+#: db/migrations.py:108
 #, python-format
 msgid "Current database version: %(version)s"
 msgstr ""
 
-#: db/migrations.py:67
+#: db/migrations.py:111
 #, python-format
 msgid "Latest available version: %(version)s"
 msgstr ""
 
-#: db/migrations.py:68
+#: db/migrations.py:112
 msgid "Applying migrations..."
 msgstr ""
 
-#: db/migrations.py:73
+#: db/migrations.py:117
 #, python-format
 msgid "Apply migration: %(version)s"
 msgstr ""
 
-#: db/migrations.py:79
+#: db/migrations.py:123
 #, python-format
 msgid "Migration %(version)s successfully applied"
 msgstr ""
 
-#: db/migrations.py:85
+#: db/migrations.py:129
 #, python-format
 msgid "Error when applying %(version)s migration: %(error)s"
 msgstr ""
 
-#: db/migrations.py:90
+#: db/migrations.py:134
 msgid "Database is up to date"
 msgstr ""
 
@@ -86,22 +86,32 @@ msgstr ""
 msgid "User logged out: %(username)s"
 msgstr ""
 
-#: handlers/bitdefender.py:28
+#: handlers/bitdefender.py:31
 msgid "Received antivirus signatures request"
 msgstr ""
 
-#: handlers/bitdefender.py:34
+#: handlers/bitdefender.py:37
 msgid "Received antispam signatures request"
 msgstr ""
 
-#: handlers/bitdefender.py:40
+#: handlers/bitdefender.py:43
 #, python-format
 msgid "Received unknown download request: %(request_path)s"
 msgstr ""
 
-#: handlers/bitdefender.py:85
+#: handlers/bitdefender.py:92
 #, python-format
 msgid "Downloading file: %(request_path)s"
+msgstr ""
+
+#: handlers/bitdefender.py:130
+#, python-format
+msgid "Sending cached file: %(filename)s"
+msgstr ""
+
+#: handlers/bitdefender.py:144
+#, python-format
+msgid "Downloading and caching file: %(file_path)s"
 msgstr ""
 
 #: handlers/geo.py:34
@@ -109,43 +119,43 @@ msgstr ""
 msgid "Downloading file: %(url)s"
 msgstr ""
 
-#: handlers/geo.py:69
+#: handlers/geo.py:71
 #, python-format
 msgid "File downloaded, processed and saved successfully at %(output_path)s"
 msgstr ""
 
-#: handlers/geo.py:113
+#: handlers/geo.py:115
 #, python-format
 msgid "File created successfully. Size: %(file_size)s bytes"
 msgstr ""
 
-#: handlers/geo.py:117
+#: handlers/geo.py:119
 #, python-format
 msgid "File %(output_gz_path)s was not created or is empty"
 msgstr ""
 
-#: handlers/geo.py:122
+#: handlers/geo.py:124
 #, python-format
 msgid "IDSv4: new version loaded (from GitHub) - 4.%(file_version)s"
 msgstr ""
 
-#: handlers/geo.py:130
+#: handlers/geo.py:132
 #, python-format
 msgid ""
 "Attempt %(attempt)s/%(max_attempts)s: error during file processing and "
 "compression: %(err)s"
 msgstr ""
 
-#: handlers/geo.py:138
+#: handlers/geo.py:140
 msgid "IDSv4: error during download"
 msgstr ""
 
-#: handlers/geo.py:143
+#: handlers/geo.py:145
 #, python-format
 msgid "Pausing for %(delay)s seconds before the next attempt..."
 msgstr ""
 
-#: handlers/geo.py:166
+#: handlers/geo.py:168
 #, python-format
 msgid "File %(input_path)s not found"
 msgstr ""
@@ -155,7 +165,7 @@ msgstr ""
 msgid "Received request for %(update_type)s update: %(request_path)s"
 msgstr ""
 
-#: handlers/ids.py:48
+#: handlers/ids.py:67
 #, python-format
 msgid ""
 "Received request for Kerio Control update: "
@@ -163,97 +173,97 @@ msgid ""
 "%(prod_build_number)s)"
 msgstr ""
 
-#: handlers/ids.py:74
+#: handlers/ids.py:93
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr ""
 
-#: handlers/ids.py:81
+#: handlers/ids.py:100
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:91
+#: handlers/ids.py:110
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:102
+#: handlers/ids.py:121
 msgid "Received update request for antivirus"
 msgstr ""
 
-#: handlers/ids.py:134
+#: handlers/ids.py:153
 msgid "Error occurred while receiving a link to an antivirus update"
 msgstr ""
 
-#: handlers/ids.py:140
+#: handlers/ids.py:159
 #, python-format
 msgid "Update link sent: %(url)s"
 msgstr ""
 
-#: handlers/ids.py:153
+#: handlers/ids.py:175
 #, python-format
 msgid "Received update request for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:166
+#: handlers/ids.py:188
 #, python-format
 msgid "Error occurred while processing IDS update: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:173
+#: handlers/ids.py:195
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:191
+#: handlers/ids.py:213
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr ""
 
-#: handlers/ids.py:198
+#: handlers/ids.py:220
 #, python-format
 msgid "IDSv%(version)s: error downloading update"
 msgstr ""
 
-#: handlers/ids.py:214
+#: handlers/ids.py:236
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:228
+#: handlers/ids.py:250
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
 "%(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:239
+#: handlers/ids.py:261
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:257
+#: handlers/ids.py:279
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:268
+#: handlers/ids.py:290
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:275
+#: handlers/ids.py:297
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:301
+#: handlers/ids.py:324
 #, python-format
 msgid "Successfully downloaded Snort template: %(url)s"
 msgstr ""
 
-#: handlers/ids.py:306
+#: handlers/ids.py:331
 #, python-format
 msgid "Failed to download Snort template: %(url)s"
 msgstr ""
@@ -262,68 +272,85 @@ msgstr ""
 msgid "Settings have been changed"
 msgstr ""
 
-#: handlers/update_mirror.py:55
+#: handlers/update_mirror.py:66
 msgid "Scheduled mirror update process started"
 msgstr ""
 
-#: handlers/update_mirror.py:55
+#: handlers/update_mirror.py:66
 msgid "Manual mirror update process started"
 msgstr ""
 
-#: handlers/update_mirror.py:59
+#: handlers/update_mirror.py:70
 #, python-format
 msgid "Using license key: %(license_number)s"
 msgstr ""
 
-#: handlers/update_mirror.py:85
+#: handlers/update_mirror.py:96
 #, python-format
 msgid "Downloading new version: 4.%(version)s"
 msgstr ""
 
-#: handlers/update_mirror.py:102
+#: handlers/update_mirror.py:122
 #, python-format
 msgid "IDSv4: no new version available, current version: 4.%(actual_version)s"
 msgstr ""
 
-#: handlers/update_mirror.py:126
+#: handlers/update_mirror.py:156
+msgid "Bitdefender old cache files removed"
+msgstr ""
+
+#: handlers/update_mirror.py:161
 msgid "Scheduled mirror update process completed"
 msgstr ""
 
-#: handlers/update_mirror.py:126
+#: handlers/update_mirror.py:161
 msgid "Manual mirror update process completed"
+msgstr ""
+
+#: handlers/update_mirror.py:178
+msgid "Error downloading bitdefender versions.dat file"
+msgstr ""
+
+#: handlers/update_mirror.py:180
+msgid "Successfully downloaded bitdefender versions.dat file"
+msgstr ""
+
+#: handlers/update_mirror.py:208
+#, python-format
+msgid "Error downloading bitdefender versions.dat file: %(error)s"
 msgstr ""
 
 #: handlers/webfilter.py:15
 msgid "Received request for Web Filter key"
 msgstr ""
 
-#: handlers/webfilter.py:30
+#: handlers/webfilter.py:31
 msgid "Web Filter: passing because license key is not configured"
 msgstr ""
 
-#: handlers/webfilter.py:37
+#: handlers/webfilter.py:38
 msgid "Web Filter: database already contains an actual Web Filter key"
 msgstr ""
 
-#: handlers/webfilter.py:41
+#: handlers/webfilter.py:42
 msgid "Fetching new Web Filter key from wf-activation.kerio.com server"
 msgstr ""
 
-#: handlers/webfilter.py:49
+#: handlers/webfilter.py:50
 msgid "Web Filter: error fetching Web Filter key"
 msgstr ""
 
-#: handlers/webfilter.py:53
+#: handlers/webfilter.py:54
 #, python-format
 msgid "Web Filter: invalid license key. %(lic_number)s"
 msgstr ""
 
-#: handlers/webfilter.py:59
+#: handlers/webfilter.py:60
 #, python-format
 msgid "Web Filter: license key expired. %(lic_number)s"
 msgstr ""
 
-#: handlers/webfilter.py:65
+#: handlers/webfilter.py:66
 #, python-format
 msgid "Web Filter: received new key - %(key)s"
 msgstr ""
@@ -333,12 +360,12 @@ msgstr ""
 msgid "Language changed to: %(lang)s"
 msgstr ""
 
-#: templates/login.html:10 templates/tabs/settings.html:295
+#: templates/login.html:10 templates/tabs/settings.html:302
 msgid "Username:"
 msgstr ""
 
-#: templates/login.html:14 templates/tabs/settings.html:193
-#: templates/tabs/settings.html:301
+#: templates/login.html:14 templates/tabs/settings.html:200
+#: templates/tabs/settings.html:308
 msgid "Password:"
 msgstr ""
 
@@ -402,7 +429,7 @@ msgstr ""
 msgid "Uploading..."
 msgstr ""
 
-#: templates/components/scripts.html:16 templates/tabs/settings.html:151
+#: templates/components/scripts.html:16 templates/tabs/settings.html:158
 msgid "Select file"
 msgstr ""
 
@@ -576,104 +603,108 @@ msgid "Download Bitdefender antivirus signatures through Mirror"
 msgstr ""
 
 #: templates/tabs/settings.html:124
+msgid "Download Bitdefender antivirus signatures through Mirror (use cache)"
+msgstr ""
+
+#: templates/tabs/settings.html:131
 msgid "Kerio Control Software Update"
 msgstr ""
 
-#: templates/tabs/settings.html:129
+#: templates/tabs/settings.html:136
 msgid "Select the update file:"
 msgstr ""
 
-#: templates/tabs/settings.html:145 templates/tabs/settings.html:150
+#: templates/tabs/settings.html:152 templates/tabs/settings.html:157
 msgid ""
 "Format: kerio-control-upgrade-w.x.y-zzzz_something.img\n"
 "E.g.: kerio-control-upgrade-9.5.0-8778-linux.img"
 msgstr ""
 
-#: templates/tabs/settings.html:145
+#: templates/tabs/settings.html:152
 msgid "Upload new update:"
 msgstr ""
 
-#: templates/tabs/settings.html:159
+#: templates/tabs/settings.html:166
 msgid "Connection Settings"
 msgstr ""
 
-#: templates/tabs/settings.html:163
+#: templates/tabs/settings.html:170
 msgid "Use Direct connection to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/tabs/settings.html:169
+#: templates/tabs/settings.html:176
 msgid "Use TOR to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/tabs/settings.html:174
+#: templates/tabs/settings.html:181
 msgid "Use proxy server to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/tabs/settings.html:178
+#: templates/tabs/settings.html:185
 msgid "Host:"
 msgstr ""
 
-#: templates/tabs/settings.html:183
+#: templates/tabs/settings.html:190
 msgid "Port:"
 msgstr ""
 
-#: templates/tabs/settings.html:188
+#: templates/tabs/settings.html:195
 msgid "Login:"
 msgstr ""
 
-#: templates/tabs/settings.html:199
+#: templates/tabs/settings.html:206
 msgid "Connection priority"
 msgstr ""
 
-#: templates/tabs/settings.html:207
+#: templates/tabs/settings.html:214
 msgid "Direct connection"
 msgstr ""
 
-#: templates/tabs/settings.html:214
+#: templates/tabs/settings.html:221
 msgid "Proxy server"
 msgstr ""
 
-#: templates/tabs/settings.html:221
+#: templates/tabs/settings.html:228
 msgid "TOR network"
 msgstr ""
 
-#: templates/tabs/settings.html:233
+#: templates/tabs/settings.html:240
 msgid "Other"
 msgstr ""
 
-#: templates/tabs/settings.html:237
+#: templates/tabs/settings.html:244
 msgid "Log client IP addresses in system logs"
 msgstr ""
 
-#: templates/tabs/settings.html:243
+#: templates/tabs/settings.html:250
 msgid "Restricted access"
 msgstr ""
 
-#: templates/tabs/settings.html:246
+#: templates/tabs/settings.html:253
 msgid "Allow access to Kerio updates"
 msgstr ""
 
-#: templates/tabs/settings.html:260
+#: templates/tabs/settings.html:267
 msgid "Allow access to the web interface"
 msgstr ""
 
-#: templates/tabs/settings.html:290
+#: templates/tabs/settings.html:297
 msgid "Use authentication"
 msgstr ""
 
-#: templates/tabs/settings.html:298
+#: templates/tabs/settings.html:305
 msgid "To change the username, enter password and confirm it!"
 msgstr ""
 
-#: templates/tabs/settings.html:305 templates/tabs/settings.html:313
+#: templates/tabs/settings.html:312 templates/tabs/settings.html:320
 msgid "Leave empty not to change it"
 msgstr ""
 
-#: templates/tabs/settings.html:308
+#: templates/tabs/settings.html:315
 msgid "Confirm:"
 msgstr ""
 
-#: templates/tabs/settings.html:318
+#: templates/tabs/settings.html:325
 msgid "Apply"
 msgstr ""
 

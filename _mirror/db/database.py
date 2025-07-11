@@ -1,6 +1,7 @@
 import sqlite3
+import time
 from contextlib import contextmanager
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Generator
 
 from flask import g
 from flask_babel import gettext as _
@@ -27,8 +28,27 @@ def get_db() -> sqlite3.Connection:
     """
     db = getattr(g, "_database", None)
     if db is None:
-        db = g._database = sqlite3.connect(config.db)
+        db = g._database = sqlite3.connect(
+            database=config.db,
+            timeout=30,
+            check_same_thread=False,
+            isolation_level=None,
+        )
         db.row_factory = sqlite3.Row  # Returns rows as dictionaries
+
+        # Configure database for optimal performance and safety
+        pragmas = [
+            "PRAGMA journal_mode=WAL;",  # Enable WAL mode for better concurrency
+            "PRAGMA synchronous=NORMAL;",  # Balance performance/durability
+            "PRAGMA foreign_keys=ON;",  # Enable FK constraints
+            "PRAGMA cache_size=10000;",  # Optimize page cache (40MB)
+            "PRAGMA busy_timeout=30000;",  # Handle concurrent access
+            "PRAGMA temp_store=MEMORY;",  # Store temp tables in memory
+        ]
+
+        for pragma in pragmas:
+            db.execute(pragma)
+
     return db
 
 
@@ -40,27 +60,67 @@ def close_connection(exception: Optional[Exception] = None) -> None:
     """
     db = getattr(g, "_database", None)
     if db is not None:
-        db.close()
+        try:
+            db.close()
+        except sqlite3.Error:
+            pass  # Ignore close errors
 
 
 @contextmanager
-def transaction():
-    """Context manager for database transactions to handle commits and rollbacks.
+def transaction(retries: int = 3) -> Generator[sqlite3.Connection, None, None]:
+    """Transaction context manager with retry logic.
+
+    Args:
+        retries (int): Maximum number of retry attempts.
 
     Yields:
         sqlite3.Connection: Database connection with active transaction.
-
-    Example:
-        with transaction() as conn:
-            conn.execute("INSERT INTO table VALUES (?)", (value,))
     """
-    db = get_db()
-    try:
-        yield db
-        db.commit()
-    except sqlite3.Error:
-        db.rollback()
-        raise
+    last_exception = None
+
+    for attempt in range(1, retries + 1):
+        db = None
+        try:
+            db = get_db()
+            db.execute("BEGIN IMMEDIATE")  # Use IMMEDIATE to avoid upgrade locks
+            yield db
+            db.commit()
+            return
+
+        except sqlite3.OperationalError as e:
+            _handle_rollback(db)
+
+            # Check if this is a retryable error
+            if "locked" in str(e).lower() or "busy" in str(e).lower():
+                if attempt < retries:
+                    last_exception = e
+                    time.sleep(0.1 * attempt)  # Simple linear backoff
+                    continue
+                else:
+                    raise  # Last attempt failed
+            else:
+                raise  # Non-retryable error
+
+        except Exception as e:
+            _handle_rollback(db)
+            raise
+
+    # This should never be reached, but just in case
+    if last_exception:
+        raise last_exception
+
+
+def _handle_rollback(db: Optional[sqlite3.Connection]) -> None:
+    """Handle database rollback with error suppression.
+
+    Args:
+        db: Database connection to rollback.
+    """
+    if db:
+        try:
+            db.rollback()
+        except sqlite3.Error:
+            pass  # Ignore rollback errors
 
 
 def add_webfilter_key(lic_number: str, key: str) -> bool:
@@ -192,3 +252,168 @@ def clear_ids_table() -> bool:
         return True
     except sqlite3.Error:
         return False
+
+
+def add_bitdefender_cache(file_name: str) -> bool:
+    """Add a Bitdefender cache entry to the database.
+
+    Args:
+        file_name: Original file name
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        with transaction() as db:
+            db.execute(
+                "INSERT OR REPLACE INTO bitdefender_cache (file_name, last_usage) VALUES (?, datetime('now'))",
+                (file_name,),
+            )
+        return True
+    except sqlite3.Error:
+        return False
+
+
+def get_bitdefender_cache(file_name: str) -> bool:
+    """Get Bitdefender cache entry by file path and update last_usage.
+
+    Args:
+        file_name: File name to look up
+
+    Returns:
+        bool: True if file exists in cache, False otherwise
+    """
+    try:
+        with transaction() as db:
+            # Check if file exists in cache
+            result = db.execute("SELECT file_name FROM bitdefender_cache WHERE file_name = ?", (file_name,)).fetchone()
+
+            if result:
+                # Update last_usage to current time
+                db.execute(
+                    "UPDATE bitdefender_cache SET last_usage = datetime('now') WHERE file_name = ?", (file_name,)
+                )
+                return True
+            return False
+    except sqlite3.Error:
+        return False
+
+
+def cleanup_bitdefender_cache(days_threshold: int = 5) -> None:
+    """Remove old Bitdefender cache entries from the database.
+
+    Args:
+        days_threshold: Number of days to keep cache entries
+    """
+    try:
+        with transaction() as db:
+            db.execute(
+                "DELETE FROM bitdefender_cache WHERE last_usage < datetime('now', '-' || ? || ' days')",
+                (days_threshold,),
+            )
+    except sqlite3.Error as e:
+        pass
+
+
+def get_all_bitdefender_cache_file_names() -> List[str]:
+    """Get a list of all bitdefender_cache file names from the database.
+
+    Returns:
+        List: List of bitdefender_cache file names
+    """
+    db = get_db()
+    cursor = db.cursor()
+    try:
+        rows = cursor.execute("SELECT file_name FROM bitdefender_cache").fetchall()
+        return [row[0] for row in rows]
+    except sqlite3.Error:
+        return []
+
+
+def update_cache_last_usage_batch(file_hashes: List[str]) -> None:
+    """Update last_usage for all files in the database that contain the given file hash.
+
+    Args:
+        file_hashes: List of file hashes
+    """
+    try:
+        with transaction() as db:
+            # Build OR conditions for each hash
+            conditions = []
+            params = []
+
+            for hash_value in file_hashes:
+                conditions.append("file_name LIKE ?")
+                params.append(f"%.{hash_value}.%")
+
+            where_clause = " OR ".join(conditions)
+
+            db.execute(f"UPDATE bitdefender_cache SET last_usage = datetime('now') WHERE {where_clause}", params)
+    except sqlite3.Error:
+        pass
+
+
+def add_stat_mirror_update(update_type: str, bytes_downloaded: int = 0) -> None:
+    """Add a record to the stats_mirror_updates table in the database.
+
+    Args:
+        update_type: Type of update
+        bytes_downloaded: Number of bytes downloaded
+    """
+    try:
+        with transaction() as db:
+            if update_type == "antivirus" and bytes_downloaded > 0:
+                # Special case: Update the last antivirus record with downloaded bytes
+                db.execute(
+                    """
+                    UPDATE stats_mirror_updates
+                    SET bytes_downloaded = bytes_downloaded + ?
+                    WHERE id = (SELECT id
+                                FROM stats_mirror_updates
+                                WHERE update_type = 'antivirus'
+                                ORDER BY timestamp DESC
+                                LIMIT 1)
+                    """,
+                    (bytes_downloaded,),
+                )
+            else:
+                # Normal behavior: Create new record (for all types and antivirus with 0 bytes)
+                db.execute(
+                    """
+                    INSERT INTO stats_mirror_updates (update_type, bytes_downloaded)
+                    VALUES (?, ?)
+                    """,
+                    (update_type, bytes_downloaded),
+                )
+    except sqlite3.Error:
+        pass
+
+
+def add_stat_kerio_update(ip_address: str, update_type: str, bytes_transferred: int = 0) -> None:
+    try:
+        with transaction() as db:
+            if update_type == "antivirus" and bytes_transferred > 0:
+                # Special case: Update the last antivirus record with uploaded bytes
+                db.execute(
+                    """
+                    UPDATE stats_kerio_updates
+                    SET bytes_transferred = bytes_transferred + ?
+                    WHERE id = (SELECT id
+                                FROM stats_kerio_updates
+                                WHERE update_type = 'antivirus'
+                                ORDER BY timestamp DESC
+                                LIMIT 1)
+                    """,
+                    (bytes_transferred,),
+                )
+            else:
+                # Normal behavior: Create new record (for all types and antivirus with 0 bytes)
+                db.execute(
+                    """
+                    INSERT INTO stats_kerio_updates (ip_address, update_type, bytes_transferred)
+                    VALUES (?, ?, ?)
+                    """,
+                    (ip_address, update_type, bytes_transferred),
+                )
+    except sqlite3.Error:
+        pass
