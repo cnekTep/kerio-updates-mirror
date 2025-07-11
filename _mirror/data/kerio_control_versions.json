@@ -1,4 +1,11 @@
 {
+  "9.5.0-8907": {
+    "prod_major": "9",
+    "prod_minor": "5",
+    "prod_build": "0",
+    "prod_build_number": "9650",
+    "description": "Kerio Control 9.5.0 patch 1 build 8907"
+  },
   "9.5.0-8778": {
     "prod_major": "9",
     "prod_minor": "4",
