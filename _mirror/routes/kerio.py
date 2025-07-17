@@ -1,11 +1,29 @@
 from flask import Blueprint, request, abort
 
 from handlers.bitdefender import handle_bitdefender
-from handlers.ids import handler_ids_update, handler_checknew, handle_update
+from handlers.ids import (
+    handler_ids_update,
+    handler_checknew,
+    handle_update,
+    handle_matrix_link,
+    handle_update_matrix,
+)
 from handlers.webfilter import handle_webfilter
 from utils.ip_auth import check_ip
 
 kerio_bp = Blueprint("kerio", __name__)
+
+
+@kerio_bp.route("/check_update/")
+@check_ip("kerio")
+def matrix_link():
+    return handle_matrix_link()
+
+
+@kerio_bp.route("/shieldmatrix/<path:subpath>")
+@check_ip("kerio")
+def update_matrix(subpath):
+    return handle_update_matrix(subpath)
 
 
 @kerio_bp.route("/update.php")

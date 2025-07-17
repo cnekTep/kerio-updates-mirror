@@ -1,11 +1,20 @@
 import os
+from pathlib import Path
 
 from flask import request, Response, send_file
 from flask_babel import gettext as _
 
 from config.config_env import config
-from db.database import get_ids, update_ids, add_stat_mirror_update, add_stat_kerio_update
+from db.database import (
+    get_ids,
+    update_ids,
+    add_stat_mirror_update,
+    add_stat_kerio_update,
+    get_shield_matrix_version,
+    update_shield_matrix_version,
+)
 from utils.distributes_update import is_update_available
+from utils.file_utils import clean_directory
 from utils.internet_utils import make_request_with_retries, download_file_with_retries
 from utils.logging import write_log
 
@@ -80,6 +89,92 @@ def handler_checknew():
         response_text = "--INFO--\nReminderId='1'\nReminderAuth='1'\nVersion='0'"
 
     return Response(response=response_text, status=200, mimetype="text/plain")
+
+
+def handle_matrix_link():
+    """Handler for checking if Shield Matrix is available"""
+    response_text = (
+        '{"available": true, "url": "http://matrix.kerio.com/shieldmatrix/"}'
+        if config.update_shield_matrix
+        else '{"available": false}'
+    )
+
+    return Response(response=response_text, status=200, mimetype="text/plain")
+
+
+def handle_update_matrix(subpath):
+    """Handler for updating Shield Matrix
+
+    Args:
+        subpath (str): Subpath of the request
+    """
+    if subpath == "version":
+        write_log(log_type="system", message=_("Starting Shield Matrix update check..."))
+
+        # Get Shield Matrix version from server
+        response = make_request_with_retries(
+            url="https://d2akeya8d016xi.cloudfront.net/9.5.0/version", context="check for shield matrix updates"
+        )
+        try:
+            actual_version = int(response.text)
+        except ValueError:
+            actual_version = 0
+
+        version_in_db = get_shield_matrix_version() or 0
+
+        if actual_version > version_in_db:
+            update_shield_matrix_version(version=int(actual_version))
+
+            # Clean matrix directories
+            matrix_dirs = [
+                Path("update_files/matrix/ipv4"),
+                Path("update_files/matrix/ipv6")
+            ]
+
+            for dir_path in matrix_dirs:
+                clean_directory(directory_path=dir_path, files_to_keep=[".gitkeep"])
+
+            write_log(
+                log_type="system", message=_("New Shield Matrix version found: %(version)s", version=actual_version)
+            )
+        else:
+            write_log(log_type="system", message=_("Shield Matrix version is up to date"))
+
+        return Response(response=str(actual_version), status=200, mimetype="text/plain")
+
+    elif "ipv4/threat_data" in subpath or "ipv6/threat_data" in subpath:
+        file_path = Path("update_files/matrix") / subpath
+        current_directory = os.getcwd()  # Get the current directory
+        target_directory = os.path.join(current_directory, "update_files/matrix")  # Construct the target directory
+        request_path = os.path.join(target_directory, subpath)
+
+        # Download file if it doesn't exist
+        if not file_path.exists():
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+
+            download_url = f"https://d2akeya8d016xi.cloudfront.net/9.5.0/{subpath}"
+
+            download_file_with_retries(
+                url=download_url,
+                save_path=str(file_path),
+                context=f"Shield Matrix file update: {subpath}",
+            )
+            update_type = "shield_matrix" if subpath == "ipv4/threat_data_1.dat" else "shield_matrix_update"
+            add_stat_mirror_update(update_type=update_type, bytes_downloaded=os.path.getsize(file_path))
+            write_log(log_type="system", message=_("Shield Matrix file updated: %(file_name)s", file_name=subpath))
+
+        update_type = "shield_matrix" if subpath == "ipv4/threat_data_1.dat" else "shield_matrix_update"
+        add_stat_kerio_update(
+            ip_address=request.remote_addr, update_type=update_type, bytes_transferred=os.path.getsize(file_path)
+        )
+        write_log(
+            log_type="system",
+            message=_("Received update request for Shield Matrix: %(file_name)s", file_name=subpath),
+            ip=request.remote_addr if config.ip_logging else None,
+        )
+        return send_file(path_or_file=request_path, as_attachment=True)
+
+    return Response(response="404 Not found", status=404, mimetype="text/plain")
 
 
 def handle_update():

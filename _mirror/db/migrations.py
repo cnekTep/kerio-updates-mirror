@@ -31,11 +31,12 @@ def create_bitdefender_cache_table(db: sqlite3.Connection):
     """Create bitdefender_cache table for file caching"""
     db.execute(
         """
-        CREATE TABLE IF NOT EXISTS bitdefender_cache (
-            file_name TEXT PRIMARY KEY,
+        CREATE TABLE IF NOT EXISTS bitdefender_cache
+        (
+            file_name  TEXT PRIMARY KEY,
             last_usage TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    """
+        """
     )
 
 
@@ -44,13 +45,14 @@ def create_stats_mirror_updates_table(db: sqlite3.Connection):
     """Create stats_mirror_updates table for statistics"""
     db.execute(
         """
-        CREATE TABLE IF NOT EXISTS stats_mirror_updates (
-            id INTEGER PRIMARY KEY,
-            update_type TEXT NOT NULL,
+        CREATE TABLE IF NOT EXISTS stats_mirror_updates
+        (
+            id               INTEGER PRIMARY KEY,
+            update_type      TEXT    NOT NULL,
             bytes_downloaded INTEGER NOT NULL,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            timestamp        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    """
+        """
     )
 
 
@@ -59,14 +61,28 @@ def create_stats_kerio_updates_table(db: sqlite3.Connection):
     """Create stats_kerio_updates table for statistics"""
     db.execute(
         """
-        CREATE TABLE IF NOT EXISTS stats_kerio_updates (
-            id INTEGER PRIMARY KEY,
-            ip_address TEXT NOT NULL,
-            update_type TEXT NOT NULL,
+        CREATE TABLE IF NOT EXISTS stats_kerio_updates
+        (
+            id                INTEGER PRIMARY KEY,
+            ip_address        TEXT    NOT NULL,
+            update_type       TEXT    NOT NULL,
             bytes_transferred INTEGER NOT NULL,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            timestamp         TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    """
+        """
+    )
+
+
+@migration(4.0)
+def create_shield_matrix_table(db: sqlite3.Connection):
+    """Create shield_matrix table for Shield Matrix updates"""
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS shield_matrix
+        (
+            version INTEGER PRIMARY KEY
+        )
+        """
     )
 
 

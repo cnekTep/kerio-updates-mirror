@@ -234,6 +234,40 @@ def update_ids(name: str, version: int, file_name: str) -> bool:
         return False
 
 
+def get_shield_matrix_version() -> Optional[int]:
+    """Get Shield Matrix version from the database.
+
+    Returns:
+        Optional[int]: Shield Matrix version if found, None otherwise
+    """
+    db = get_db()
+    cursor = db.cursor()
+    try:
+        result = cursor.execute("SELECT version FROM shield_matrix ORDER BY version DESC LIMIT 1").fetchone()
+        return result[0] if result else None
+    except sqlite3.Error:
+        return None
+
+
+def update_shield_matrix_version(version: int) -> bool:
+    """Update or insert Shield Matrix version in the database.
+
+    Args:
+        version: New Shield Matrix version
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        with transaction() as db:
+            # Clear existing version and insert new one
+            db.execute("DELETE FROM shield_matrix")
+            db.execute("INSERT INTO shield_matrix (version) VALUES (?)", (version,))
+        return True
+    except sqlite3.Error:
+        return False
+
+
 def clear_webfilter_table() -> bool:
     """Clear the webfilter table in the database."""
     try:
@@ -376,6 +410,20 @@ def add_stat_mirror_update(update_type: str, bytes_downloaded: int = 0) -> None:
                     """,
                     (bytes_downloaded,),
                 )
+            elif update_type == "shield_matrix_update":
+                # Special case: Update the last shield_matrix record with downloaded bytes
+                db.execute(
+                    """
+                    UPDATE stats_mirror_updates
+                    SET bytes_downloaded = bytes_downloaded + ?
+                    WHERE id = (SELECT id
+                                FROM stats_mirror_updates
+                                WHERE update_type = 'shield_matrix'
+                                ORDER BY timestamp DESC
+                                LIMIT 1)
+                    """,
+                    (bytes_downloaded,),
+                )
             else:
                 # Normal behavior: Create new record (for all types and antivirus with 0 bytes)
                 db.execute(
@@ -401,6 +449,20 @@ def add_stat_kerio_update(ip_address: str, update_type: str, bytes_transferred: 
                     WHERE id = (SELECT id
                                 FROM stats_kerio_updates
                                 WHERE update_type = 'antivirus'
+                                ORDER BY timestamp DESC
+                                LIMIT 1)
+                    """,
+                    (bytes_transferred,),
+                )
+            elif update_type == "shield_matrix_update":
+                # Special case: Update the last shield_matrix record with uploaded bytes
+                db.execute(
+                    """
+                    UPDATE stats_kerio_updates
+                    SET bytes_transferred = bytes_transferred + ?
+                    WHERE id = (SELECT id
+                                FROM stats_kerio_updates
+                                WHERE update_type = 'shield_matrix'
                                 ORDER BY timestamp DESC
                                 LIMIT 1)
                     """,

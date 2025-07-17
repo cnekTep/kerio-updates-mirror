@@ -22,5 +22,7 @@ _mirror/update_files/*.md5
 _mirror/update_files/bitdefender_cache/*.gzip
 _mirror/update_files/distros/*.img
 _mirror/update_files/distros/*.sig
+_mirror/update_files/matrix/ipv4/*.dat
+_mirror/update_files/matrix/ipv6/*.dat
 *.*~
 *.log

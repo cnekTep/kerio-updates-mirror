@@ -50,6 +50,12 @@
                     <label for="wfkey">{{ _('Kerio Control Web Filter Content Filtering Subsystem Key') }}</label>
                 </div>
                 <div class="checkbox-group">
+                    <input type="checkbox" id="shield_matrix" name="shield_matrix" value="true"
+                           {% if update_shield_matrix %}checked{% endif %}
+                            title="{{ _('Update Shield Matrix signatures and blacklists.\nTo update, you need to add\n    matrix.kerio.com and\n    shieldmatrix-updates.gfikeriocontrol.com\nwith the mirror address in DNS') }}">
+                    <label for="shield_matrix">{{ _('Shield Matrix signatures and blacklists') }}</label>
+                </div>
+                <div class="checkbox-group">
                     <input type="checkbox" id="alternative_mode" name="alternative_mode" value="true"
                            {% if alternative_mode %}checked{% endif %}>
                     <label for="alternative_mode">{{ _('Alternative mirror modes') }}</label>

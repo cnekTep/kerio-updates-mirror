@@ -149,6 +149,7 @@ def update_mirror(scheduler=False) -> None:
         cleanup_bitdefender_cache()
         # Create a list of files to keep in bitdefender_cache directory
         cache_files_to_keep = get_all_bitdefender_cache_file_names()
+        cache_files_to_keep.append(".gitkeep")
 
         # Clean bitdefender_cache directory
         clean_directory(directory_path=Path("update_files/bitdefender_cache"), files_to_keep=cache_files_to_keep)

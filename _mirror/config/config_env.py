@@ -46,6 +46,7 @@ class Config:
             "UPDATE_IDS_4": False,  # Update GeoIP databases for geolocation/visitor blocking
             "UPDATE_IDS_5": False,  # Update IPS/IDS Snort system (Linux version 9.5+)
             "UPDATE_SNORT_TEMPLATE": False,  # Update Snort template
+            "UPDATE_SHIELD_MATRIX": False,  # Update Shield Matrix
             "GEOIP_GITHUB": False,  # Use GitHub as a source for GeoIP database updates
             "GEOIP4_URL": "https://raw.githubusercontent.com/wyot1/GeoLite2-Unwalled/downloads/COUNTRY/CSV/GeoLite2-Country-Blocks-IPv4.csv",
             "GEOIP6_URL": "https://raw.githubusercontent.com/wyot1/GeoLite2-Unwalled/downloads/COUNTRY/CSV/GeoLite2-Country-Blocks-IPv6.csv",

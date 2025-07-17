@@ -35,6 +35,7 @@ def main_page():
         "geoip_github": config.geoip_github,
         "update_web_filter_key": config.update_web_filter_key,
         "update_snort_template": config.update_snort_template,
+        "update_shield_matrix": config.update_shield_matrix,
         "direct": config.direct,
         "tor": config.tor,
         "proxy": config.proxy,
@@ -85,6 +86,7 @@ def save_settings():
     config.geoip_github = "geo_github" in request.form
     config.update_web_filter_key = "wfkey" in request.form
     config.update_snort_template = "snort_template" in request.form
+    config.update_shield_matrix = "shield_matrix" in request.form
     config.ip_logging = "ip_logging" in request.form
     config.tor = "use_tor" in request.form
     config.direct = "use_direct" in request.form

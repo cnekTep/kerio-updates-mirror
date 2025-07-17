@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.7.0",
+    "description": {
+      "en": "Added ability to update Shield Matrix signatures and blacklists via mirror",
+      "ru": "Добавлена возможность обновления сигнатур и черных списков Shield Matrix через зеркало"
+    }
+  },
+  {
     "version": "2.6.0",
     "description": {
       "en": "Added ability to enable caching when updating antivirus databases via mirror",

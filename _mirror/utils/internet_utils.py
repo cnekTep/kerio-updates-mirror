@@ -134,6 +134,7 @@ def get_connection_attempts() -> list:
 
 def make_request_with_retries(
     url: str,
+    method: str = "GET",
     headers: Optional[Dict[str, Any]] = None,
     success_validator: Optional[Callable[[requests.Response], bool]] = None,
     skip_error_codes: Optional[list[int]] = None,
@@ -144,6 +145,7 @@ def make_request_with_retries(
 
     Args:
         url: URL to request
+        method: HTTP method (GET, POST, HEAD, etc.)
         headers: Optional headers
         success_validator: Function to validate response success (default: response.ok)
         skip_error_codes: List of HTTP status codes to return immediately without retrying (e.g. 404, 429)
@@ -163,7 +165,9 @@ def make_request_with_retries(
             if attempt["type"] in ("tor", "proxy"):
                 request_params = add_proxy_to_params(proxy_type=attempt["type"], params=request_params)
 
-            response = requests.get(**request_params)
+            # Use appropriate HTTP method
+            response = requests.request(method=method, **request_params)
+            # response = requests.get(**request_params)
 
             # Return response if status code is in skip_error_codes
             if response.status_code in skip_error_codes:
