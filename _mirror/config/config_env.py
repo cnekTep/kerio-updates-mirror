@@ -40,6 +40,7 @@ class Config:
             "PROXY_PASSWORD": None,  # Proxy password (if required)
             "DOWNLOAD_PRIORITY": "tor, proxy, direct",  # Download priority
             "UPDATE_WEB_FILTER_KEY": False,  # Whether to update Web Filter key
+            "FORCED_WEB_FILTER_KEY": None,  # Manually added Web Filter key to use
             "UPDATE_IDS_1": False,  # Update IPS/IDS Snort system (Windows version)
             "UPDATE_IDS_2": False,  # Update compromised address lists for blocking
             "UPDATE_IDS_3": False,  # Update IPS/IDS Snort system (Linux version up to 9.5)

@@ -15,7 +15,12 @@ def handle_webfilter():
         message=_("Received request for Web Filter key"),
         ip=request.remote_addr if config.ip_logging else None,
     )
-    webfilter_key = get_webfilter_key(lic_number=config.license_number)
+
+    webfilter_key = (
+        get_webfilter_key(lic_number=config.license_number)
+        if not config.forced_web_filter_key
+        else config.forced_web_filter_key
+    )
 
     if not webfilter_key:
         return Response(response="404 Not found", status=404, mimetype="text/plain")

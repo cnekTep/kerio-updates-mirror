@@ -34,6 +34,7 @@ def main_page():
         "update_ids_5": config.update_ids_5,
         "geoip_github": config.geoip_github,
         "update_web_filter_key": config.update_web_filter_key,
+        "forced_web_filter_key": config.forced_web_filter_key,
         "update_snort_template": config.update_snort_template,
         "update_shield_matrix": config.update_shield_matrix,
         "direct": config.direct,
@@ -85,6 +86,9 @@ def save_settings():
     config.update_ids_5 = "IDSv5" in request.form
     config.geoip_github = "geo_github" in request.form
     config.update_web_filter_key = "wfkey" in request.form
+    config.forced_web_filter_key = (
+        request.form.get("forced_web_filter_key") if "forced_web_filter_key_enabled" in request.form else None
+    )
     config.update_snort_template = "snort_template" in request.form
     config.update_shield_matrix = "shield_matrix" in request.form
     config.ip_logging = "ip_logging" in request.form

@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.7.1",
+    "description": {
+      "en": "Added ability to manually add and force use Web Filter key",
+      "ru": "Добавлена возможность ручного добавления и принудительного использования ключа веб-фильтра"
+    }
+  },
+  {
     "version": "2.7.0",
     "description": {
       "en": "Added ability to update Shield Matrix signatures and blacklists via mirror",

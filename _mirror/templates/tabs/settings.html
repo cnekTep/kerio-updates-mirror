@@ -49,6 +49,15 @@
                            {% if update_web_filter_key %}checked{% endif %}>
                     <label for="wfkey">{{ _('Kerio Control Web Filter Content Filtering Subsystem Key') }}</label>
                 </div>
+                <div class="checkbox-group nested-option">
+                    <input type="checkbox" id="forced_web_filter_key_enabled" name="forced_web_filter_key_enabled" value="true"
+                           {% if forced_web_filter_key %}checked{% endif %}>
+                    <label for="forced_web_filter_key_enabled">{{ _('Use manual Web Filter key:') }}</label>
+                    <input type="text" id="forced_web_filter_key" name="forced_web_filter_key"
+                               class="form-control restricted-input"
+                               value="{{ forced_web_filter_key or '' }}"
+                               title="{{ _('Web Filter key') }}">
+                </div>
                 <div class="checkbox-group">
                     <input type="checkbox" id="shield_matrix" name="shield_matrix" value="true"
                            {% if update_shield_matrix %}checked{% endif %}

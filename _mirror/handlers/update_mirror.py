@@ -71,7 +71,7 @@ def update_mirror(scheduler=False) -> None:
     )
     write_log(log_type="updates", message="----------------------------------------------------------------")
 
-    if config.update_web_filter_key:  # Update Web Filter key
+    if config.update_web_filter_key and not config.forced_web_filter_key:  # Update Web Filter key
         update_web_filter_key()
 
     if config.update_ids_1:  # IPS/IDS Snort (Windows versions)
