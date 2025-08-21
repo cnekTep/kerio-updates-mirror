@@ -67,6 +67,8 @@ class Config:
             "ANTIVIRUS_UPDATE_URL": None,  # Antivirus update URL
             "ANTISPAM_UPDATE_URL": None,  # Antispam update URL
             "BITDEFENDER_UPDATE_MODE": "no_mirror",  # Download Bitdefender signatures through mirror or not
+            "BITDEFENDER_CACHE_MAX_DAYS": 5,  # Maximum number of days to cache Bitdefender signatures
+            "BITDEFENDER_CACHE_MAX_SIZE": None,  # Maximum size of Bitdefender signatures cache in bytes (Unlimited by default)
             "KERIO_CDN_URL": None,  # Kerio CDN URL
             "AUTH": False,  # Authentication enabled or not
             "SECRET_KEY": secrets.token_hex(16),  # Secret key,

@@ -1,4 +1,5 @@
 import datetime
+import logging
 import threading
 from pathlib import Path
 
@@ -19,7 +20,7 @@ from db.database import (
 from handlers.geo import download_and_process_geo, combine_and_compress_geo_files
 from handlers.ids import download_ids_update_files, download_snort_template
 from handlers.webfilter import update_web_filter_key
-from utils.file_utils import clean_directory
+from utils.file_utils import clean_directory, delete_oldest_files_until
 from utils.internet_utils import make_request_with_retries
 from utils.logging import write_log
 
@@ -140,19 +141,25 @@ def update_mirror(scheduler=False) -> None:
         update_files_to_keep.append(f"{file_name}.sig")
 
     # Clean update_files directory
-    clean_directory(directory_path=Path("update_files"), files_to_keep=update_files_to_keep)
+    clean_directory(dir_path=Path("update_files"), files_to_keep=update_files_to_keep)
 
     if config.bitdefender_update_mode == "via_mirror_cache":
         # Upload actual files versions and update their last usage in database.
         update_bitdefender_cache_last_usage()
         # Delete old bitdefender cache files from database
-        cleanup_bitdefender_cache()
+        cleanup_bitdefender_cache(int(config.bitdefender_cache_max_days))
         # Create a list of files to keep in bitdefender_cache directory
         cache_files_to_keep = get_all_bitdefender_cache_file_names()
         cache_files_to_keep.append(".gitkeep")
 
         # Clean bitdefender_cache directory
-        clean_directory(directory_path=Path("update_files/bitdefender_cache"), files_to_keep=cache_files_to_keep)
+        bitdefender_cache_dir = Path("update_files/bitdefender_cache")
+        clean_directory(dir_path=bitdefender_cache_dir, files_to_keep=cache_files_to_keep)  # Del by max time
+        if config.bitdefender_cache_max_size:  # Del by max size
+            logging.error(f"Bitdefender cache max size: {config.bitdefender_cache_max_size}")
+            delete_oldest_files_until(
+                dir_path=bitdefender_cache_dir, max_folder_bytes=int(config.bitdefender_cache_max_size)
+            )
 
         write_log(log_type=["system", "updates"], message=_("Bitdefender old cache files removed"))
 
@@ -205,8 +212,9 @@ def update_bitdefender_cache_last_usage():
             # Update last_usage for all valid hashes in database
             update_cache_last_usage_batch(file_hashes=valid_hashes)
     except Exception as e:
-        write_log(log_type="system",
-                  message=_("Error downloading bitdefender versions.dat file: %(error)s", error=str(e)))
+        write_log(
+            log_type="system", message=_("Error downloading bitdefender versions.dat file: %(error)s", error=str(e))
+        )
         return
 
 

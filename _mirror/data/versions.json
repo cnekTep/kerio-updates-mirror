@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.7.2",
+    "description": {
+      "en": "Added the ability to manually set the storage period and maximum size of the antivirus cache (in the .env file)",
+      "ru": "Добавлена возможность вручную задавать срок хранения и максимальный размер кэша антивируса (в .env файле)"
+    }
+  },
+  {
     "version": "2.7.1",
     "description": {
       "en": "Added ability to manually add and force use Web Filter key",

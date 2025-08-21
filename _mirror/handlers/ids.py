@@ -132,7 +132,7 @@ def handle_update_matrix(subpath):
             ]
 
             for dir_path in matrix_dirs:
-                clean_directory(directory_path=dir_path, files_to_keep=[".gitkeep"])
+                clean_directory(dir_path=dir_path, files_to_keep=[".gitkeep"])
 
             write_log(
                 log_type="system", message=_("New Shield Matrix version found: %(version)s", version=actual_version)
