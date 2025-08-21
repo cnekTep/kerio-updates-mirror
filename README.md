@@ -363,14 +363,17 @@ To configure updates through the local mirror in Kerio Control, you need to add 
 1. Go to **Configuration → DNS → Local DNS Lookup**
 2. Add the following records (where Update_server_IP is the IP address of the server with the mirror):
 
-| IP Address       | Hostname                | Description          |
-|------------------|-------------------------|----------------------|
-| Update_server_IP | bda-update.kerio.com    | kerio-updates-mirror |
-| Update_server_IP | bdupdate.kerio.com      | kerio-updates-mirror |
-| Update_server_IP | ids-update.kerio.com    | kerio-updates-mirror |
-| Update_server_IP | prod-update.kerio.com   | kerio-updates-mirror |
-| Update_server_IP | update.kerio.com        | kerio-updates-mirror |
-| Update_server_IP | wf-activation.kerio.com | kerio-updates-mirror |
+| IP Address       | Hostname                                 | Description          |
+|------------------|------------------------------------------|----------------------|
+| Update_server_IP | bda-update.kerio.com                     | kerio-updates-mirror |
+| Update_server_IP | bdupdate.kerio.com                       | kerio-updates-mirror |
+| Update_server_IP | download.kerio.com                       | kerio-updates-mirror |
+| Update_server_IP | ids-update.kerio.com                     | kerio-updates-mirror |
+| Update_server_IP | matrix.kerio.com                         | kerio-updates-mirror |
+| Update_server_IP | prod-update.kerio.com                    | kerio-updates-mirror |
+| Update_server_IP | shieldmatrix-updates.gfikeriocontrol.com | kerio-updates-mirror |
+| Update_server_IP | update.kerio.com                         | kerio-updates-mirror |
+| Update_server_IP | wf-activation.kerio.com                  | kerio-updates-mirror |
 
 </details>
 

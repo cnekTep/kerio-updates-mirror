@@ -363,14 +363,17 @@ nssm remove kerio-updates-mirror confirm
 1. Перейдите в **Конфигурация → DNS → Локальный поиск DNS**
 2. Добавьте следующие записи (где IP_сервера_обновлений — это IP-адрес сервера с зеркалом):
 
-| IP-адрес              | Имя хоста               | Описание             |
-|-----------------------|-------------------------|----------------------|
-| IP_сервера_обновлений | bda-update.kerio.com    | kerio-updates-mirror |
-| IP_сервера_обновлений | bdupdate.kerio.com      | kerio-updates-mirror |
-| IP_сервера_обновлений | ids-update.kerio.com    | kerio-updates-mirror |
-| IP_сервера_обновлений | prod-update.kerio.com   | kerio-updates-mirror |
-| IP_сервера_обновлений | update.kerio.com        | kerio-updates-mirror |
-| IP_сервера_обновлений | wf-activation.kerio.com | kerio-updates-mirror |
+| IP-адрес              | Имя хоста                                | Описание             |
+|-----------------------|------------------------------------------|----------------------|
+| IP_сервера_обновлений | bda-update.kerio.com                     | kerio-updates-mirror |
+| IP_сервера_обновлений | bdupdate.kerio.com                       | kerio-updates-mirror |
+| IP_сервера_обновлений | download.kerio.com                       | kerio-updates-mirror |
+| IP_сервера_обновлений | ids-update.kerio.com                     | kerio-updates-mirror |
+| IP_сервера_обновлений | matrix.kerio.com                         | kerio-updates-mirror |
+| IP_сервера_обновлений | prod-update.kerio.com                    | kerio-updates-mirror |
+| IP_сервера_обновлений | shieldmatrix-updates.gfikeriocontrol.com | kerio-updates-mirror |
+| IP_сервера_обновлений | update.kerio.com                         | kerio-updates-mirror |
+| IP_сервера_обновлений | wf-activation.kerio.com                  | kerio-updates-mirror |
 
 </details>
 
