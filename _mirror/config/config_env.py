@@ -26,6 +26,7 @@ class Config:
 
         # Default values
         self._defaults = {
+            "TRUSTED_PROXY_COUNT": 0,  # Number of trusted proxies, if 0 - working without proxy (ProxyFix disabled)
             "LOCALE": "en",  # Locale
             "DB": "mirror.db",  # Database path
             "LICENSE_NUMBER": None,  # License number

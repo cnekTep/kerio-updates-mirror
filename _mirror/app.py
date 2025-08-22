@@ -4,6 +4,7 @@ from typing import Tuple
 from flask import Flask, request, Response
 from flask_babel import Babel
 from flask_babel import gettext as _
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from config.config_env import config
 from db.database import close_connection, init_db
@@ -22,6 +23,15 @@ def get_locale():
 app = Flask(__name__)
 app.config["BABEL_DEFAULT_LOCALE"] = config.locale
 app.config["BABEL_TRANSLATION_DIRECTORIES"] = "translations"
+if config.trusted_proxy_count is not None and int(config.trusted_proxy_count) > 0:
+    app.wsgi_app = ProxyFix(
+        app=app.wsgi_app,
+        x_for=int(config.trusted_proxy_count),
+        x_host=int(config.trusted_proxy_count),
+        x_port=int(config.trusted_proxy_count),
+        x_prefix=int(config.trusted_proxy_count),
+        x_proto=int(config.trusted_proxy_count),
+    )
 
 babel = Babel(app=app, locale_selector=get_locale)
 
