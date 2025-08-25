@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.7.3",
+    "description": {
+      "en": "Added the ability to enable ProxyFix - for correct display of IP when the mirror is running through a proxy (TRUSTED_PROXY_COUNT in the .env file)",
+      "ru": "Добавлена возможность включения ProxyFix - для корректного отображения IP, при работе зеркала через прокси (TRUSTED_PROXY_COUNT в .env файле)"
+    }
+  },
+  {
     "version": "2.7.2",
     "description": {
       "en": "Added the ability to manually set the storage period and maximum size of the antivirus cache (in the .env file)",
