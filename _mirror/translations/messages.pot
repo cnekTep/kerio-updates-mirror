@@ -10,21 +10,21 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app.py:58
+#: app.py:68
 #, python-format
 msgid "No handler found for request: %(request_url)s"
 msgstr ""
 
-#: app.py:79
+#: app.py:89
 #, python-format
 msgid "%(protocol)s server started on port %(port)s"
 msgstr ""
 
-#: app.py:122
+#: app.py:132
 msgid "Server shutdown initiated"
 msgstr ""
 
-#: app.py:125
+#: app.py:135
 #, python-format
 msgid "Critical error: %(error)s"
 msgstr ""
@@ -295,50 +295,50 @@ msgstr ""
 msgid "Settings have been changed"
 msgstr ""
 
-#: handlers/update_mirror.py:66
+#: handlers/update_mirror.py:67
 msgid "Scheduled mirror update process started"
 msgstr ""
 
-#: handlers/update_mirror.py:66
+#: handlers/update_mirror.py:67
 msgid "Manual mirror update process started"
 msgstr ""
 
-#: handlers/update_mirror.py:70
+#: handlers/update_mirror.py:71
 #, python-format
 msgid "Using license key: %(license_number)s"
 msgstr ""
 
-#: handlers/update_mirror.py:96
+#: handlers/update_mirror.py:97
 #, python-format
 msgid "Downloading new version: 4.%(version)s"
 msgstr ""
 
-#: handlers/update_mirror.py:122
+#: handlers/update_mirror.py:123
 #, python-format
 msgid "IDSv4: no new version available, current version: 4.%(actual_version)s"
 msgstr ""
 
-#: handlers/update_mirror.py:157
+#: handlers/update_mirror.py:164
 msgid "Bitdefender old cache files removed"
 msgstr ""
 
-#: handlers/update_mirror.py:162
+#: handlers/update_mirror.py:169
 msgid "Scheduled mirror update process completed"
 msgstr ""
 
-#: handlers/update_mirror.py:162
+#: handlers/update_mirror.py:169
 msgid "Manual mirror update process completed"
 msgstr ""
 
-#: handlers/update_mirror.py:179
+#: handlers/update_mirror.py:186
 msgid "Error downloading bitdefender versions.dat file"
 msgstr ""
 
-#: handlers/update_mirror.py:181
+#: handlers/update_mirror.py:188
 msgid "Successfully downloaded bitdefender versions.dat file"
 msgstr ""
 
-#: handlers/update_mirror.py:209
+#: handlers/update_mirror.py:216
 #, python-format
 msgid "Error downloading bitdefender versions.dat file: %(error)s"
 msgstr ""
@@ -351,31 +351,27 @@ msgstr ""
 msgid "Web Filter: passing because license key is not configured"
 msgstr ""
 
-#: handlers/webfilter.py:43
-msgid "Web Filter: database already contains an actual Web Filter key"
+#: handlers/webfilter.py:40
+msgid "Fetching Web Filter key from wf-activation.kerio.com server"
 msgstr ""
 
-#: handlers/webfilter.py:47
-msgid "Fetching new Web Filter key from wf-activation.kerio.com server"
-msgstr ""
-
-#: handlers/webfilter.py:55
+#: handlers/webfilter.py:48
 msgid "Web Filter: error fetching Web Filter key"
 msgstr ""
 
-#: handlers/webfilter.py:59
+#: handlers/webfilter.py:52
 #, python-format
 msgid "Web Filter: invalid license key. %(lic_number)s"
 msgstr ""
 
-#: handlers/webfilter.py:65
+#: handlers/webfilter.py:58
 #, python-format
 msgid "Web Filter: license key expired. %(lic_number)s"
 msgstr ""
 
-#: handlers/webfilter.py:71
+#: handlers/webfilter.py:64
 #, python-format
-msgid "Web Filter: received new key - %(key)s"
+msgid "Web Filter: received key - %(key)s"
 msgstr ""
 
 #: routes/admin.py:38

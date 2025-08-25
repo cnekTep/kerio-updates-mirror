@@ -124,7 +124,7 @@ def _handle_rollback(db: Optional[sqlite3.Connection]) -> None:
 
 
 def add_webfilter_key(lic_number: str, key: str) -> bool:
-    """Add a new Web Filter key to the database.
+    """Add a new or update existing Web Filter key.
 
     Args:
         lic_number: License number
@@ -135,7 +135,10 @@ def add_webfilter_key(lic_number: str, key: str) -> bool:
     """
     try:
         with transaction() as db:
-            db.execute("INSERT INTO webfilter (lic_number, key) VALUES (?, ?)", (lic_number, key))
+            db.execute(
+                "INSERT INTO webfilter (lic_number, key) VALUES (?, ?) ON CONFLICT(lic_number) DO UPDATE SET key=excluded.key",
+                (lic_number, key),
+            )
         return True
     except sqlite3.Error:
         return False

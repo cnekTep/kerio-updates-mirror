@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  2.7.1\n"
+"Project-Id-Version:  2.7.2\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -9,21 +9,21 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app.py:58
+#: app.py:68
 #, python-format
 msgid "No handler found for request: %(request_url)s"
 msgstr "Не найден обработчик для запроса: %(request_url)s"
 
-#: app.py:79
+#: app.py:89
 #, python-format
 msgid "%(protocol)s server started on port %(port)s"
 msgstr "%(protocol)s сервер запущен на порту %(port)s"
 
-#: app.py:122
+#: app.py:132
 msgid "Server shutdown initiated"
 msgstr "Инициализировано завершение работы сервера"
 
-#: app.py:125
+#: app.py:135
 #, python-format
 msgid "Critical error: %(error)s"
 msgstr "Критическая ошибка: %(error)s"
@@ -301,50 +301,50 @@ msgstr "Не удалось загрузить шаблон Snort: %(url)s"
 msgid "Settings have been changed"
 msgstr "Настройки были изменены"
 
-#: handlers/update_mirror.py:66
+#: handlers/update_mirror.py:67
 msgid "Scheduled mirror update process started"
 msgstr "Запущен запланированный процесс обновления зеркала"
 
-#: handlers/update_mirror.py:66
+#: handlers/update_mirror.py:67
 msgid "Manual mirror update process started"
 msgstr "Запущен ручной процесс обновления зеркала"
 
-#: handlers/update_mirror.py:70
+#: handlers/update_mirror.py:71
 #, python-format
 msgid "Using license key: %(license_number)s"
 msgstr "Используется лицензионный ключ: %(license_number)s"
 
-#: handlers/update_mirror.py:96
+#: handlers/update_mirror.py:97
 #, python-format
 msgid "Downloading new version: 4.%(version)s"
 msgstr "Загрузка новой версии: 4.%(version)s"
 
-#: handlers/update_mirror.py:122
+#: handlers/update_mirror.py:123
 #, python-format
 msgid "IDSv4: no new version available, current version: 4.%(actual_version)s"
 msgstr "IDSv4: новая версия недоступна, текущая версия: 4.%(actual_version)s"
 
-#: handlers/update_mirror.py:157
+#: handlers/update_mirror.py:164
 msgid "Bitdefender old cache files removed"
 msgstr "Удалены старые файлы кэша Bitdefender"
 
-#: handlers/update_mirror.py:162
+#: handlers/update_mirror.py:169
 msgid "Scheduled mirror update process completed"
 msgstr "Завершен запланированный процесс обновления зеркала"
 
-#: handlers/update_mirror.py:162
+#: handlers/update_mirror.py:169
 msgid "Manual mirror update process completed"
 msgstr "Завершен ручной процесс обновления зеркала"
 
-#: handlers/update_mirror.py:179
+#: handlers/update_mirror.py:186
 msgid "Error downloading bitdefender versions.dat file"
 msgstr "Ошибка загрузки файла bitdefender versions.dat"
 
-#: handlers/update_mirror.py:181
+#: handlers/update_mirror.py:188
 msgid "Successfully downloaded bitdefender versions.dat file"
 msgstr "Файл bitdefender versions.dat успешно загружен"
 
-#: handlers/update_mirror.py:209
+#: handlers/update_mirror.py:216
 #, python-format
 msgid "Error downloading bitdefender versions.dat file: %(error)s"
 msgstr "Ошибка при загрузке файла bitdefender versions.dat: %(error)s"
@@ -357,32 +357,28 @@ msgstr "Получен запрос на Web Filter ключ"
 msgid "Web Filter: passing because license key is not configured"
 msgstr "Web Filter: пропуск, поскольку лицензионный ключ не настроен"
 
-#: handlers/webfilter.py:43
-msgid "Web Filter: database already contains an actual Web Filter key"
-msgstr "Web Filter: база данных уже содержит актуальный Web Filter ключ"
+#: handlers/webfilter.py:40
+msgid "Fetching Web Filter key from wf-activation.kerio.com server"
+msgstr "Получение Web Filter ключа с сервера wf-activation.kerio.com"
 
-#: handlers/webfilter.py:47
-msgid "Fetching new Web Filter key from wf-activation.kerio.com server"
-msgstr "Получение нового Web Filter ключа с сервера wf-activation.kerio.com"
-
-#: handlers/webfilter.py:55
+#: handlers/webfilter.py:48
 msgid "Web Filter: error fetching Web Filter key"
 msgstr "Web Filter: ошибка получения Web Filter ключа"
 
-#: handlers/webfilter.py:59
+#: handlers/webfilter.py:52
 #, python-format
 msgid "Web Filter: invalid license key. %(lic_number)s"
 msgstr "Web Filter: недействительный лицензионный ключ. %(lic_number)s"
 
-#: handlers/webfilter.py:65
+#: handlers/webfilter.py:58
 #, python-format
 msgid "Web Filter: license key expired. %(lic_number)s"
 msgstr "Web Filter: срок действия лицензионного ключа истек. %(lic_number)s"
 
-#: handlers/webfilter.py:71
+#: handlers/webfilter.py:64
 #, python-format
-msgid "Web Filter: received new key - %(key)s"
-msgstr "Web Filter: получен новый ключ - %(key)s"
+msgid "Web Filter: received key - %(key)s"
+msgstr "Web Filter: получен ключ - %(key)s"
 
 #: routes/admin.py:38
 #, python-format
@@ -917,4 +913,3 @@ msgstr "Настроено обновление зеркала каждые %(in
 #, python-format
 msgid "Configured to check for updates every %(interval_minutes)s minutes"
 msgstr "Настроена проверка обновлений каждые %(interval_minutes)s минут"
-

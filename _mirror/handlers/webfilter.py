@@ -37,14 +37,7 @@ def update_web_filter_key() -> None:
         write_log(log_type=["system", "updates"], message=log_message)
         return
 
-    webfilter_key = get_webfilter_key(lic_number=config.license_number)
-
-    if webfilter_key:
-        log_message = _("Web Filter: database already contains an actual Web Filter key")
-        write_log(log_type=["system", "updates"], message=log_message)
-        return
-
-    write_log(log_type="system", message=_("Fetching new Web Filter key from wf-activation.kerio.com server"))
+    write_log(log_type="system", message=_("Fetching Web Filter key from wf-activation.kerio.com server"))
 
     url = f"https://wf-activation.kerio.com/getkey.php?id={config.license_number}&tag="
     headers = {"Host": "wf-activation.kerio.com"}
@@ -68,6 +61,6 @@ def update_web_filter_key() -> None:
         return
 
     add_webfilter_key(lic_number=config.license_number, key=response.text)  # Save key to database
-    log_message = _("Web Filter: received new key - %(key)s", key=response.text.strip())
+    log_message = _("Web Filter: received key - %(key)s", key=response.text.strip())
     write_log(log_type=["system", "updates"], message=log_message)
     add_stat_mirror_update(update_type="web_filter", bytes_downloaded=0)  # Add update to statistics
