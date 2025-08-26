@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.7.4",
+    "description": {
+      "en": "Added the ability to manually set the caching time of the antivirus database version (BITDEFENDER_CACHE_VERSION_TIME in the .env file)",
+      "ru": "Добавлена возможность вручную задавать время кэширования версии антивирусной базы (BITDEFENDER_CACHE_VERSION_TIME в .env файле)"
+    }
+  },
+  {
     "version": "2.7.3",
     "description": {
       "en": "Added the ability to enable ProxyFix - for correct display of IP when the mirror is running through a proxy (TRUSTED_PROXY_COUNT in the .env file)",

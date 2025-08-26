@@ -311,26 +311,32 @@ def add_bitdefender_cache(file_name: str) -> bool:
         return False
 
 
-def get_bitdefender_cache(file_name: str) -> bool:
+def get_bitdefender_cache(file_name: str, do_update: bool = True) -> bool | dict:
     """Get Bitdefender cache entry by file path and update last_usage.
 
     Args:
         file_name: File name to look up
+        do_update: Whether to update last_usage
 
     Returns:
-        bool: True if file exists in cache, False otherwise
+        bool | dict: True if file exists in cache or dict with file_name and last_usage if do_update is False, False otherwise
     """
     try:
         with transaction() as db:
             # Check if file exists in cache
-            result = db.execute("SELECT file_name FROM bitdefender_cache WHERE file_name = ?", (file_name,)).fetchone()
+            result = db.execute(
+                "SELECT file_name, last_usage FROM bitdefender_cache WHERE file_name = ?", (file_name,)
+            ).fetchone()
 
             if result:
-                # Update last_usage to current time
-                db.execute(
-                    "UPDATE bitdefender_cache SET last_usage = datetime('now') WHERE file_name = ?", (file_name,)
-                )
-                return True
+                if do_update:
+                    # Update last_usage to current time
+                    db.execute(
+                        "UPDATE bitdefender_cache SET last_usage = datetime('now') WHERE file_name = ?", (file_name,)
+                    )
+                    return True
+                else:
+                    return result
             return False
     except sqlite3.Error:
         return False

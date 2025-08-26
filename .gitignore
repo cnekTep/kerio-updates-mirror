@@ -16,10 +16,13 @@ _mirror/.env
 _mirror/data/update_check_results.json
 _mirror/update_files/*.csv
 _mirror/update_files/*.gz
+_mirror/update_files/*.md5
 _mirror/update_files/*.sig
 _mirror/update_files/*.tpl
-_mirror/update_files/*.md5
+_mirror/update_files/bitdefender_cache/*.dat
 _mirror/update_files/bitdefender_cache/*.gzip
+_mirror/update_files/bitdefender_cache/*.id
+_mirror/update_files/bitdefender_cache/*.sig
 _mirror/update_files/distros/*.img
 _mirror/update_files/distros/*.sig
 _mirror/update_files/matrix/ipv4/*.dat

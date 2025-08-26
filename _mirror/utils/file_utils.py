@@ -1,5 +1,18 @@
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
+
+
+def delete_file(path: Path) -> None:
+    """
+    Delete file if exists.
+
+    Args:
+        path: Path to file to delete
+    """
+    try:
+        path.unlink()
+    except Exception:
+        pass
 
 
 def clean_directory(dir_path: Path, files_to_keep: List[str]) -> None:
@@ -13,10 +26,7 @@ def clean_directory(dir_path: Path, files_to_keep: List[str]) -> None:
 
     for path in dir_path.iterdir():
         if path.is_file() and path.name not in files_to_keep:
-            try:
-                path.unlink()
-            except Exception:
-                pass
+            delete_file(path)
 
 
 def delete_oldest_files_until(dir_path: Path, max_folder_bytes: int) -> None:

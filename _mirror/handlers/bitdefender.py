@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from flask import request, Response
@@ -7,6 +8,7 @@ from flask_babel import gettext as _
 
 from config.config_env import config
 from db.database import get_bitdefender_cache, add_bitdefender_cache, add_stat_mirror_update, add_stat_kerio_update
+from utils.file_utils import delete_file
 from utils.internet_utils import make_request_with_retries
 from utils.logging import write_log
 
@@ -78,8 +80,24 @@ def handle_bitdefender() -> Response:
     headers = {**default_headers, **additional_headers}
 
     # Check if caching is enabled
-    if config.bitdefender_update_mode == "via_mirror_cache" and "versions." not in clean_path:
-        return handle_cached_file(clean_path=clean_path, url=url, headers=headers)
+    if config.bitdefender_update_mode == "via_mirror_cache":
+        # Check if version file is requested and version caching is enabled
+        if "versions." in clean_path and int(config.bitdefender_cache_version_time) > 0:
+            clean_path = clean_path.replace(".gz", "")
+            cache_dir = Path("update_files/bitdefender_cache")
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            filename = clean_path.split("/")[-1]
+            local_file_path = cache_dir / filename
+
+            # Check if file exists in cache
+            cache_entry = get_bitdefender_cache(file_name=filename, do_update=False)
+            if cache_entry:
+                # Check if file is too old and delete it if it is
+                last_usage = datetime.strptime(cache_entry["last_usage"], "%Y-%m-%d %H:%M:%S")
+                if last_usage < datetime.now() - timedelta(hours=int(config.bitdefender_cache_version_time)):
+                    delete_file(local_file_path)
+        if "versions." not in clean_path or int(config.bitdefender_cache_version_time) > 0:
+            return handle_cached_file(clean_path=clean_path, url=url, headers=headers)
 
     # Forward the request to the Bitdefender server
     response = make_request_with_retries(
@@ -129,7 +147,11 @@ def handle_cached_file(clean_path: str, url: str, headers: dict) -> Response:
         if os.path.exists(local_file_path):
             write_log(log_type="system", message=_("Sending cached file: %(filename)s", filename=filename))
 
-            add_stat_kerio_update(ip_address=request.remote_addr, update_type="antivirus", bytes_transferred=os.path.getsize(local_file_path))
+            add_stat_kerio_update(
+                ip_address=request.remote_addr,
+                update_type="antivirus",
+                bytes_transferred=os.path.getsize(local_file_path),
+            )
             # Serve cached file
             with open(local_file_path, "rb") as f:
                 return Response(
