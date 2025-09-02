@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  2.7.2\n"
+"Project-Id-Version:  2.8.0\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -9,24 +9,37 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app.py:68
+#: app.py:71
 #, python-format
 msgid "No handler found for request: %(request_url)s"
 msgstr "Не найден обработчик для запроса: %(request_url)s"
 
-#: app.py:89
+#: app.py:111
 #, python-format
-msgid "%(protocol)s server started on port %(port)s"
-msgstr "%(protocol)s сервер запущен на порту %(port)s"
+msgid "%(protocol)s Werkzeug server started on port %(port)s"
+msgstr "%(protocol)s Werkzeug сервер запущен на порту %(port)s"
 
-#: app.py:132
-msgid "Server shutdown initiated"
-msgstr "Инициализировано завершение работы сервера"
+#: app.py:151
+msgid "Starting application with Werkzeug"
+msgstr "Запуск приложения с Werkzeug"
 
-#: app.py:135
+#: app.py:161
+msgid "Werkzeug server shutdown initiated"
+msgstr "Инициализировано завершение работы Werkzeug сервера"
+
+#: app.py:164
 #, python-format
-msgid "Critical error: %(error)s"
-msgstr "Критическая ошибка: %(error)s"
+msgid "Critical error in Werkzeug: %(error)s"
+msgstr "Критическая ошибка в Werkzeug: %(error)s"
+
+#: app.py:167
+msgid "Starting application with Gunicorn"
+msgstr "Запуск приложения с Gunicorn"
+
+#: app.py:173
+#, python-format
+msgid "Failed to start Gunicorn: %(error)s"
+msgstr "Не удалось запустить Gunicorn: %(error)s"
 
 #: db/database.py:20
 #, python-format
@@ -85,30 +98,30 @@ msgstr "Неверное имя пользователя или пароль"
 msgid "User logged out: %(username)s"
 msgstr "Пользователь вышел из системы: %(username)s"
 
-#: handlers/bitdefender.py:31
+#: handlers/bitdefender.py:34
 msgid "Received antivirus signatures request"
 msgstr "Получен запрос на антивирусные сигнатуры"
 
-#: handlers/bitdefender.py:37
+#: handlers/bitdefender.py:40
 msgid "Received antispam signatures request"
 msgstr "Получен запрос на сигнатуры антиспама"
 
-#: handlers/bitdefender.py:43
+#: handlers/bitdefender.py:46
 #, python-format
 msgid "Received unknown download request: %(request_path)s"
 msgstr "Получен неизвестный запрос на загрузку: %(request_path)s"
 
-#: handlers/bitdefender.py:92
+#: handlers/bitdefender.py:111
 #, python-format
 msgid "Downloading file: %(request_path)s"
 msgstr "Загружается файл: %(request_path)s"
 
-#: handlers/bitdefender.py:130
+#: handlers/bitdefender.py:149
 #, python-format
 msgid "Sending cached file: %(filename)s"
 msgstr "Отправка кэшированного файла: %(filename)s"
 
-#: handlers/bitdefender.py:144
+#: handlers/bitdefender.py:167
 #, python-format
 msgid "Downloading and caching file: %(file_path)s"
 msgstr "Загрузка и кэширование файла: %(file_path)s"
@@ -913,3 +926,4 @@ msgstr "Настроено обновление зеркала каждые %(in
 #, python-format
 msgid "Configured to check for updates every %(interval_minutes)s minutes"
 msgstr "Настроена проверка обновлений каждые %(interval_minutes)s минут"
+

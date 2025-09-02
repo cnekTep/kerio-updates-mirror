@@ -10,23 +10,36 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: app.py:68
+#: app.py:71
 #, python-format
 msgid "No handler found for request: %(request_url)s"
 msgstr ""
 
-#: app.py:89
+#: app.py:111
 #, python-format
-msgid "%(protocol)s server started on port %(port)s"
+msgid "%(protocol)s Werkzeug server started on port %(port)s"
 msgstr ""
 
-#: app.py:132
-msgid "Server shutdown initiated"
+#: app.py:151
+msgid "Starting application with Werkzeug"
 msgstr ""
 
-#: app.py:135
+#: app.py:161
+msgid "Werkzeug server shutdown initiated"
+msgstr ""
+
+#: app.py:164
 #, python-format
-msgid "Critical error: %(error)s"
+msgid "Critical error in Werkzeug: %(error)s"
+msgstr ""
+
+#: app.py:167
+msgid "Starting application with Gunicorn"
+msgstr ""
+
+#: app.py:173
+#, python-format
+msgid "Failed to start Gunicorn: %(error)s"
 msgstr ""
 
 #: db/database.py:20
@@ -86,30 +99,30 @@ msgstr ""
 msgid "User logged out: %(username)s"
 msgstr ""
 
-#: handlers/bitdefender.py:31
+#: handlers/bitdefender.py:34
 msgid "Received antivirus signatures request"
 msgstr ""
 
-#: handlers/bitdefender.py:37
+#: handlers/bitdefender.py:40
 msgid "Received antispam signatures request"
 msgstr ""
 
-#: handlers/bitdefender.py:43
+#: handlers/bitdefender.py:46
 #, python-format
 msgid "Received unknown download request: %(request_path)s"
 msgstr ""
 
-#: handlers/bitdefender.py:92
+#: handlers/bitdefender.py:111
 #, python-format
 msgid "Downloading file: %(request_path)s"
 msgstr ""
 
-#: handlers/bitdefender.py:130
+#: handlers/bitdefender.py:149
 #, python-format
 msgid "Sending cached file: %(filename)s"
 msgstr ""
 
-#: handlers/bitdefender.py:144
+#: handlers/bitdefender.py:167
 #, python-format
 msgid "Downloading and caching file: %(file_path)s"
 msgstr ""

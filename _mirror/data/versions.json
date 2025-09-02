@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.8.0",
+    "description": {
+      "en": "Migrating from Werkzeug's built-in server to a production Gunicorn + HAProxy bundle",
+      "ru": "Переход со встроенного сервера Werkzeug к продакшн-связке Gunicorn + HAProxy"
+    }
+  },
+  {
     "version": "2.7.4",
     "description": {
       "en": "Added the ability to manually set the caching time of the antivirus database version (BITDEFENDER_CACHE_VERSION_TIME in the .env file)",
