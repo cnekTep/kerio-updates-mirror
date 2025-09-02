@@ -8,11 +8,9 @@ services:
     networks:
       external:
         ipv4_address: 172.222.0.5
-    ports:
-      - "8118:8118"
     extra_hosts:
-      - "bdupdate.kerio.com:172.222.0.10"
-      - "bda-update.kerio.com:172.222.0.10"
+      - "bdupdate.kerio.com:172.222.0.20"
+      - "bda-update.kerio.com:172.222.0.20"
     volumes:
       - ./_tor/configs/tor.config:/etc/tor/torrc:ro
       - ./_tor/configs/bridges.config:/etc/tor/bridges
@@ -28,7 +26,7 @@ services:
 
 
   mirror:
-    image: "mirror:v2.1.0"
+    image: "mirror:v2.8.0"
     stop_signal: SIGINT
     restart: unless-stopped
     build:
@@ -40,14 +38,33 @@ services:
       - .env
     environment:
       - TZ=$TIME_ZONE
+#      - GUNICORN_WORKERS=$GUNICORN_WORKERS
+      - LOG_LEVEL=$LOG_LEVEL
     command: python3 -m app
+    depends_on:
+      - haproxy
     networks:
       external:
         ipv4_address: 172.222.0.10
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+  haproxy:
+    image: haproxy:3.2.4-alpine
+    restart: unless-stopped
     ports:
-#      - "9980:80"
       - "80:80"
       - "443:443"
+      - "8118:8118"
+    volumes:
+      - ./_haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./_mirror/certs:/etc/haproxy/ssl:ro
+    networks:
+      external:
+        ipv4_address: 172.222.0.20
     logging:
       driver: "json-file"
       options:

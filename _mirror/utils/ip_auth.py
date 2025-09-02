@@ -186,7 +186,7 @@ def check_ip(access_type: str) -> callable:
             if not allowed_ips:
                 return f(*args, **kwargs)
 
-            client_ip = request.remote_addr
+            client_ip = request.headers.get("X-Real-Ip", request.remote_addr)
 
             if not is_ip_allowed(client_ip=client_ip, allowed_ips=allowed_ips):
                 write_log(log_type="system", message=_("Access is denied for IP: %(ip)s", ip=client_ip))

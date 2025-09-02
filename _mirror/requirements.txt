@@ -7,3 +7,4 @@ PySocks==1.7.1
 flask-babel==4.0.0
 auto-py-to-exe==2.46.0
 flask_login==0.6.3
+gunicorn==23.0.0
