@@ -304,7 +304,7 @@ msgstr ""
 msgid "Failed to download Snort template: %(url)s"
 msgstr ""
 
-#: handlers/pages.py:156
+#: handlers/pages.py:158
 msgid "Settings have been changed"
 msgstr ""
 
@@ -390,6 +390,18 @@ msgstr ""
 #: routes/admin.py:38
 #, python-format
 msgid "Language changed to: %(lang)s"
+msgstr ""
+
+#: templates/apply_settings.html:7
+msgid "Settings are saved, and reboot is being performed..."
+msgstr ""
+
+#: templates/apply_settings.html:8
+msgid "To return, click the button below"
+msgstr ""
+
+#: templates/apply_settings.html:9
+msgid "To Settings"
 msgstr ""
 
 #: templates/login.html:10 templates/tabs/settings.html:317

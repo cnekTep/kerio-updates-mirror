@@ -4,7 +4,7 @@ from flask_babel import gettext as _
 from config.config_env import config
 from handlers.auth import conditional_login_required
 from handlers.log_content import get_system_log, get_updates_log, get_connections_log
-from handlers.pages import save_settings, main_page
+from handlers.pages import save_settings, main_page, apply_settings_page
 from handlers.update_mirror import handler_update_mirror
 from utils.distributes_update import handle_distro_upload
 from utils.ip_auth import check_ip
@@ -117,3 +117,11 @@ def check_update_status():
 def check_for_updates():
     """Manual check for updates"""
     return checker.manual_update_check()
+
+
+@admin_bp.route("/apply_settings")
+@check_ip("web")
+@conditional_login_required
+def apply_settings():
+    """Logout processing"""
+    return apply_settings_page()

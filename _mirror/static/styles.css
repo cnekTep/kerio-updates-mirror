@@ -1047,6 +1047,12 @@ body.login-page {
     font-size: 24px;
 }
 
+.login-text {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+}
+
 /* Login form overrides */
 .login-container .form-group {
     margin-bottom: 20px;

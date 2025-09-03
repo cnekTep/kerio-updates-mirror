@@ -1,4 +1,10 @@
-[
+[{
+    "version": "2.8.1",
+    "description": {
+      "en": "Fixed saving settings",
+      "ru": "Исправлено сохранение настроек"
+    }
+  },
   {
     "version": "2.8.0",
     "description": {

@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  2.8.0\n"
+"Project-Id-Version:  2.8.1\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -310,7 +310,7 @@ msgstr "Шаблон Snort успешно загружен: %(url)s"
 msgid "Failed to download Snort template: %(url)s"
 msgstr "Не удалось загрузить шаблон Snort: %(url)s"
 
-#: handlers/pages.py:156
+#: handlers/pages.py:158
 msgid "Settings have been changed"
 msgstr "Настройки были изменены"
 
@@ -397,6 +397,18 @@ msgstr "Web Filter: получен ключ - %(key)s"
 #, python-format
 msgid "Language changed to: %(lang)s"
 msgstr "Язык изменен на: %(lang)s"
+
+#: templates/apply_settings.html:7
+msgid "Settings are saved, and reboot is being performed..."
+msgstr "Настройки сохранены, выполняется перезагрузка..."
+
+#: templates/apply_settings.html:8
+msgid "To return, click the button below"
+msgstr "Чтобы вернуться, нажмите на кнопку ниже"
+
+#: templates/apply_settings.html:9
+msgid "To Settings"
+msgstr "В Настройки"
 
 #: templates/login.html:10 templates/tabs/settings.html:317
 msgid "Username:"
