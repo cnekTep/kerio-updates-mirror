@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.8.3",
+    "description": {
+      "en": "Fixed scheduled mirror update",
+      "ru": "Исправлено обновление зеркала по расписанию"
+    }
+  },
+  {
     "version": "2.8.2",
     "description": {
       "en": "Added the ability to restrict access by IP using HAProxy, which also applies to 8118 proxy (RESTRICTED_HAPROXY_ACCESS in the .env file)",

@@ -142,11 +142,15 @@ def run_gunicorn_server() -> None:
     os.execvp(file="gunicorn", args=cmd)
 
 
-if __name__ == "__main__":
-    setup_logging()
+# Initialize scheduler when module is imported
+if __name__ != "__main__":
     scheduler = setup_scheduler_for_app()
 
+if __name__ == "__main__":
+    setup_logging()
+
     if config.compile:
+        scheduler = setup_scheduler_for_app()
         with app.app_context():
             write_log(log_type="system", message=_("Starting application with Werkzeug"))
 
