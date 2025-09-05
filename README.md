@@ -54,6 +54,7 @@ products, which allows you to:
    ```bash
    sudo docker load -i tor_v1.1.2.tar
    sudo docker load -i mirror_v2.8.0.tar
+   sudo docker load -i haproxy_v1.0.0.tar
    ```
 3. Download or clone the repository:
    ```bash

@@ -1,6 +1,9 @@
+import logging
+import socket
 import threading
 import uuid
 
+import requests
 from flask import request, render_template, redirect, url_for
 from flask_babel import gettext as _
 from werkzeug.security import generate_password_hash
@@ -162,6 +165,20 @@ def save_settings():
         restart_thread = threading.Thread(target=delayed_restart)
         restart_thread.daemon = True
         restart_thread.start()
+
+        # Updating HAProxy allowed IPs
+        if config.restricted_haproxy_access and config.kerio_allowed_ips and config.web_allowed_ips:
+            allowed_ips = ["172.222.0.0/24"] + config.kerio_allowed_ips.split(",") + config.web_allowed_ips.split(",")
+            allowed_ips = [ip.strip() for ip in allowed_ips if ip.strip()]
+            with open('./config/haproxy/allowed_ips.acl', 'w') as f:
+                f.write('\n'.join(allowed_ips))
+        else:
+            with open('./config/haproxy/allowed_ips.acl', 'w') as f:
+                f.write('0.0.0.0/0')
+
+        # Updating HAProxy reload trigger
+        with open('./config/haproxy/reload.trigger', 'w') as f:
+            f.write('')
 
         # Redirecting user to the settings applying page
         return redirect(url_for("admin.apply_settings"))

@@ -1,4 +1,12 @@
-[{
+[
+  {
+    "version": "2.8.2",
+    "description": {
+      "en": "Added the ability to restrict access by IP using HAProxy, which also applies to 8118 proxy (RESTRICTED_HAPROXY_ACCESS in the .env file)",
+      "ru": "Добавлена возможность ограничения доступа по IP средствами HAProxy, распространяется и на proxy 8118 (RESTRICTED_HAPROXY_ACCESS в .env файле)"
+    }
+  },
+  {
     "version": "2.8.1",
     "description": {
       "en": "Fixed saving settings",

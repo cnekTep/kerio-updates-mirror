@@ -53,15 +53,19 @@ services:
         max-file: "10"
 
   haproxy:
-    image: haproxy:3.2.4-alpine
+    image: "haproxy:v1.0.0"
+    stop_signal: SIGINT
     restart: unless-stopped
+    build:
+      context: ./_haproxy
     ports:
       - "80:80"
       - "443:443"
       - "8118:8118"
     volumes:
-      - ./_haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./_haproxy/haproxy.cfg:/etc/haproxy/haproxy.cfg:ro
       - ./_mirror/certs:/etc/haproxy/ssl:ro
+      - ./_mirror/config/haproxy:/etc/haproxy/watch
     networks:
       external:
         ipv4_address: 172.222.0.20
