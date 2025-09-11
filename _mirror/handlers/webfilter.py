@@ -5,7 +5,7 @@ from flask_babel import gettext as _
 from config.config_env import config
 from db.database import get_webfilter_key, add_webfilter_key, add_stat_mirror_update, add_stat_kerio_update
 from utils.internet_utils import make_request_with_retries
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 
 def handle_webfilter():

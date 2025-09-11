@@ -10,7 +10,7 @@ from flask_babel import gettext as _
 from werkzeug.utils import secure_filename
 
 from config.config_env import config
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 
 def handle_distro_upload():

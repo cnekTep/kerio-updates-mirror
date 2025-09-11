@@ -1,4 +1,4 @@
-from utils.logging import read_last_lines
+from utils.app_logging import read_last_lines
 
 
 def get_system_log() -> str:

@@ -1,17 +1,14 @@
-import logging
-import socket
 import threading
 import uuid
 
-import requests
-from flask import request, render_template, redirect, url_for
+from flask import request, render_template, redirect
 from flask_babel import gettext as _
 from werkzeug.security import generate_password_hash
 
 from config.config_env import config
 from utils.diff import delayed_restart
 from utils.distributes_update import get_distributes_list, get_kerio_version_from_filename
-from utils.logging import write_log, read_last_lines
+from utils.app_logging import write_log, read_last_lines
 from utils.tor_check import tor_checker
 from utils.update_check import checker
 
@@ -161,27 +158,10 @@ def save_settings():
     write_log(log_type="system", message=_("Settings have been changed"))
 
     if not config.compile:
-        # Launching delayed restart of the docker container in a separate thread
+        # Launching delayed update of HAProxy allowed IPs and restart of the docker container in a separate thread
         restart_thread = threading.Thread(target=delayed_restart)
         restart_thread.daemon = True
         restart_thread.start()
-
-        # Updating HAProxy allowed IPs
-        if config.restricted_haproxy_access and config.kerio_allowed_ips and config.web_allowed_ips:
-            allowed_ips = ["172.222.0.0/24"] + config.kerio_allowed_ips.split(",") + config.web_allowed_ips.split(",")
-            allowed_ips = [ip.strip() for ip in allowed_ips if ip.strip()]
-            with open('./config/haproxy/allowed_ips.acl', 'w') as f:
-                f.write('\n'.join(allowed_ips))
-        else:
-            with open('./config/haproxy/allowed_ips.acl', 'w') as f:
-                f.write('0.0.0.0/0')
-
-        # Updating HAProxy reload trigger
-        with open('./config/haproxy/reload.trigger', 'w') as f:
-            f.write('')
-
-        # Redirecting user to the settings applying page
-        return redirect(url_for("admin.apply_settings"))
 
     return redirect("/#settings")
 
@@ -200,8 +180,3 @@ def build_connection_order(connection_str: str) -> str:
     parts = [part.strip() for part in connection_str.split(",") if part.strip()]
     missing = [opt for opt in all_options if opt not in parts]
     return ", ".join(parts + missing)
-
-
-def apply_settings_page():
-    """Apply settings page handler"""
-    return render_template("apply_settings.html")

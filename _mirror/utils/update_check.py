@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 from utils.internet_utils import make_request_with_retries
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 
 class UpdateChecker:

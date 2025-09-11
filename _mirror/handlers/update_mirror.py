@@ -22,7 +22,7 @@ from handlers.ids import download_ids_update_files, download_snort_template
 from handlers.webfilter import update_web_filter_key
 from utils.file_utils import clean_directory, delete_oldest_files_until
 from utils.internet_utils import make_request_with_retries
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 
 def handler_update_mirror(forced=False):

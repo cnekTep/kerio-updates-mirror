@@ -15,29 +15,29 @@ msgstr ""
 msgid "No handler found for request: %(request_url)s"
 msgstr ""
 
-#: app.py:111
+#: app.py:112
 #, python-format
 msgid "%(protocol)s Werkzeug server started on port %(port)s"
 msgstr ""
 
-#: app.py:151
+#: app.py:154
 msgid "Starting application with Werkzeug"
 msgstr ""
 
-#: app.py:161
+#: app.py:164
 msgid "Werkzeug server shutdown initiated"
 msgstr ""
 
-#: app.py:164
+#: app.py:167
 #, python-format
 msgid "Critical error in Werkzeug: %(error)s"
 msgstr ""
 
-#: app.py:167
+#: app.py:170
 msgid "Starting application with Gunicorn"
 msgstr ""
 
-#: app.py:173
+#: app.py:176
 #, python-format
 msgid "Failed to start Gunicorn: %(error)s"
 msgstr ""
@@ -390,18 +390,6 @@ msgstr ""
 #: routes/admin.py:38
 #, python-format
 msgid "Language changed to: %(lang)s"
-msgstr ""
-
-#: templates/apply_settings.html:7
-msgid "Settings are saved, and reboot is being performed..."
-msgstr ""
-
-#: templates/apply_settings.html:8
-msgid "To return, click the button below"
-msgstr ""
-
-#: templates/apply_settings.html:9
-msgid "To Settings"
 msgstr ""
 
 #: templates/login.html:10 templates/tabs/settings.html:317

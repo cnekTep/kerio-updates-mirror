@@ -3,7 +3,7 @@ from typing import Dict, Callable
 
 from flask_babel import gettext as _
 
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 # Dictionary with migrations - the key is the version, the value is the migration function
 MIGRATIONS: Dict[float, Callable[[sqlite3.Connection], None]] = {}

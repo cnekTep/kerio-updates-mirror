@@ -4,7 +4,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from flask_babel import gettext as _
 
 from handlers.update_mirror import update_mirror
-from utils.logging import write_log
+from utils.app_logging import write_log
 from utils.update_check import checker
 
 

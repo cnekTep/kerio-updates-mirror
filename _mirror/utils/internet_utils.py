@@ -5,7 +5,7 @@ import requests
 from flask_babel import gettext as _
 
 from config.config_env import config
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 
 def get_ssl_context(cert_dir: str = "certs") -> tuple[str, str] | str:

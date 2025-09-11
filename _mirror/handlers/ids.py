@@ -16,7 +16,7 @@ from db.database import (
 from utils.distributes_update import is_update_available
 from utils.file_utils import clean_directory
 from utils.internet_utils import make_request_with_retries, download_file_with_retries
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 
 def handler_ids_update(update_type: str):

@@ -9,7 +9,7 @@ from flask_babel import gettext as _
 
 from db.database import update_ids
 from utils.internet_utils import make_request_with_retries
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 
 def download_and_process_geo(url: str, output_filename: str, modify: bool = True) -> int:

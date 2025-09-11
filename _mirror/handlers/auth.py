@@ -6,7 +6,7 @@ from flask_login import UserMixin, LoginManager, login_user, logout_user, curren
 from werkzeug.security import check_password_hash
 
 from config.config_env import config
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 
 def conditional_login_required(func):

@@ -12,7 +12,7 @@ from db.database import close_connection, init_db
 from handlers.auth import init_auth
 from routes import admin_bp, auth_bp, kerio_bp
 from utils.internet_utils import get_ssl_context
-from utils.logging import write_log, setup_logging
+from utils.app_logging import write_log, setup_logging
 from utils.schedulers import setup_scheduler
 
 
@@ -75,7 +75,8 @@ def create_app():
 
     return app
 
-
+# Setup logging
+setup_logging()
 # Create application instance for Gunicorn or werkzeug
 app = create_app()
 
@@ -147,8 +148,6 @@ if __name__ != "__main__":
     scheduler = setup_scheduler_for_app()
 
 if __name__ == "__main__":
-    setup_logging()
-
     if config.compile:
         scheduler = setup_scheduler_for_app()
         with app.app_context():

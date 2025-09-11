@@ -1,13 +1,12 @@
 import datetime
+import logging
 from pathlib import Path
 from typing import Union
-
-import logging
 
 
 def setup_logging():
     """Configures basic logging"""
-    logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(message)s", datefmt="%Y.%m.%d %H:%M:%S")
+    logging.basicConfig(level=logging.WARNING, format="[%(asctime)s] %(message)s", datefmt="%Y.%m.%d %H:%M:%S")
 
     # Creating a directory for logs if it does not exist
     log_dir = Path("./logs")
@@ -25,7 +24,7 @@ def write_log(log_type: Union[str, list[str]], message: str, date: bool = True, 
         ip: Optional IP address to include in the log entry
     """
     now_date = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
-    logging.warn(f"[{ip}] {message}" if ip else message)
+    logging.warning(f"[{ip}] {message}" if ip else message)
 
     prefix = ""
     if date:

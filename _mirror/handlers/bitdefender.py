@@ -10,7 +10,7 @@ from config.config_env import config
 from db.database import get_bitdefender_cache, add_bitdefender_cache, add_stat_mirror_update, add_stat_kerio_update
 from utils.file_utils import delete_file
 from utils.internet_utils import make_request_with_retries
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 
 def handle_bitdefender() -> Response:

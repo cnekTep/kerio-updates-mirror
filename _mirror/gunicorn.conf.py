@@ -17,7 +17,6 @@ max_requests_jitter = 50
 
 # Memory management
 preload_app = True  # Share code between workers
-max_requests_jitter = 50  # Prevent thundering herd
 
 # Timeouts
 timeout = 30
@@ -42,6 +41,16 @@ limit_request_field_size = 8190
 daemon = False
 pidfile = "/tmp/gunicorn.pid"
 tmp_upload_dir = None
+
+
+def post_worker_init(worker):
+    """Called after worker process fork."""
+    # import inside to avoid running in master
+    from config.config_env import config
+    from utils.watcher import start_env_watcher
+
+    # running watcher on the change .env file
+    start_env_watcher(config=config, env_path=config.env_path, worker_pid=worker.pid)
 
 
 def post_fork(server, worker):

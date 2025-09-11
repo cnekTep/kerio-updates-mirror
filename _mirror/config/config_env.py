@@ -1,5 +1,6 @@
 import os
 import secrets
+from threading import Lock
 from typing import Any, Dict
 
 from dotenv import load_dotenv, set_key
@@ -20,6 +21,7 @@ class Config:
         """
         self.env_path = env_path
         self._data: Dict[str, Any] = {}
+        self._lock = Lock()
 
         # Keys that should always be reset to standard values
         self._force_reset_keys = {"TOR_HOST", "TOR_PORT"}
@@ -89,9 +91,9 @@ class Config:
         load_dotenv(env_path)
 
         # Initialize configuration
-        self._load_config()
+        self._load_config(write_missing=True)
 
-    def _load_config(self) -> None:
+    def _load_config(self, write_missing: bool = True) -> None:
         """
         Load configuration from .env file and set default values for missing entries.
         """
@@ -102,7 +104,8 @@ class Config:
             # If key is in forced reset list, use standard value
             if key in self._force_reset_keys:
                 self._data[key.lower()] = default_value
-                set_key(dotenv_path=self.env_path, key_to_set=key, value_to_set=self._format_value(default_value))
+                if write_missing:
+                    set_key(dotenv_path=self.env_path, key_to_set=key, value_to_set=self._format_value(default_value))
                 continue
 
             env_value = os.environ.get(key)
@@ -119,11 +122,13 @@ class Config:
                     self._data[key.lower()] = env_value
             else:
                 self._data[key.lower()] = default_value  # Setting the default value
-                missing_vars[key] = self._format_value(default_value)  # Mark it for saving in .env
+                if write_missing:
+                    missing_vars[key] = self._format_value(default_value)  # Mark it for saving in .env
 
-        # Write missing variables to .env file
-        for key, value in missing_vars.items():
-            set_key(dotenv_path=self.env_path, key_to_set=key, value_to_set=value)
+        if write_missing:
+            # Write missing variables to .env file
+            for key, value in missing_vars.items():
+                set_key(dotenv_path=self.env_path, key_to_set=key, value_to_set=value)
 
     def __getattr__(self, name: str) -> Any:
         """
@@ -155,12 +160,20 @@ class Config:
             super().__setattr__(name, value)
             return
 
-        # For regular attributes update _data and .env file
-        self._data[name] = value
+        with getattr(self, "_lock", Lock()):
+            # For regular attributes update _data and .env file
+            self._data[name] = value
 
-        # Update .env file
-        env_key = name.upper()
-        set_key(dotenv_path=self.env_path, key_to_set=env_key, value_to_set=self._format_value(value))
+            # Update .env file
+            env_key = name.upper()
+            set_key(dotenv_path=self.env_path, key_to_set=env_key, value_to_set=self._format_value(value))
+
+    def reload(self) -> None:
+        """Reread .env (without adding defaults)."""
+        with self._lock:
+            # reload environment variables from file
+            load_dotenv(dotenv_path=self.env_path, override=True)
+            self._load_config(write_missing=False)
 
     @staticmethod
     def _format_value(value: Any) -> str:

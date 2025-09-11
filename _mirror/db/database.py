@@ -8,7 +8,7 @@ from flask_babel import gettext as _
 
 from config.config_env import config
 from db.migrations import apply_migrations
-from utils.logging import write_log
+from utils.app_logging import write_log
 
 
 def init_db() -> None:
