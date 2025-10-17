@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  2.8.4\n"
+"Project-Id-Version:  2.8.5\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -194,84 +194,92 @@ msgstr ""
 msgid "Starting Shield Matrix update check..."
 msgstr "Запуск проверки обновлений Shield Matrix..."
 
-#: handlers/ids.py:138
+#: handlers/ids.py:135
 #, python-format
 msgid "New Shield Matrix version found: %(version)s"
 msgstr "Найдена новая версия Shield Matrix: %(version)s"
 
-#: handlers/ids.py:141
+#: handlers/ids.py:138
 msgid "Shield Matrix version is up to date"
 msgstr "Версия Shield Matrix актуальна"
 
-#: handlers/ids.py:164
+#: handlers/ids.py:161
 #, python-format
 msgid "Shield Matrix file updated: %(file_name)s"
 msgstr "Файл Shield Matrix обновлен: %(file_name)s"
 
-#: handlers/ids.py:172
+#: handlers/ids.py:169
 #, python-format
 msgid "Received update request for Shield Matrix: %(file_name)s"
 msgstr "Получен запрос на обновление Shield Matrix: %(file_name)s"
 
-#: handlers/ids.py:188
+#: handlers/ids.py:185
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr "Ошибка при обработке URL %(request_url)s в запросе на обновление"
 
-#: handlers/ids.py:195
+#: handlers/ids.py:192
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr "Получен запрос на обновление версии: %(version)s"
 
-#: handlers/ids.py:205
+#: handlers/ids.py:202
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr "Недопустимый формат версии: %(version)s"
 
-#: handlers/ids.py:216
+#: handlers/ids.py:213
 msgid "Received update request for antivirus"
 msgstr "Получен запрос на обновление антивируса"
 
-#: handlers/ids.py:248
+#: handlers/ids.py:245
 msgid "Error occurred while receiving a link to an antivirus update"
 msgstr "Произошла ошибка при получении ссылки на обновление антивируса"
 
-#: handlers/ids.py:254
+#: handlers/ids.py:251
 #, python-format
 msgid "Update link sent: %(url)s"
 msgstr "Отправлена ссылка на обновление: %(url)s"
 
-#: handlers/ids.py:270
+#: handlers/ids.py:267
 #, python-format
 msgid "Received update request for IDSv%(version)s"
 msgstr "Получен запрос на обновление IDSv%(version)s"
 
-#: handlers/ids.py:283
+#: handlers/ids.py:276
+msgid ""
+"Error occurred while processing IDS update: update file not found. "
+"Execute manual update of mirror, or wait for scheduled update!"
+msgstr ""
+"Ошибка при обработке обновлений IDS: файл обновления не найден. Выполните"
+" ручное обновление зеркала или дождитесь запланированного обновления!"
+
+#: handlers/ids.py:290
 #, python-format
 msgid "Error occurred while processing IDS update: %(err)s"
 msgstr "Ошибка при обработке обновлений IDS: %(err)s"
 
-#: handlers/ids.py:290
+#: handlers/ids.py:297
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr "Получен неизвестный запрос на загрузку: %(version)s"
 
-#: handlers/ids.py:308
+#: handlers/ids.py:315
 #, python-format
 msgid "IDSv%(version)s: passing because license key is not configured"
 msgstr "IDSv%(version)s: пропуск, поскольку лицензионный ключ не настроен"
 
-#: handlers/ids.py:315
+#: handlers/ids.py:322
 #, python-format
 msgid "IDSv%(version)s: error downloading update"
 msgstr "IDSv%(version)s: ошибка при загрузке обновления"
 
-#: handlers/ids.py:331
+#: handlers/ids.py:338
 #, python-format
 msgid "IDSv%(version)s error: %(err)s"
 msgstr "IDSv%(version)s ошибка: %(err)s"
 
-#: handlers/ids.py:345
+#: handlers/ids.py:352
 #, python-format
 msgid ""
 "IDSv%(version)s: no new version, current version: "
@@ -280,32 +288,32 @@ msgstr ""
 "IDSv%(version)s: нет новой версии, текущая версия: "
 "%(version)s.%(result_version)s"
 
-#: handlers/ids.py:356
+#: handlers/ids.py:363
 #, python-format
 msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
 msgstr "IDSv%(version)s: загрузка новой версии: %(version)s.%(result_version)s"
 
-#: handlers/ids.py:374
+#: handlers/ids.py:381
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr "Не удалось загрузить основной файл для IDSv%(version)s"
 
-#: handlers/ids.py:385
+#: handlers/ids.py:392
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr "Не удалось загрузить файл подписи для IDSv%(version)s"
 
-#: handlers/ids.py:392
+#: handlers/ids.py:399
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr "IDSv%(version)s: загружена новая версия - %(version)s.%(result_version)s"
 
-#: handlers/ids.py:419
+#: handlers/ids.py:426
 #, python-format
 msgid "Successfully downloaded Snort template: %(url)s"
 msgstr "Шаблон Snort успешно загружен: %(url)s"
 
-#: handlers/ids.py:426
+#: handlers/ids.py:433
 #, python-format
 msgid "Failed to download Snort template: %(url)s"
 msgstr "Не удалось загрузить шаблон Snort: %(url)s"
@@ -314,50 +322,50 @@ msgstr "Не удалось загрузить шаблон Snort: %(url)s"
 msgid "Settings have been changed"
 msgstr "Настройки были изменены"
 
-#: handlers/update_mirror.py:67
+#: handlers/update_mirror.py:70
 msgid "Scheduled mirror update process started"
 msgstr "Запущен запланированный процесс обновления зеркала"
 
-#: handlers/update_mirror.py:67
+#: handlers/update_mirror.py:70
 msgid "Manual mirror update process started"
 msgstr "Запущен ручной процесс обновления зеркала"
 
-#: handlers/update_mirror.py:71
+#: handlers/update_mirror.py:74
 #, python-format
 msgid "Using license key: %(license_number)s"
 msgstr "Используется лицензионный ключ: %(license_number)s"
 
-#: handlers/update_mirror.py:97
+#: handlers/update_mirror.py:100
 #, python-format
 msgid "Downloading new version: 4.%(version)s"
 msgstr "Загрузка новой версии: 4.%(version)s"
 
-#: handlers/update_mirror.py:123
+#: handlers/update_mirror.py:126
 #, python-format
 msgid "IDSv4: no new version available, current version: 4.%(actual_version)s"
 msgstr "IDSv4: новая версия недоступна, текущая версия: 4.%(actual_version)s"
 
-#: handlers/update_mirror.py:164
+#: handlers/update_mirror.py:167
 msgid "Bitdefender old cache files removed"
 msgstr "Удалены старые файлы кэша Bitdefender"
 
-#: handlers/update_mirror.py:169
+#: handlers/update_mirror.py:172
 msgid "Scheduled mirror update process completed"
 msgstr "Завершен запланированный процесс обновления зеркала"
 
-#: handlers/update_mirror.py:169
+#: handlers/update_mirror.py:172
 msgid "Manual mirror update process completed"
 msgstr "Завершен ручной процесс обновления зеркала"
 
-#: handlers/update_mirror.py:186
+#: handlers/update_mirror.py:189
 msgid "Error downloading bitdefender versions.dat file"
 msgstr "Ошибка загрузки файла bitdefender versions.dat"
 
-#: handlers/update_mirror.py:188
+#: handlers/update_mirror.py:191
 msgid "Successfully downloaded bitdefender versions.dat file"
 msgstr "Файл bitdefender versions.dat успешно загружен"
 
-#: handlers/update_mirror.py:216
+#: handlers/update_mirror.py:219
 #, python-format
 msgid "Error downloading bitdefender versions.dat file: %(error)s"
 msgstr "Ошибка при загрузке файла bitdefender versions.dat: %(error)s"
@@ -926,3 +934,7 @@ msgstr "Настроено обновление зеркала каждые %(in
 #, python-format
 msgid "Configured to check for updates every %(interval_minutes)s minutes"
 msgstr "Настроена проверка обновлений каждые %(interval_minutes)s минут"
+
+#: utils/update_check.py:109
+msgid "Error reading update results: can't get latest version from GitHub"
+msgstr "Ошибка обновления: не удалось получить последнюю версию с GitHub"

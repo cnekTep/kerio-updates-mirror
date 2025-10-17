@@ -88,7 +88,7 @@ def setup_scheduler_for_app():
         scheduler = setup_scheduler(app=app, schedule_type="daily", hour=3, minute=0)
 
         # Option 2: Run every 8 hours
-        # scheduler = setup_scheduler(schedule_type="interval", interval_minutes=480)
+        # scheduler = setup_scheduler(app=app, schedule_type="interval", interval_minutes=480)
 
         return scheduler
 

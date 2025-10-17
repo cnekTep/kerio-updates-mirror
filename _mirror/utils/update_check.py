@@ -2,8 +2,10 @@ import json
 import os
 from datetime import datetime
 
-from utils.internet_utils import make_request_with_retries
+from flask_babel import gettext as _
+
 from utils.app_logging import write_log
+from utils.internet_utils import make_request_with_retries
 
 
 class UpdateChecker:
@@ -100,6 +102,14 @@ class UpdateChecker:
             if os.path.exists(self.results_file):
                 with open(self.results_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
+                    # If the latest version is not available, return that update is not available
+                    if not data["latest_version"]:
+                        write_log(
+                            log_type="system",
+                            message=_("Error reading update results: can't get latest version from GitHub"),
+                        )
+                        data["has_updates"] = False
+                        return data
                     #  If the latest version is greater than the current version, return that update is available
                     data["has_updates"] = data["latest_version"] > self.get_current_version()
                     return data

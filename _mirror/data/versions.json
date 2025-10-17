@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.8.5",
+    "description": {
+      "en": "Scheduled mirror update reloads settings before execution + several bugs fixed",
+      "ru": "Обновление зеркала по расписанию перезагружает настройки перед выполнением + исправлено несколько ошибок"
+    }
+  },
+  {
     "version": "2.8.4",
     "description": {
       "en": "Fixed saving settings",

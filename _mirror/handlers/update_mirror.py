@@ -59,6 +59,9 @@ def update_mirror(scheduler=False) -> None:
     Args:
         scheduler: True if function is called from scheduler. Defaults to False.
     """
+    # Reload config before update
+    config.reload()
+
     write_log(log_type="updates", message="", date=False)
     write_log(log_type="updates", message="----------------------------------------------------------------")
     write_log(

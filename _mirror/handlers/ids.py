@@ -126,10 +126,7 @@ def handle_update_matrix(subpath):
             update_shield_matrix_version(version=int(actual_version))
 
             # Clean matrix directories
-            matrix_dirs = [
-                Path("update_files/matrix/ipv4"),
-                Path("update_files/matrix/ipv6")
-            ]
+            matrix_dirs = [Path("update_files/matrix/ipv4"), Path("update_files/matrix/ipv6")]
 
             for dir_path in matrix_dirs:
                 clean_directory(dir_path=dir_path, files_to_keep=[".gitkeep"])
@@ -272,6 +269,16 @@ def handle_update():
         )
         try:
             result = get_ids(f"ids{major_version}")
+            if not result:
+                write_log(
+                    log_type="system",
+                    message=_(
+                        "Error occurred while processing IDS update: update file not found. "
+                        "Execute manual update of mirror, or wait for scheduled update!"
+                    ),
+                )
+                return Response(response="404 Not found", status=404, mimetype="text/plain")
+
             response_text = (
                 f"0:{major_version}.{str(result['version'])}\n"
                 f"full:http://{local_ip}/control-update/{result['file_name']}"
