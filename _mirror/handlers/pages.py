@@ -34,6 +34,7 @@ def main_page():
         "update_ids_3": config.update_ids_3,
         "update_ids_4": config.update_ids_4,
         "update_ids_5": config.update_ids_5,
+        "update_geoip_5": config.update_geoip_5,
         "geoip_github": config.geoip_github,
         "update_web_filter_key": config.update_web_filter_key,
         "forced_web_filter_key": config.forced_web_filter_key,
@@ -84,8 +85,9 @@ def save_settings():
     config.update_ids_1 = "IDSv1" in request.form
     config.update_ids_2 = "IDSv2" in request.form
     config.update_ids_3 = "IDSv3" in request.form
-    config.update_ids_4 = "IDSv4" in request.form
+    config.update_ids_4 = "GeoIPv4" in request.form
     config.update_ids_5 = "IDSv5" in request.form
+    config.update_geoip_5 = "GeoIPv5" in request.form
     config.geoip_github = "geo_github" in request.form
     config.update_web_filter_key = "wfkey" in request.form
     config.forced_web_filter_key = (

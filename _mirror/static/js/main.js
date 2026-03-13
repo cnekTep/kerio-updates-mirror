@@ -321,7 +321,7 @@ const App = {
 
     // Configuring GeoIP Checkbox Dependencies
     setupGeoCheckboxes() {
-        const ids4 = document.getElementById('IDSv4');
+        const ids4 = document.getElementById('GeoIPv4');
         const geoGithub = document.getElementById('geo_github');
         geoGithub.onchange = () => {
             if (!ids4.checked) geoGithub.checked = false;

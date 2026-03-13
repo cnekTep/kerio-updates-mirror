@@ -48,6 +48,7 @@ def handler_ids_update(update_type: str):
             "full-3": "ids_v3",
             "full-4": "ids_v4",
             "full-5": "ids_v5",
+            "GeoIP2": "geoip_v5",
             "snort": "snort",
         }
 
@@ -262,19 +263,22 @@ def handle_update():
 
     # Regular versions (1-5)
     if 1 <= major_version <= 5:
+        update_type = "geoip" if "geoip" in request.url else "ids"
         write_log(
             log_type="connections",
-            message=_("Received update request for IDSv%(version)s", version=major_version),
+            message=_("Received update request for %(update_type)sv%(version)s", update_type=update_type.upper(),
+                      version=major_version),
             ip=request.remote_addr if config.ip_logging else None,
         )
         try:
-            result = get_ids(f"ids{major_version}")
+            result = get_ids(f"{update_type}{major_version}")
             if not result:
                 write_log(
                     log_type="system",
                     message=_(
-                        "Error occurred while processing IDS update: update file not found. "
-                        "Execute manual update of mirror, or wait for scheduled update!"
+                        "Error occurred while processing %(update_type)s update: update file not found. "
+                        "Execute manual update of mirror, or wait for scheduled update!",
+                        update_type=update_type.upper()
                     ),
                 )
                 return Response(response="404 Not found", status=404, mimetype="text/plain")
@@ -287,7 +291,8 @@ def handle_update():
         except Exception as err:
             write_log(
                 log_type="system",
-                message=_("Error occurred while processing IDS update: %(err)s", err=str(err)),
+                message=_("Error occurred while processing %(update_type)s update: %(err)s",
+                          update_type=update_type.upper(), err=str(err)),
             )
             return Response(response="500 Internal Server Error", status=500, mimetype="text/plain")
 
@@ -300,26 +305,31 @@ def handle_update():
     return Response(response="404 Not found", status=404, mimetype="text/plain")
 
 
-def download_ids_update_files(version: str) -> None:
+def download_ids_update_files(version: str, geoip: bool = False) -> None:
     """
     Downloads IDS update files from Kerio server
 
     Args:
         version: IDS version
+        geoip: Whether to download GeoIP
     """
     # Get current version number and download link
-    url = f"https://ids-update.kerio.com/update.php?id={config.license_number}&version={version}.0&tag="
+    base = "geoip/update.php" if geoip else "update.php"
+    update_type = "geoip" if geoip else "ids"
+    url = f"https://ids-update.kerio.com/{base}?id={config.license_number}&version={version}.0&tag="
     headers = {"Host": "ids-update.kerio.com"}
 
     if not config.license_number:
-        log_message = _("IDSv%(version)s: passing because license key is not configured", version=version)
+        log_message = _("%(update_type)sv%(version)s: passing because license key is not configured",
+                        update_type=update_type.upper(), version=version)
         write_log(log_type=["system", "updates"], message=log_message)
         return
 
     response = make_request_with_retries(url=url, headers=headers, context=f"IDSv{version}")
 
     if not response:
-        log_message = _("IDSv%(version)s: error downloading update", version=version)
+        log_message = _("%(update_type)sv%(version)s: error downloading update", update_type=update_type.upper(),
+                        version=version)
         write_log(log_type=["system", "updates"], message=log_message)
         return
 
@@ -335,13 +345,14 @@ def download_ids_update_files(version: str) -> None:
         elif key == "full":
             result["download_link"] = value
         else:
-            log_message = _("IDSv%(version)s error: %(err)s", version=version, err=response.text.strip())
+            log_message = _("%(update_type)sv%(version)s error: %(err)s", update_type=update_type.upper(),
+                            version=version, err=response.text.strip())
             write_log(log_type=["system", "updates"], message=log_message)
             config.license_number = None
             return
 
     # Get current version from database
-    actual_version = get_ids(name=f"ids{version}")
+    actual_version = get_ids(name=f"{update_type}{version}")
     current_version = 0
 
     if actual_version is not None and "version" in actual_version:
@@ -349,7 +360,8 @@ def download_ids_update_files(version: str) -> None:
 
     if current_version >= result["version"]:
         log_message = _(
-            "IDSv%(version)s: no new version, current version: %(version)s.%(result_version)s",
+            "%(update_type)sv%(version)s: no new version, current version: %(version)s.%(result_version)s",
+            update_type=update_type.upper(),
             version=version,
             result_version=result["version"],
         )
@@ -360,7 +372,8 @@ def download_ids_update_files(version: str) -> None:
     write_log(
         log_type="system",
         message=_(
-            "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s",
+            "%(update_type)sv%(version)s: downloading new version: %(version)s.%(result_version)s",
+            update_type=update_type.upper(),
             version=version,
             result_version=result["version"],
         ),
@@ -376,16 +389,16 @@ def download_ids_update_files(version: str) -> None:
 
     # Download main file using existing function
     if not download_file_with_retries(
-        url=result["download_link"], save_path=save_path, context=f"IDSv{version} main file"
+            url=result["download_link"], save_path=save_path, context=f"IDSv{version} main file"
     ):
         write_log(log_type="system", message=_("Failed to download main file for IDSv%(version)s", version=version))
         return
 
     # Download signature file for certain versions
-    if version in ["1", "2", "3", "5"]:
+    if update_type == "ids" and version in ["1", "2", "3", "5"]:
         sig_save_path = os.path.join(save_directory, f"{filename}.sig")
         if not download_file_with_retries(
-            url=f"{result['download_link']}.sig", save_path=sig_save_path, context=f"IDSv{version} signature file"
+                url=f"{result['download_link']}.sig", save_path=sig_save_path, context=f"IDSv{version} signature file"
         ):
             write_log(
                 log_type="system",
@@ -394,14 +407,14 @@ def download_ids_update_files(version: str) -> None:
             return
 
     # Update version information in database
-    update_ids(name=f"ids{version}", version=int(result["version"]), file_name=filename)
+    update_ids(name=f"{update_type}{version}", version=int(result["version"]), file_name=filename)
     log_message = _(
         "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s",
         version=version,
         result_version=result["version"],
     )
     write_log(log_type=["system", "updates"], message=log_message)
-    add_stat_mirror_update(update_type=f"ids_v{version}", bytes_downloaded=os.path.getsize(save_path))
+    add_stat_mirror_update(update_type=f"{update_type}_v{version}", bytes_downloaded=os.path.getsize(save_path))
 
 
 def download_snort_template() -> None:

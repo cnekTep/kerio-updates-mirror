@@ -35,14 +35,19 @@
                     <label for="IDSv2">{{ _('IDSv2 - Lists of compromised addresses for blocking') }}</label>
                 </div>
                 <div class="checkbox-group">
-                    <input type="checkbox" id="IDSv4" name="IDSv4" value="true"
+                    <input type="checkbox" id="GeoIPv4" name="GeoIPv4" value="true"
                            {% if update_ids_4 %}checked{% endif %}>
-                    <label for="IDSv4">{{ _('IDSv4 - GeoIP databases for geolocation/visitor blocking') }}</label>
+                    <label for="GeoIPv4">{{ _('GeoIPv4 - GeoIP databases for geolocation/visitor blocking (versions for Linux up to 9.6)') }}</label>
                 </div>
                 <div class="checkbox-group nested-option">
                     <input type="checkbox" id="geo_github" name="geo_github" value="true"
                            {% if geoip_github %}checked{% endif %}>
                     <label for="geo_github">{{ _('Use GitHub as a source for GeoIP database updates') }}</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="GeoIPv5" name="GeoIPv5" value="true"
+                           {% if update_geoip_5 %}checked{% endif %}>
+                    <label for="GeoIPv5">{{ _('GeoIPv5 - GeoIP databases for geolocation/visitor blocking (versions for Linux starting from 9.6)') }}</label>
                 </div>
                 <div class="checkbox-group">
                     <input type="checkbox" id="wfkey" name="wfkey" value="true"

@@ -87,7 +87,7 @@ def update_mirror(scheduler=False) -> None:
     if config.update_ids_3:  # IPS/IDS Snort (Linux versions up to 9.5)
         download_ids_update_files(version="3")
 
-    if config.update_ids_4:  # Update GeoIP database files
+    if config.update_ids_4:  # Update GeoIP database files (version up to 9.6)
         if config.geoip_github:
             actual_version = get_ids(name="ids4")
             current_version = "0"
@@ -129,6 +129,9 @@ def update_mirror(scheduler=False) -> None:
                 )
         else:
             download_ids_update_files(version="4")
+
+    if config.update_geoip_5:  # Update GeoIP database files (version 9.6+)
+        download_ids_update_files(version="5", geoip=True)
 
     if config.update_ids_5:  # IPS/IDS Snort (Linux versions from 9.5)
         download_ids_update_files(version="5")

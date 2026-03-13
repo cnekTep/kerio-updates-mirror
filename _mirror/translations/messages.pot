@@ -1,7 +1,7 @@
 # Translations template for PROJECT.
-# Copyright (C) 2025 ORGANIZATION
+# Copyright (C) 2026 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 #, fuzzy
 msgid ""
@@ -178,7 +178,7 @@ msgstr ""
 msgid "Received request for %(update_type)s update: %(request_path)s"
 msgstr ""
 
-#: handlers/ids.py:76
+#: handlers/ids.py:77
 #, python-format
 msgid ""
 "Received request for Kerio Control update: "
@@ -186,131 +186,134 @@ msgid ""
 "%(prod_build_number)s)"
 msgstr ""
 
-#: handlers/ids.py:112
+#: handlers/ids.py:113
 msgid "Starting Shield Matrix update check..."
 msgstr ""
 
-#: handlers/ids.py:135
+#: handlers/ids.py:136
 #, python-format
 msgid "New Shield Matrix version found: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:138
+#: handlers/ids.py:139
 msgid "Shield Matrix version is up to date"
 msgstr ""
 
-#: handlers/ids.py:161
+#: handlers/ids.py:162
 #, python-format
 msgid "Shield Matrix file updated: %(file_name)s"
 msgstr ""
 
-#: handlers/ids.py:169
+#: handlers/ids.py:170
 #, python-format
 msgid "Received update request for Shield Matrix: %(file_name)s"
 msgstr ""
 
-#: handlers/ids.py:185
+#: handlers/ids.py:186
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr ""
 
-#: handlers/ids.py:192
+#: handlers/ids.py:193
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:202
+#: handlers/ids.py:203
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:213
+#: handlers/ids.py:214
 msgid "Received update request for antivirus"
 msgstr ""
 
-#: handlers/ids.py:245
+#: handlers/ids.py:246
 msgid "Error occurred while receiving a link to an antivirus update"
 msgstr ""
 
-#: handlers/ids.py:251
+#: handlers/ids.py:252
 #, python-format
 msgid "Update link sent: %(url)s"
 msgstr ""
 
-#: handlers/ids.py:267
+#: handlers/ids.py:269
 #, python-format
-msgid "Received update request for IDSv%(version)s"
+msgid "Received update request for %(update_type)sv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:276
+#: handlers/ids.py:279
+#, python-format
 msgid ""
-"Error occurred while processing IDS update: update file not found. "
-"Execute manual update of mirror, or wait for scheduled update!"
+"Error occurred while processing %(update_type)s update: update file not "
+"found. Execute manual update of mirror, or wait for scheduled update!"
 msgstr ""
 
-#: handlers/ids.py:290
+#: handlers/ids.py:294
 #, python-format
-msgid "Error occurred while processing IDS update: %(err)s"
+msgid "Error occurred while processing %(update_type)s update: %(err)s"
 msgstr ""
 
-#: handlers/ids.py:297
+#: handlers/ids.py:302
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr ""
 
-#: handlers/ids.py:315
+#: handlers/ids.py:323
 #, python-format
-msgid "IDSv%(version)s: passing because license key is not configured"
+msgid "%(update_type)sv%(version)s: passing because license key is not configured"
 msgstr ""
 
-#: handlers/ids.py:322
+#: handlers/ids.py:331
 #, python-format
-msgid "IDSv%(version)s: error downloading update"
+msgid "%(update_type)sv%(version)s: error downloading update"
 msgstr ""
 
-#: handlers/ids.py:338
+#: handlers/ids.py:348
 #, python-format
-msgid "IDSv%(version)s error: %(err)s"
-msgstr ""
-
-#: handlers/ids.py:352
-#, python-format
-msgid ""
-"IDSv%(version)s: no new version, current version: "
-"%(version)s.%(result_version)s"
+msgid "%(update_type)sv%(version)s error: %(err)s"
 msgstr ""
 
 #: handlers/ids.py:363
 #, python-format
-msgid "IDSv%(version)s: downloading new version: %(version)s.%(result_version)s"
+msgid ""
+"%(update_type)sv%(version)s: no new version, current version: "
+"%(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:381
+#: handlers/ids.py:375
+#, python-format
+msgid ""
+"%(update_type)sv%(version)s: downloading new version: "
+"%(version)s.%(result_version)s"
+msgstr ""
+
+#: handlers/ids.py:394
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:392
+#: handlers/ids.py:405
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr ""
 
-#: handlers/ids.py:399
+#: handlers/ids.py:412
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr ""
 
-#: handlers/ids.py:426
+#: handlers/ids.py:439
 #, python-format
 msgid "Successfully downloaded Snort template: %(url)s"
 msgstr ""
 
-#: handlers/ids.py:433
+#: handlers/ids.py:446
 #, python-format
 msgid "Failed to download Snort template: %(url)s"
 msgstr ""
 
-#: handlers/pages.py:158
+#: handlers/pages.py:160
 msgid "Settings have been changed"
 msgstr ""
 
@@ -337,27 +340,27 @@ msgstr ""
 msgid "IDSv4: no new version available, current version: 4.%(actual_version)s"
 msgstr ""
 
-#: handlers/update_mirror.py:167
+#: handlers/update_mirror.py:170
 msgid "Bitdefender old cache files removed"
 msgstr ""
 
-#: handlers/update_mirror.py:172
+#: handlers/update_mirror.py:175
 msgid "Scheduled mirror update process completed"
 msgstr ""
 
-#: handlers/update_mirror.py:172
+#: handlers/update_mirror.py:175
 msgid "Manual mirror update process completed"
 msgstr ""
 
-#: handlers/update_mirror.py:189
+#: handlers/update_mirror.py:192
 msgid "Error downloading bitdefender versions.dat file"
 msgstr ""
 
-#: handlers/update_mirror.py:191
+#: handlers/update_mirror.py:194
 msgid "Successfully downloaded bitdefender versions.dat file"
 msgstr ""
 
-#: handlers/update_mirror.py:219
+#: handlers/update_mirror.py:222
 #, python-format
 msgid "Error downloading bitdefender versions.dat file: %(error)s"
 msgstr ""
@@ -398,12 +401,12 @@ msgstr ""
 msgid "Language changed to: %(lang)s"
 msgstr ""
 
-#: templates/login.html:10 templates/tabs/settings.html:317
+#: templates/login.html:10 templates/tabs/settings.html:322
 msgid "Username:"
 msgstr ""
 
-#: templates/login.html:14 templates/tabs/settings.html:215
-#: templates/tabs/settings.html:323
+#: templates/login.html:14 templates/tabs/settings.html:220
+#: templates/tabs/settings.html:328
 msgid "Password:"
 msgstr ""
 
@@ -467,7 +470,7 @@ msgstr ""
 msgid "Uploading..."
 msgstr ""
 
-#: templates/components/scripts.html:16 templates/tabs/settings.html:173
+#: templates/components/scripts.html:16 templates/tabs/settings.html:178
 msgid "Select file"
 msgstr ""
 
@@ -609,7 +612,9 @@ msgid "IDSv2 - Lists of compromised addresses for blocking"
 msgstr ""
 
 #: templates/tabs/settings.html:40
-msgid "IDSv4 - GeoIP databases for geolocation/visitor blocking"
+msgid ""
+"GeoIPv4 - GeoIP databases for geolocation/visitor blocking (versions for "
+"Linux up to 9.6)"
 msgstr ""
 
 #: templates/tabs/settings.html:45
@@ -617,18 +622,24 @@ msgid "Use GitHub as a source for GeoIP database updates"
 msgstr ""
 
 #: templates/tabs/settings.html:50
-msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
+msgid ""
+"GeoIPv5 - GeoIP databases for geolocation/visitor blocking (versions for "
+"Linux starting from 9.6)"
 msgstr ""
 
 #: templates/tabs/settings.html:55
+msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
+msgstr ""
+
+#: templates/tabs/settings.html:60
 msgid "Use manual Web Filter key:"
 msgstr ""
 
-#: templates/tabs/settings.html:59
+#: templates/tabs/settings.html:64
 msgid "Web Filter key"
 msgstr ""
 
-#: templates/tabs/settings.html:64
+#: templates/tabs/settings.html:69
 msgid ""
 "Update Shield Matrix signatures and blacklists.\n"
 "To update, you need to add\n"
@@ -637,133 +648,133 @@ msgid ""
 "with the mirror address in DNS"
 msgstr ""
 
-#: templates/tabs/settings.html:65
+#: templates/tabs/settings.html:70
 msgid "Shield Matrix signatures and blacklists"
 msgstr ""
 
-#: templates/tabs/settings.html:70
+#: templates/tabs/settings.html:75
 msgid "Alternative mirror modes"
 msgstr ""
 
-#: templates/tabs/settings.html:75
+#: templates/tabs/settings.html:80
 msgid "Antivirus update source URL:"
 msgstr ""
 
-#: templates/tabs/settings.html:99
+#: templates/tabs/settings.html:104
 msgid "Antispam update source URL:"
 msgstr ""
 
-#: templates/tabs/settings.html:125
+#: templates/tabs/settings.html:130
 msgid "Update Bitdefender without using Mirror"
 msgstr ""
 
-#: templates/tabs/settings.html:132
+#: templates/tabs/settings.html:137
 msgid "Download Bitdefender antivirus signatures through Mirror"
 msgstr ""
 
-#: templates/tabs/settings.html:139
+#: templates/tabs/settings.html:144
 msgid "Download Bitdefender antivirus signatures through Mirror (use cache)"
 msgstr ""
 
-#: templates/tabs/settings.html:146
+#: templates/tabs/settings.html:151
 msgid "Kerio Control Software Update"
 msgstr ""
 
-#: templates/tabs/settings.html:151
+#: templates/tabs/settings.html:156
 msgid "Select the update file:"
 msgstr ""
 
-#: templates/tabs/settings.html:167 templates/tabs/settings.html:172
+#: templates/tabs/settings.html:172 templates/tabs/settings.html:177
 msgid ""
 "Format: kerio-control-upgrade-w.x.y-zzzz_something.img\n"
 "E.g.: kerio-control-upgrade-9.5.0-8778-linux.img"
 msgstr ""
 
-#: templates/tabs/settings.html:167
+#: templates/tabs/settings.html:172
 msgid "Upload new update:"
 msgstr ""
 
-#: templates/tabs/settings.html:181
+#: templates/tabs/settings.html:186
 msgid "Connection Settings"
 msgstr ""
 
-#: templates/tabs/settings.html:185
+#: templates/tabs/settings.html:190
 msgid "Use Direct connection to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/tabs/settings.html:191
+#: templates/tabs/settings.html:196
 msgid "Use TOR to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/tabs/settings.html:196
+#: templates/tabs/settings.html:201
 msgid "Use proxy server to update Bitdefender and download other updates"
 msgstr ""
 
-#: templates/tabs/settings.html:200
+#: templates/tabs/settings.html:205
 msgid "Host:"
 msgstr ""
 
-#: templates/tabs/settings.html:205
+#: templates/tabs/settings.html:210
 msgid "Port:"
 msgstr ""
 
-#: templates/tabs/settings.html:210
+#: templates/tabs/settings.html:215
 msgid "Login:"
 msgstr ""
 
-#: templates/tabs/settings.html:221
+#: templates/tabs/settings.html:226
 msgid "Connection priority"
 msgstr ""
 
-#: templates/tabs/settings.html:229
+#: templates/tabs/settings.html:234
 msgid "Direct connection"
 msgstr ""
 
-#: templates/tabs/settings.html:236
+#: templates/tabs/settings.html:241
 msgid "Proxy server"
 msgstr ""
 
-#: templates/tabs/settings.html:243
+#: templates/tabs/settings.html:248
 msgid "TOR network"
 msgstr ""
 
-#: templates/tabs/settings.html:255
+#: templates/tabs/settings.html:260
 msgid "Other"
 msgstr ""
 
-#: templates/tabs/settings.html:259
+#: templates/tabs/settings.html:264
 msgid "Log client IP addresses in system logs"
 msgstr ""
 
-#: templates/tabs/settings.html:265
+#: templates/tabs/settings.html:270
 msgid "Restricted access"
 msgstr ""
 
-#: templates/tabs/settings.html:268
+#: templates/tabs/settings.html:273
 msgid "Allow access to Kerio updates"
 msgstr ""
 
-#: templates/tabs/settings.html:282
+#: templates/tabs/settings.html:287
 msgid "Allow access to the web interface"
 msgstr ""
 
-#: templates/tabs/settings.html:312
+#: templates/tabs/settings.html:317
 msgid "Use authentication"
 msgstr ""
 
-#: templates/tabs/settings.html:320
+#: templates/tabs/settings.html:325
 msgid "To change the username, enter password and confirm it!"
 msgstr ""
 
-#: templates/tabs/settings.html:327 templates/tabs/settings.html:335
+#: templates/tabs/settings.html:332 templates/tabs/settings.html:340
 msgid "Leave empty not to change it"
 msgstr ""
 
-#: templates/tabs/settings.html:330
+#: templates/tabs/settings.html:335
 msgid "Confirm:"
 msgstr ""
 
-#: templates/tabs/settings.html:340
+#: templates/tabs/settings.html:345
 msgid "Apply"
 msgstr ""
 

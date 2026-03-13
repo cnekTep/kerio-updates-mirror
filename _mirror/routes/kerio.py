@@ -27,6 +27,7 @@ def update_matrix(subpath):
 
 
 @kerio_bp.route("/update.php")
+@kerio_bp.route("/geoip/update.php")
 @check_ip("kerio")
 def kerio_update():
     """Initial processing of the Kerio update request and sending the required path"""

@@ -47,8 +47,9 @@ class Config:
             "UPDATE_IDS_1": False,  # Update IPS/IDS Snort system (Windows version)
             "UPDATE_IDS_2": False,  # Update compromised address lists for blocking
             "UPDATE_IDS_3": False,  # Update IPS/IDS Snort system (Linux version up to 9.5)
-            "UPDATE_IDS_4": False,  # Update GeoIP databases for geolocation/visitor blocking
+            "UPDATE_IDS_4": False,  # Update GeoIP databases for geolocation/visitor blocking (version up to 9.6)
             "UPDATE_IDS_5": False,  # Update IPS/IDS Snort system (Linux version 9.5+)
+            "UPDATE_GEOIP_5": False,  # Update GeoIP databases for geolocation/visitor blocking (version 9.6+)
             "UPDATE_SNORT_TEMPLATE": False,  # Update Snort template
             "UPDATE_SHIELD_MATRIX": False,  # Update Shield Matrix
             "GEOIP_GITHUB": False,  # Use GitHub as a source for GeoIP database updates
