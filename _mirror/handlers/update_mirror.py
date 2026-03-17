@@ -131,7 +131,7 @@ def update_mirror(scheduler=False) -> None:
             download_ids_update_files(version="4")
 
     if config.update_geoip_5:  # Update GeoIP database files (version 9.6+)
-        download_ids_update_files(version="5", geoip=True)
+        download_ids_update_files(version="5", geoip=True, modify=config.modify_geoip_5)
 
     if config.update_ids_5:  # IPS/IDS Snort (Linux versions from 9.5)
         download_ids_update_files(version="5")

@@ -13,10 +13,11 @@ from db.database import (
     get_shield_matrix_version,
     update_shield_matrix_version,
 )
+from handlers.geo import extract_and_process_geo_tar
+from utils.app_logging import write_log
 from utils.distributes_update import is_update_available
 from utils.file_utils import clean_directory
 from utils.internet_utils import make_request_with_retries, download_file_with_retries
-from utils.app_logging import write_log
 
 
 def handler_ids_update(update_type: str):
@@ -305,13 +306,14 @@ def handle_update():
     return Response(response="404 Not found", status=404, mimetype="text/plain")
 
 
-def download_ids_update_files(version: str, geoip: bool = False) -> None:
+def download_ids_update_files(version: str, geoip: bool = False, modify: bool = False) -> None:
     """
     Downloads IDS update files from Kerio server
 
     Args:
         version: IDS version
         geoip: Whether to download GeoIP
+        modify: Whether to modify GeoIP
     """
     # Get current version number and download link
     base = "geoip/update.php" if geoip else "update.php"
@@ -415,6 +417,9 @@ def download_ids_update_files(version: str, geoip: bool = False) -> None:
     )
     write_log(log_type=["system", "updates"], message=log_message)
     add_stat_mirror_update(update_type=f"{update_type}_v{version}", bytes_downloaded=os.path.getsize(save_path))
+
+    if modify:
+        extract_and_process_geo_tar(tar_name=filename)
 
 
 def download_snort_template() -> None:

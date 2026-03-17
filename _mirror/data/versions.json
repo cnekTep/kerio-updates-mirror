@@ -1,5 +1,12 @@
 [
   {
+    "version": "2.8.7",
+    "description": {
+      "en": "Added the ability to post-process GeoIP update files (data in the geoname_id and registered_country_geoname_id columns are swapped)",
+      "ru": "Добавлена возможность постобработки GeoIP файлов обновлений (данные в столбцах geoname_id и registered_country_geoname_id меняются местами)"
+    }
+  },
+  {
     "version": "2.8.6",
     "description": {
       "en": "Added GeoIP update support for Kerio Control 9.6+",

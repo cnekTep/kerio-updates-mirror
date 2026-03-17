@@ -49,6 +49,11 @@
                            {% if update_geoip_5 %}checked{% endif %}>
                     <label for="GeoIPv5">{{ _('GeoIPv5 - GeoIP databases for geolocation/visitor blocking (versions for Linux starting from 9.6)') }}</label>
                 </div>
+                <div class="checkbox-group nested-option">
+                    <input type="checkbox" id="modify_geoip_5" name="modify_geoip_5" value="true"
+                           {% if modify_geoip_5 %}checked{% endif %}>
+                    <label for="modify_geoip_5">{{ _('Modify GeoIP databases, swap columns geoname_id and registered_country_geoname_id') }}</label>
+                </div>
                 <div class="checkbox-group">
                     <input type="checkbox" id="wfkey" name="wfkey" value="true"
                            {% if update_web_filter_key %}checked{% endif %}>

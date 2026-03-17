@@ -1,7 +1,7 @@
 # Russian translations for kerio-updates-mirror
 msgid ""
 msgstr ""
-"Project-Id-Version:  2.8.6\n"
+"Project-Id-Version:  2.8.7\n"
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -126,32 +126,32 @@ msgstr "Отправка кэшированного файла: %(filename)s"
 msgid "Downloading and caching file: %(file_path)s"
 msgstr "Загрузка и кэширование файла: %(file_path)s"
 
-#: handlers/geo.py:34
+#: handlers/geo.py:35
 #, python-format
 msgid "Downloading file: %(url)s"
 msgstr "Загружается файл: %(url)s"
 
-#: handlers/geo.py:71
+#: handlers/geo.py:72
 #, python-format
 msgid "File downloaded, processed and saved successfully at %(output_path)s"
 msgstr "Файл загружен, обработан и успешно сохранён в %(output_path)s"
 
-#: handlers/geo.py:115
+#: handlers/geo.py:116
 #, python-format
 msgid "File created successfully. Size: %(file_size)s bytes"
 msgstr "Файл успешно создан. Размер: %(file_size)s байт"
 
-#: handlers/geo.py:119
+#: handlers/geo.py:120
 #, python-format
 msgid "File %(output_gz_path)s was not created or is empty"
 msgstr "Файл %(output_gz_path)s не был создан или является пустым"
 
-#: handlers/geo.py:124
+#: handlers/geo.py:125
 #, python-format
 msgid "IDSv4: new version loaded (from GitHub) - 4.%(file_version)s"
 msgstr "IDSv4: загружена новая версия (с GitHub) — 4.%(file_version)s"
 
-#: handlers/geo.py:132
+#: handlers/geo.py:133 handlers/geo.py:267
 #, python-format
 msgid ""
 "Attempt %(attempt)s/%(max_attempts)s: error during file processing and "
@@ -160,26 +160,59 @@ msgstr ""
 "Попытка %(attempt)s/%(max_attempts)s: ошибка при обработке и сжатии "
 "файла: %(err)s"
 
-#: handlers/geo.py:140
+#: handlers/geo.py:141
 msgid "IDSv4: error during download"
 msgstr "IDSv4: ошибка во время загрузки"
 
-#: handlers/geo.py:145
+#: handlers/geo.py:146 handlers/geo.py:279
 #, python-format
 msgid "Pausing for %(delay)s seconds before the next attempt..."
 msgstr "Пауза на %(delay)s секунд перед следующей попыткой..."
 
-#: handlers/geo.py:168
+#: handlers/geo.py:197
+#, python-format
+msgid "GeoIP v5: processing %(name)s"
+msgstr "GeoIP v5: обработка %(name)s"
+
+#: handlers/geo.py:201
+#, python-format
+msgid "GeoIP v5: failed to read %(name)s from archive"
+msgstr "GeoIP v5: ошибка чтения %(name)s из архива"
+
+#: handlers/geo.py:242
+#, python-format
+msgid "GeoIP v5: packed %(name)s into archive"
+msgstr "GeoIP v5: упаковка %(name)s в архив"
+
+#: handlers/geo.py:246
+#, python-format
+msgid "File %(output_tar_path)s was not created or is empty"
+msgstr "Файл %(output_tar_path)s не был создан или является пустым"
+
+#: handlers/geo.py:253
+#, python-format
+msgid "GeoIP v5: archive created successfully: %(path)s (%(size)s bytes)"
+msgstr "GeoIP v5: архив успешно создан: %(path)s (%(size)s байт)"
+
+#: handlers/geo.py:256
+msgid "IDSv5: file has been modified"
+msgstr "IDSv5: файл был успешно модифицирован"
+
+#: handlers/geo.py:275
+msgid "IDSv5: error during modification"
+msgstr "IDSv5: ошибка во время модификации"
+
+#: handlers/geo.py:303
 #, python-format
 msgid "File %(input_path)s not found"
 msgstr "Файл %(input_path)s не найден"
 
-#: handlers/ids.py:27
+#: handlers/ids.py:28
 #, python-format
 msgid "Received request for %(update_type)s update: %(request_path)s"
 msgstr "Получен запрос на обновление %(update_type)s: %(request_path)s"
 
-#: handlers/ids.py:77
+#: handlers/ids.py:78
 #, python-format
 msgid ""
 "Received request for Kerio Control update: "
@@ -190,63 +223,63 @@ msgstr ""
 "v.%(prod_major)s.%(prod_minor)s.%(prod_build)s (bild number: "
 "%(prod_build_number)s)"
 
-#: handlers/ids.py:113
+#: handlers/ids.py:114
 msgid "Starting Shield Matrix update check..."
 msgstr "Запуск проверки обновлений Shield Matrix..."
 
-#: handlers/ids.py:136
+#: handlers/ids.py:137
 #, python-format
 msgid "New Shield Matrix version found: %(version)s"
 msgstr "Найдена новая версия Shield Matrix: %(version)s"
 
-#: handlers/ids.py:139
+#: handlers/ids.py:140
 msgid "Shield Matrix version is up to date"
 msgstr "Версия Shield Matrix актуальна"
 
-#: handlers/ids.py:162
+#: handlers/ids.py:163
 #, python-format
 msgid "Shield Matrix file updated: %(file_name)s"
 msgstr "Файл Shield Matrix обновлен: %(file_name)s"
 
-#: handlers/ids.py:170
+#: handlers/ids.py:171
 #, python-format
 msgid "Received update request for Shield Matrix: %(file_name)s"
 msgstr "Получен запрос на обновление Shield Matrix: %(file_name)s"
 
-#: handlers/ids.py:186
+#: handlers/ids.py:187
 #, python-format
 msgid "Error processing URL %(request_url)s in update request"
 msgstr "Ошибка при обработке URL %(request_url)s в запросе на обновление"
 
-#: handlers/ids.py:193
+#: handlers/ids.py:194
 #, python-format
 msgid "Received update request for version: %(version)s"
 msgstr "Получен запрос на обновление версии: %(version)s"
 
-#: handlers/ids.py:203
+#: handlers/ids.py:204
 #, python-format
 msgid "Invalid version format: %(version)s"
 msgstr "Недопустимый формат версии: %(version)s"
 
-#: handlers/ids.py:214
+#: handlers/ids.py:215
 msgid "Received update request for antivirus"
 msgstr "Получен запрос на обновление антивируса"
 
-#: handlers/ids.py:246
+#: handlers/ids.py:247
 msgid "Error occurred while receiving a link to an antivirus update"
 msgstr "Произошла ошибка при получении ссылки на обновление антивируса"
 
-#: handlers/ids.py:252
+#: handlers/ids.py:253
 #, python-format
 msgid "Update link sent: %(url)s"
 msgstr "Отправлена ссылка на обновление: %(url)s"
 
-#: handlers/ids.py:269
+#: handlers/ids.py:270
 #, python-format
 msgid "Received update request for %(update_type)sv%(version)s"
 msgstr "Получен запрос на обновление %(update_type)sv%(version)s"
 
-#: handlers/ids.py:279
+#: handlers/ids.py:280
 #, python-format
 msgid ""
 "Error occurred while processing %(update_type)s update: update file not "
@@ -256,34 +289,34 @@ msgstr ""
 "найден. Выполните ручное обновление зеркала или дождитесь "
 "запланированного обновления!"
 
-#: handlers/ids.py:294
+#: handlers/ids.py:295
 #, python-format
 msgid "Error occurred while processing %(update_type)s update: %(err)s"
 msgstr "Ошибка при обработке обновлений %(update_type)s: %(err)s"
 
-#: handlers/ids.py:302
+#: handlers/ids.py:303
 #, python-format
 msgid "Received unknown download request: %(version)s"
 msgstr "Получен неизвестный запрос на загрузку: %(version)s"
 
-#: handlers/ids.py:323
+#: handlers/ids.py:325
 #, python-format
 msgid "%(update_type)sv%(version)s: passing because license key is not configured"
 msgstr ""
 "%(update_type)sv%(version)s: пропуск, поскольку лицензионный ключ не "
 "настроен"
 
-#: handlers/ids.py:331
+#: handlers/ids.py:333
 #, python-format
 msgid "%(update_type)sv%(version)s: error downloading update"
 msgstr "%(update_type)sv%(version)s: ошибка при загрузке обновления"
 
-#: handlers/ids.py:348
+#: handlers/ids.py:350
 #, python-format
 msgid "%(update_type)sv%(version)s error: %(err)s"
 msgstr "%(update_type)sv%(version)s ошибка: %(err)s"
 
-#: handlers/ids.py:363
+#: handlers/ids.py:365
 #, python-format
 msgid ""
 "%(update_type)sv%(version)s: no new version, current version: "
@@ -292,7 +325,7 @@ msgstr ""
 "%(update_type)sv%(version)s: нет новой версии, текущая версия: "
 "%(version)s.%(result_version)s"
 
-#: handlers/ids.py:375
+#: handlers/ids.py:377
 #, python-format
 msgid ""
 "%(update_type)sv%(version)s: downloading new version: "
@@ -301,32 +334,32 @@ msgstr ""
 "%(update_type)sv%(version)s: загрузка новой версии: "
 "%(version)s.%(result_version)s"
 
-#: handlers/ids.py:394
+#: handlers/ids.py:396
 #, python-format
 msgid "Failed to download main file for IDSv%(version)s"
 msgstr "Не удалось загрузить основной файл для IDSv%(version)s"
 
-#: handlers/ids.py:405
+#: handlers/ids.py:407
 #, python-format
 msgid "Failed to download signature file for IDSv%(version)s"
 msgstr "Не удалось загрузить файл подписи для IDSv%(version)s"
 
-#: handlers/ids.py:412
+#: handlers/ids.py:414
 #, python-format
 msgid "IDSv%(version)s: downloaded new version - %(version)s.%(result_version)s"
 msgstr "IDSv%(version)s: загружена новая версия - %(version)s.%(result_version)s"
 
-#: handlers/ids.py:439
+#: handlers/ids.py:444
 #, python-format
 msgid "Successfully downloaded Snort template: %(url)s"
 msgstr "Шаблон Snort успешно загружен: %(url)s"
 
-#: handlers/ids.py:446
+#: handlers/ids.py:451
 #, python-format
 msgid "Failed to download Snort template: %(url)s"
 msgstr "Не удалось загрузить шаблон Snort: %(url)s"
 
-#: handlers/pages.py:160
+#: handlers/pages.py:162
 msgid "Settings have been changed"
 msgstr "Настройки были изменены"
 
@@ -414,12 +447,12 @@ msgstr "Web Filter: получен ключ - %(key)s"
 msgid "Language changed to: %(lang)s"
 msgstr "Язык изменен на: %(lang)s"
 
-#: templates/login.html:10 templates/tabs/settings.html:322
+#: templates/login.html:10 templates/tabs/settings.html:327
 msgid "Username:"
 msgstr "Логин:"
 
-#: templates/login.html:14 templates/tabs/settings.html:220
-#: templates/tabs/settings.html:328
+#: templates/login.html:14 templates/tabs/settings.html:225
+#: templates/tabs/settings.html:333
 msgid "Password:"
 msgstr "Пароль:"
 
@@ -483,7 +516,7 @@ msgstr "Принудительное обновление"
 msgid "Uploading..."
 msgstr "Загрузка..."
 
-#: templates/components/scripts.html:16 templates/tabs/settings.html:178
+#: templates/components/scripts.html:16 templates/tabs/settings.html:183
 msgid "Select file"
 msgstr "Выберите файл"
 
@@ -664,18 +697,26 @@ msgstr ""
 " для Linux начиная с 9.6)"
 
 #: templates/tabs/settings.html:55
+msgid ""
+"Modify GeoIP databases, swap columns geoname_id and "
+"registered_country_geoname_id"
+msgstr ""
+"Модифицировать GeoIP файл, менять местами данные столбцов geoname_id и "
+"registered_country_geoname_id"
+
+#: templates/tabs/settings.html:60
 msgid "Kerio Control Web Filter Content Filtering Subsystem Key"
 msgstr "Ключ подсистемы фильтрации контента Kerio Control Web Filter"
 
-#: templates/tabs/settings.html:60
+#: templates/tabs/settings.html:65
 msgid "Use manual Web Filter key:"
 msgstr "Использовать ключ веб-фильтра:"
 
-#: templates/tabs/settings.html:64
+#: templates/tabs/settings.html:69
 msgid "Web Filter key"
 msgstr "Ключ веб-фильтра"
 
-#: templates/tabs/settings.html:69
+#: templates/tabs/settings.html:74
 msgid ""
 "Update Shield Matrix signatures and blacklists.\n"
 "To update, you need to add\n"
@@ -689,45 +730,45 @@ msgstr ""
 "    shieldmatrix-updates.gfikeriocontrol.com\n"
 "с адресом зеркала в ДНС"
 
-#: templates/tabs/settings.html:70
+#: templates/tabs/settings.html:75
 msgid "Shield Matrix signatures and blacklists"
 msgstr "Сигнатуры и черные списки Shield Matrix"
 
-#: templates/tabs/settings.html:75
+#: templates/tabs/settings.html:80
 msgid "Alternative mirror modes"
 msgstr "Альтернативные режимы работы зеркала"
 
-#: templates/tabs/settings.html:80
+#: templates/tabs/settings.html:85
 msgid "Antivirus update source URL:"
 msgstr "URL обновления антивируса:"
 
-#: templates/tabs/settings.html:104
+#: templates/tabs/settings.html:109
 msgid "Antispam update source URL:"
 msgstr "URL обновления антиспама:"
 
-#: templates/tabs/settings.html:130
+#: templates/tabs/settings.html:135
 msgid "Update Bitdefender without using Mirror"
 msgstr "Обновление Bitdefender без использования зеркала"
 
-#: templates/tabs/settings.html:137
+#: templates/tabs/settings.html:142
 msgid "Download Bitdefender antivirus signatures through Mirror"
 msgstr "Загрузка антивирусных сигнатур Bitdefender через зеркало"
 
-#: templates/tabs/settings.html:144
+#: templates/tabs/settings.html:149
 msgid "Download Bitdefender antivirus signatures through Mirror (use cache)"
 msgstr ""
 "Загрузка антивирусных сигнатур Bitdefender через зеркало (использовать "
 "кэш)"
 
-#: templates/tabs/settings.html:151
+#: templates/tabs/settings.html:156
 msgid "Kerio Control Software Update"
 msgstr "Обновление программного обеспечения Kerio Control"
 
-#: templates/tabs/settings.html:156
+#: templates/tabs/settings.html:161
 msgid "Select the update file:"
 msgstr "Выберите обновление:"
 
-#: templates/tabs/settings.html:172 templates/tabs/settings.html:177
+#: templates/tabs/settings.html:177 templates/tabs/settings.html:182
 msgid ""
 "Format: kerio-control-upgrade-w.x.y-zzzz_something.img\n"
 "E.g.: kerio-control-upgrade-9.5.0-8778-linux.img"
@@ -735,95 +776,95 @@ msgstr ""
 "Формат: kerio-control-upgrade-w.x.y-zzzz_что_нибудь.img\n"
 "Например: kerio-control-upgrade-9.5.0-8778-linux.img"
 
-#: templates/tabs/settings.html:172
+#: templates/tabs/settings.html:177
 msgid "Upload new update:"
 msgstr "Загрузить обновление:"
 
-#: templates/tabs/settings.html:186
+#: templates/tabs/settings.html:191
 msgid "Connection Settings"
 msgstr "Настройки Подключения"
 
-#: templates/tabs/settings.html:190
+#: templates/tabs/settings.html:195
 msgid "Use Direct connection to update Bitdefender and download other updates"
 msgstr ""
 "Использовать прямое подключение для обновления Bitdefender и загрузки "
 "других обновлений"
 
-#: templates/tabs/settings.html:196
+#: templates/tabs/settings.html:201
 msgid "Use TOR to update Bitdefender and download other updates"
 msgstr "Использовать TOR для обновления Bitdefender и загрузки других обновлений"
 
-#: templates/tabs/settings.html:201
+#: templates/tabs/settings.html:206
 msgid "Use proxy server to update Bitdefender and download other updates"
 msgstr ""
 "Использовать прокси-сервер для обновления Bitdefender и загрузки других "
 "обновлений"
 
-#: templates/tabs/settings.html:205
+#: templates/tabs/settings.html:210
 msgid "Host:"
 msgstr "Адрес:"
 
-#: templates/tabs/settings.html:210
+#: templates/tabs/settings.html:215
 msgid "Port:"
 msgstr "Порт:"
 
-#: templates/tabs/settings.html:215
+#: templates/tabs/settings.html:220
 msgid "Login:"
 msgstr "Логин:"
 
-#: templates/tabs/settings.html:226
+#: templates/tabs/settings.html:231
 msgid "Connection priority"
 msgstr "Приоритет подключений"
 
-#: templates/tabs/settings.html:234
+#: templates/tabs/settings.html:239
 msgid "Direct connection"
 msgstr "Прямое подключение"
 
-#: templates/tabs/settings.html:241
+#: templates/tabs/settings.html:246
 msgid "Proxy server"
 msgstr "Прокси-сервер"
 
-#: templates/tabs/settings.html:248
+#: templates/tabs/settings.html:253
 msgid "TOR network"
 msgstr "Сеть TOR"
 
-#: templates/tabs/settings.html:260
+#: templates/tabs/settings.html:265
 msgid "Other"
 msgstr "Дополнительно"
 
-#: templates/tabs/settings.html:264
+#: templates/tabs/settings.html:269
 msgid "Log client IP addresses in system logs"
 msgstr "Записывать IP-адреса клиентов в системном журнале"
 
-#: templates/tabs/settings.html:270
+#: templates/tabs/settings.html:275
 msgid "Restricted access"
 msgstr "Ограниченный доступ"
 
-#: templates/tabs/settings.html:273
+#: templates/tabs/settings.html:278
 msgid "Allow access to Kerio updates"
 msgstr "Разрешить доступ к обновлениям Kerio"
 
-#: templates/tabs/settings.html:287
+#: templates/tabs/settings.html:292
 msgid "Allow access to the web interface"
 msgstr "Разрешить доступ к веб-интерфейсу"
 
-#: templates/tabs/settings.html:317
+#: templates/tabs/settings.html:322
 msgid "Use authentication"
 msgstr "Использовать аутентификацию"
 
-#: templates/tabs/settings.html:325
+#: templates/tabs/settings.html:330
 msgid "To change the username, enter password and confirm it!"
 msgstr "Чтобы изменить имя пользователя, введите пароль и подтвердите его!"
 
-#: templates/tabs/settings.html:332 templates/tabs/settings.html:340
+#: templates/tabs/settings.html:337 templates/tabs/settings.html:345
 msgid "Leave empty not to change it"
 msgstr "Оставьте пустым, чтобы не изменять"
 
-#: templates/tabs/settings.html:335
+#: templates/tabs/settings.html:340
 msgid "Confirm:"
 msgstr "Подтверждение:"
 
-#: templates/tabs/settings.html:345
+#: templates/tabs/settings.html:350
 msgid "Apply"
 msgstr "Применить"
 
