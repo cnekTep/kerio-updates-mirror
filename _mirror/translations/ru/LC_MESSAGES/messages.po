@@ -698,11 +698,11 @@ msgstr ""
 
 #: templates/tabs/settings.html:55
 msgid ""
-"Modify GeoIP databases, swap columns geoname_id and "
-"registered_country_geoname_id"
+"Modify GeoIP database (geoname_id and registered_country_geoname_id "
+"columns are swapped)"
 msgstr ""
-"Модифицировать GeoIP файл, менять местами данные столбцов geoname_id и "
-"registered_country_geoname_id"
+"Модификация БД GeoIP (меняются местами колонки geoname_id и "
+"registered_country_geoname_id)"
 
 #: templates/tabs/settings.html:60
 msgid "Kerio Control Web Filter Content Filtering Subsystem Key"

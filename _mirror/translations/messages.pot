@@ -662,8 +662,8 @@ msgstr ""
 
 #: templates/tabs/settings.html:55
 msgid ""
-"Modify GeoIP databases, swap columns geoname_id and "
-"registered_country_geoname_id"
+"Modify GeoIP database (geoname_id and registered_country_geoname_id "
+"columns are swapped)"
 msgstr ""
 
 #: templates/tabs/settings.html:60
