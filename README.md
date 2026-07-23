@@ -86,7 +86,7 @@ Uses ready-made images, so nothing is compiled locally - the fastest way to get 
 2. Load images from archives:
    ```bash
     sudo docker load -i kum_nginx_vX.X.X.tar
-    sudo docker load -i mirror_vX.X.X.tar
+    sudo docker load -i kum_mirror_vX.X.X.tar
     sudo docker load -i kum_xray_vX.X.X.tar
     sudo docker load -i kum_tor_vX.X.X.tar
    ```

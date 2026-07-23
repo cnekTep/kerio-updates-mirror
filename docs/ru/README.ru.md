@@ -87,7 +87,7 @@ Kerio Connect, которое позволяет:
 2. Загрузите образы из архивов:
    ```bash
     sudo docker load -i kum_nginx_vX.X.X.tar
-    sudo docker load -i mirror_vX.X.X.tar
+    sudo docker load -i kum_mirror_vX.X.X.tar
     sudo docker load -i kum_xray_vX.X.X.tar
     sudo docker load -i kum_tor_vX.X.X.tar
    ```
