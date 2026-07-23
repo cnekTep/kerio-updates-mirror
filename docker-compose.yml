@@ -32,7 +32,7 @@ services:
         max-file: "10"
 
   mirror:
-    image: "mirror:v3.0.0"
+    image: "kum_mirror:v3.0.0"
     build:
       context: ./_mirror
       dockerfile: Dockerfile
