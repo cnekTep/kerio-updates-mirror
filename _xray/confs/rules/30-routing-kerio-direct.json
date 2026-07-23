@@ -1,0 +1,10 @@
+[
+  {
+    "type": "field",
+    "domain": [
+      "domain:kerio-updates-mirror.local",
+      "domain:kerio.com"
+    ],
+    "outboundTag": "direct"
+  }
+]

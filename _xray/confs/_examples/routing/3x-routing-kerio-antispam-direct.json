@@ -1,0 +1,9 @@
+[
+  {
+    "type": "field",
+    "domain": [
+      "domain:nimbus.bitdefender.net"
+    ],
+    "outboundTag": "direct"
+  }
+]

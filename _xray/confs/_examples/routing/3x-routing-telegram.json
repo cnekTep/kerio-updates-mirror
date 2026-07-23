@@ -1,0 +1,9 @@
+[
+  {
+    "type": "field",
+    "ip": [
+      "geoip:telegram"
+    ],
+    "outboundTag": "some_proxy"
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "outbounds": [
+    {
+      "tag": "http_proxy_with_auth",
+      "protocol": "http",
+      "settings": {
+        "servers": [
+          {
+            "address": "123.123.123.123",
+            "port": 33333,
+            "users": [
+              {
+                "user": "proxy_user",
+                "pass": "proxy_pass"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

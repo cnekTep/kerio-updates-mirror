@@ -1,0 +1,16 @@
+{
+  "outbounds": [
+    {
+      "tag": "socks_proxy_no_auth",
+      "protocol": "socks",
+      "settings": {
+        "servers": [
+          {
+            "address": "123.123.123.123",
+            "port": 33333
+          }
+        ]
+      }
+    }
+  ]
+}

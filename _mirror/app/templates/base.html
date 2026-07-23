@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ theme }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Kerio Updates Mirror{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', path='img/shield.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/pico.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}">
+    <script src="{{ url_for('static', path='js/htmx.min.js') }}" defer></script>
+    <script src="{{ url_for('static', path='js/sortable.min.js') }}" defer></script>
+    <script src="{{ url_for('static', path='js/main.js') }}" defer></script>
+</head>
+
+<body>
+
+{% include "partials/navbar.html" %}
+
+<div class="container layout">
+    {% include "partials/sidebar.html" %}
+    <main id="content">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+</body>
+</html>

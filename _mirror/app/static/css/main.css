@@ -1,0 +1,240 @@
+:root {
+    --header-height: 5rem;
+}
+
+:root:not([data-theme="dark"]) {
+    --color-bg: #f0f0f0;
+    --color-surface: #f5f5f6;
+    --color-form: #f9fafd;
+    --color-text: #373c44;
+
+    --pico-background-color: var(--color-bg);
+    --pico-card-background-color: var(--color-surface);
+    --pico-color: var(--color-text);
+    --pico-table-row-stripped-background-color: var(--color-surface);
+}
+
+header {
+    position: sticky;
+    top: 0;
+    height: var(--header-height);
+    z-index: 1000;
+    padding: 0.3rem !important;
+    background-color: var(--pico-background-color);
+    border-bottom: var(--pico-border-width) solid var(--pico-muted-border-color);
+}
+
+aside {
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+}
+
+.layout {
+    --sidebar-width: 190px;
+    --layout-padding-top: 2rem;
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    gap: 2rem;
+    align-items: start;
+    padding-top: var(--layout-padding-top);
+}
+
+.log-layout {
+    --layout-padding-top: 0;
+    grid-template-columns: 1fr var(--sidebar-width);
+}
+
+.login-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.nav {
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.logo a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.icon {
+    color: inherit !important;
+    display: inline-flex;
+}
+
+.p-err {
+    text-align: center;
+    color: var(--pico-del-color);
+}
+
+
+/* Theme Toggle */
+html[data-theme="light"] #themeToggle .icon-moon {
+    display: block;
+}
+
+html[data-theme="dark"] #themeToggle .icon-sun {
+    display: block;
+}
+
+#themeToggle {
+    svg {
+        display: none;
+    }
+}
+
+
+aside nav details ul li a {
+    margin-left: calc(var(--pico-border-width) * -1);
+    padding: 0;
+    padding-left: calc(var(--pico-nav-element-spacing-horizontal) * 1.5);
+    border-left: var(--pico-border-width) solid transparent;
+    border-radius: 0;
+}
+
+aside nav details ul {
+    border-left: var(--pico-border-width) solid var(--pico-muted-border-color);
+    margin-left: 0 !important;
+}
+
+aside nav details ul li a[aria-current] {
+    border-color: var(--pico-primary);
+    color: var(--pico-primary-hover);
+    font-weight: 600;
+}
+
+aside nav details ul li {
+    padding-left: 0;
+}
+
+
+article {
+    box-shadow: 0 0 0 1px var(--pico-muted-border-color);
+}
+
+article details ul li a {
+    text-decoration: none
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mt-1r {
+    margin-top: 1rem !important;
+}
+
+.p-2r {
+    padding: 2rem !important;
+}
+
+.pb-1r {
+    padding-bottom: 1rem !important;
+}
+
+.fw-500 {
+    font-weight: 500;
+}
+
+#refresh-btn, #clear-log-btn {
+    width: 100%;
+}
+
+
+.settings-grid {
+    display: grid;
+}
+
+.settings-grid.size-3_3 {
+    grid-template-columns: 3.3rem 1fr;
+}
+
+.settings-grid.size-4_4 {
+    grid-template-columns: 4.4rem 1fr;
+}
+
+.settings-grid.size-12 {
+    grid-template-columns: 12rem 1fr;
+}
+
+.settings-grid p,
+.settings-grid label {
+    margin-bottom: 0;
+    align-self: center;
+}
+
+.settings-margin-left {
+    margin-left: 40px;
+}
+
+/* Smooth show/hide for data-effect="hidden" elements */
+[data-effect="hidden"] {
+    overflow: hidden;
+    max-height: 300px;
+    opacity: 1;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+[data-effect="hidden"][data-hidden] {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Upload indicator */
+#distro-upload-indicator {
+    display: none;
+}
+
+#distro-upload-indicator.htmx-request {
+    display: block;
+}
+
+/* Save dialog */
+#save-dialog {
+    text-align: center;
+}
+
+#save-dialog h3 {
+    margin-top: 19px;
+}
+
+#save-dialog[data-state="success"] h3 {
+    color: var(--pico-ins-color);
+}
+
+#save-dialog[data-state="error"] h3 {
+    color: var(--pico-del-color);
+}
+
+
+/* Sortable drag-and-drop */
+.sortable-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.4rem;
+    border: var(--pico-border-width) solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    cursor: grab;
+    user-select: none;
+}
+
+.sortable-item:active {
+    cursor: grabbing;
+}
+
+.sortable-ghost {
+    opacity: 0.4;
+}

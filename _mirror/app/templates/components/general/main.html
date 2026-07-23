@@ -1,0 +1,75 @@
+<article id="article-main">
+    <article id="article-info">
+        <h3>Mirror info</h3>
+
+        <table class="striped mb-0">
+            <tbody>
+            <tr>
+                <td>License number</td>
+                <td>{{ license_number }}</td>
+                <td>{{ license_number_last_update or "No information" }}</td>
+            </tr>
+            {% if update_web_filter_key %}
+            <tr>
+                <td>Web filter key</td>
+                <td>{{ web_filter_key }}</td>
+                <td>{{ web_filter_key_last_update or "No information" }}</td>
+            </tr>
+            {% endif %}
+            {% if update_ids_3 or update_ids_5 %}
+            <tr>
+                <td>IDS 2 version</td>
+                <td>{{ '2.' if ids_2_version }}{{ ids_2_version }}</td>
+                <td>{{ ids_2_last_update or "No information" }}</td>
+            </tr>
+            {% endif %}
+            {% if update_ids_3 %}
+            <tr>
+                <td>IDS 3 version</td>
+                <td>{{ '3.' if ids_3_version }}{{ ids_3_version }}</td>
+                <td>{{ ids_3_last_update or "No information" }}</td>
+            </tr>
+            {% endif %}
+            {% if update_ids_5 %}
+            <tr>
+                <td>IDS 5 version</td>
+                <td>{{ '5.' if ids_5_version }}{{ ids_5_version }}</td>
+                <td>{{ ids_5_last_update or "No information" }}</td>
+            </tr>
+            {% endif %}
+            {% if update_geoip_4 %}
+            <tr>
+                <td>GeoIP 4 version</td>
+                <td>{{ geoip_4_version }}</td>
+                <td>{{ geoip_4_last_update or "No information" }}</td>
+            </tr>
+            {% endif %}
+            {% if update_geoip_5 %}
+            <tr>
+                <td>GeoIP 5 version</td>
+                <td>{{ geoip_5_version }}</td>
+                <td>{{ geoip_5_last_update or "No information" }}</td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </article>
+
+    <article id="article-mirror_update">
+        <details class="mb-0">
+            <summary>Manual update check</summary>
+            <button id="manual-update-check-btn"
+                    hx-post="{{ url_for('full_mirror_update') }}"
+                    hx-target="#article-main"
+                    hx-push-url="true"
+                    hx-swap="innerHTML"
+                    hx-trigger="click"
+            >
+                Run check
+            </button>
+            <hr>
+            <small>It is not recommended to run check more than once a day.</small>
+        </details>
+    </article>
+
+</article>

@@ -1,0 +1,44 @@
+{
+  "outbounds": [
+    {
+      "tag": "vless_xhttp",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "123.123.123.123",
+            "port": 443,
+            "users": [
+              {
+                "id": "some-id",
+                "email": "some@email",
+                "security": "auto",
+                "encryption": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "xhttp",
+        "security": "tls",
+        "tlsSettings": {
+          "allowInsecure": false,
+          "serverName": "some.server.name",
+          "alpn": [
+            "h3"
+          ],
+          "fingerprint": "chrome"
+        },
+        "xhttpSettings": {
+          "path": "/SomePath",
+          "host": "some.host"
+        }
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": -1
+      }
+    }
+  ]
+}

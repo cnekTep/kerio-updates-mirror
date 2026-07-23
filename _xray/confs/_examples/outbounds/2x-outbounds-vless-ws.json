@@ -1,0 +1,41 @@
+{
+  "outbounds": [
+    {
+      "tag": "vless_ws",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "123.123.123.123",
+            "port": 443,
+            "users": [
+              {
+                "id": "some-id",
+                "email": "some@email",
+                "security": "auto",
+                "encryption": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "allowInsecure": false,
+          "serverName": "some.server.name",
+          "fingerprint": "chrome"
+        },
+        "wsSettings": {
+          "path": "/some-path",
+          "host": "server.name"
+        }
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": -1
+      }
+    }
+  ]
+}

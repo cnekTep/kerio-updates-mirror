@@ -1,0 +1,48 @@
+{% set nav_groups = [
+  ("General", "general", [
+    ("main",       "Main"),
+    ("information", "Information"),
+  ]),
+  ("Logs", "logs", [
+    ("system",      "System Log"),
+    ("updates",     "Mirror Update Log"),
+    ("connections", "Connections Log"),
+    ("errors",      "Errors Log"),
+  ]),
+  ("Settings", "settings", [
+    ("update",     "Update"),
+    ("connection", "Connection"),
+    ("security",   "Security"),
+  ]),
+] %}
+
+<aside>
+    <nav>
+        <ul>
+            {% for group, prefix, links in nav_groups %}
+                {% set is_open = (active | default("web/general/main")).startswith("web/" + prefix) %}
+                <li>
+                    <details {% if is_open %}open{% endif %}>
+                        <summary>{{ group }}</summary>
+                        <ul>
+                            {% for slug, label in links %}
+                                {% set path = "web/" + prefix + "/" + slug %}
+                                <li>
+                                    <a class="secondary"
+                                       href="/{{ path }}"
+                                       hx-get="/{{ path }}"
+                                       hx-target="#content"
+                                       hx-push-url="true"
+                                       hx-swap="innerHTML"
+                                    >
+                                        {{ label }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </details>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
+</aside>

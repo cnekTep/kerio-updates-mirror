@@ -1,0 +1,74 @@
+<article>
+    <form id="article"
+          hx-post="{{ request.url.path }}"
+          hx-target="#article"
+          hx-swap="none">
+
+        <article>
+            <details class="mb-0" open>
+                <summary>Web interface</summary>
+                <label>
+                    <input id="auth" name="auth" type="checkbox"
+                           data-controls="auth_block"
+                           {% if auth %}checked{% endif %}>
+                    Use authentication
+                </label>
+                <div id="auth_block" class="mt-1r"
+                     data-controlled-by="auth_block" data-effect="hidden"
+                     {% if not auth %}data-hidden{% endif %}>
+                    <fieldset class="mb-0" role="group">
+                        <input name="username" placeholder="Username"
+                               value="{{ username or '' }}">
+                        <input name="password" type="password"
+                               placeholder="{{ 'Password' if not password else '********' }}">
+                        <input name="password_re" type="password"
+                               placeholder="{{ 'Confirm password' if not password else '********' }}">
+                    </fieldset>
+                </div>
+                <hr>
+                <label>
+                    <input id="web_allowed_ips" name="web_allowed_ips" type="checkbox"
+                           data-controls="web_allowed_ips_block"
+                           {% if web_allowed_ips %}checked{% endif %}>
+                    Restrict access to the web interface by IP
+                </label>
+                <div id="web_allowed_ips_block" class="mt-1r"
+                     data-controlled-by="web_allowed_ips_block" data-effect="hidden"
+                     {% if not web_allowed_ips %}data-hidden{% endif %}>
+                <textarea class="mb-0" name="web_allowed_ips_list"
+                          placeholder="Example: 192.168.1.1, 192.168.2.2, 192.168.3.0/24"
+                          aria-label="Web allowed IPs"
+                >{{ web_allowed_ips_list or '' }}</textarea>
+                </div>
+            </details>
+        </article>
+
+        <article>
+            <details class="mb-0" open>
+                <summary>API / Kerio updates</summary>
+                <label>
+                    <input id="api_allowed_ips" name="api_allowed_ips" type="checkbox"
+                           data-controls="api_allowed_ips_block"
+                           {% if api_allowed_ips %}checked{% endif %}>
+                    Restrict access to the API / Kerio updates by IP
+                </label>
+                <div id="api_allowed_ips_block" class="mt-1r"
+                     data-controlled-by="api_allowed_ips_block" data-effect="hidden"
+                     {% if not api_allowed_ips %}data-hidden{% endif %}>
+                <textarea class="mb-0" name="api_allowed_ips_list"
+                          placeholder="Example: 192.168.1.1, 192.168.2.2, 192.168.3.0/24"
+                          aria-label="API allowed IPs"
+                >{{ api_allowed_ips_list or '' }}</textarea>
+                </div>
+            </details>
+        </article>
+
+        <dialog id="save-dialog">
+            <article>
+                <h3 id="save-dialog-message"></h3>
+            </article>
+        </dialog>
+
+        <button class="mb-0" type="submit">Save settings</button>
+    </form>
+</article>

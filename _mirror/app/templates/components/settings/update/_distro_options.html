@@ -1,0 +1,12 @@
+<option value="" disabled selected>
+    — Select a file —
+</option>
+{% if distro_list %}
+    {% for distro in distro_list %}
+        {% set distro_clean = distro.strip() %}
+        <option value="{{ distro_clean }}"
+                {% if kerio_control_update_file == distro_clean %}selected{% endif %}>
+            {{ distro_clean }}
+        </option>
+    {% endfor %}
+{% endif %}

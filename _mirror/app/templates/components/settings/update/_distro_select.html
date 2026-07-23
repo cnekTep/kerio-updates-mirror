@@ -1,0 +1,6 @@
+<select id="kerio_control_update_file" name="kerio_control_update_file" class="mb-0 form-control"
+        data-controlled-by="kerio_control_distro" data-effect="disabled"
+        {% if oob %}hx-swap-oob="true" {% endif %}
+        {% if not update_kerio_control_distro %}disabled{% endif %}>
+    {% include "components/settings/update/_distro_options.html" %}
+</select>

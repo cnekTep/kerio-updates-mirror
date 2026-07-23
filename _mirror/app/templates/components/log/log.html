@@ -1,0 +1,36 @@
+<div class="container layout log-layout" id="log-component">
+    <article id="log-content">
+        {% include "components/log/log_lines.html" %}
+    </article>
+
+    <aside>
+        <div>
+            <label>
+                <input id="auto-refresh" type="checkbox">
+                Auto-refresh
+            </label>
+            <label>
+                <input id="auto-scroll" type="checkbox">
+                Auto-scroll
+            </label>
+            <button id="refresh-btn"
+                    hx-get="{{ request.url.path }}"
+                    hx-target="#log-content"
+                    hx-swap="innerHTML"
+                    hx-vals='{"partial": "true"}'
+                    hx-trigger="click"
+            >
+                Refresh
+            </button>
+            <hr>
+            <button id="clear-log-btn"
+                    hx-post="{{ request.url.path }}"
+                    hx-target="#log-content"
+                    hx-swap="innerHTML"
+                    hx-trigger="click"
+            >
+                Clear log
+            </button>
+        </div>
+    </aside>
+</div>

@@ -1,0 +1,13 @@
+[
+  {
+    "type": "field",
+    "domain": [
+      "geosite:youtube",
+      "domain:youtube.com",
+      "domain:googlevideo.com",
+      "domain:ytimg.com",
+      "domain:ggpht.com"
+    ],
+    "outboundTag": "some_proxy"
+  }
+]

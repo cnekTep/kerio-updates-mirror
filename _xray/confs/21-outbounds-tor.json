@@ -1,0 +1,16 @@
+{
+  "outbounds": [
+    {
+      "tag": "tor",
+      "protocol": "socks",
+      "settings": {
+        "servers": [
+          {
+            "address": "172.200.0.30",
+            "port": 9050
+          }
+        ]
+      }
+    }
+  ]
+}
