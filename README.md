@@ -47,16 +47,16 @@ products, which allows you to:
     - Snort rule templates
     - GeoIP database
 - **Shield Matrix** - automatic updates of Shield Matrix signatures and blacklists
-- **Antivirus databases** - downloaded automatically when Kerio Control accesses the mirror, with a choice of
-  update modes:
+- **Antivirus databases** - downloaded automatically when Kerio Control accesses the mirror, with a choice of update
+  modes:
     - *Direct Mode* - antivirus updates go straight to the vendor, bypassing the mirror
     - *Proxy Mode* - updates are relayed through the mirror without local caching
     - *Mirror Mode* - updates are cached by the mirror for fast, bandwidth-saving repeat access
 
 ### Kerio Connect
 
-- **Antivirus databases** - downloaded automatically when Kerio Connect accesses the mirror, using the same
-  Direct / Proxy / Mirror modes as above
+- **Antivirus databases** - downloaded automatically when Kerio Connect accesses the mirror, using the same Direct /
+  Proxy / Mirror modes as above
 - **Antispam databases** - downloaded automatically when Kerio Connect accesses the mirror:
     - *Proxy Mode* - antispam updates are relayed through the mirror without local caching
     - *Mirror Mode* - antispam updates are cached by the mirror
@@ -124,50 +124,63 @@ This option provides a fully configured out-of-the-box solution, ideal for quick
 3. Start the virtual machine
 
 <details>
-<summary>📝 Hyper-V Import Instructions</summary>
+<summary>📝 Import into Hyper-V</summary>
 
-1. Open **Hyper-V Manager**
-2. In the **Action** menu, select **New** → **Virtual Machine**
-3. In the creation wizard:
-    - Enter a name for the virtual machine (for example, "Kerio Updates Mirror")
-    - If needed, change the VM file location
-    - Click **Next**
-4. **Important**: In the generation selection section, choose **Generation 1**
-5. Specify the amount of RAM (512-1024 MB recommended)
-6. Configure network connection (select an existing virtual switch)
-7. At the virtual hard disk configuration step:
-    - Select **Use an existing virtual hard disk**
-    - Click **Browse** and specify the path to the downloaded `.vhdx` file
-    - Click **Next**
-8. Review the parameter summary and click **Finish**
+1. Open **Hyper-V Manager**.
+2. Select **Action** → **New** → **Virtual Machine**.
+3. In the New Virtual Machine Wizard:
+    - enter a name for the virtual machine (for example, **Kerio Updates Mirror**);
+    - change the VM location if needed;
+    - click **Next**.
+4. **Important:** select **Generation 1**.
+5. Allocate **1024–2048 MB** of RAM.
+6. Select an existing virtual switch.
+7. On the virtual hard disk step:
+    - select **Use an existing virtual hard disk**;
+    - browse to the downloaded `.vhdx` file.
+8. Click **Finish** and start the virtual machine.
 
 </details>
 
 <details>
-<summary>📝 VMware Import Instructions</summary>
+<summary>📝 Import into VMware</summary>
 
-##### Step-by-step import instructions for VMware Workstation/Player
+##### VMware Workstation / Player
 
-1. Launch VMware Workstation or VMware Player
-2. Select **File** → **Open**
-3. Find and select the `.ovf` file from the unpacked archive
-4. In the import dialog:
-    - Specify the virtual machine name (for example, "Kerio Updates Mirror")
-    - If needed, change the virtual machine location
-    - Click **Import**
-5. Wait for the import process to complete
+1. Start VMware Workstation or VMware Player.
+2. Select **File** → **Open**.
+3. Select the `.ovf` file from the extracted archive.
+4. Specify:
+    - the virtual machine name;
+    - the VM location (if necessary).
+5. Click **Import** and wait for the import to complete.
 
-##### Step-by-step import instructions for VMware ESXi
+##### VMware ESXi
 
-1. Log in to the VMware ESXi or vSphere web interface
-2. Navigate to the **Virtual Machines** section
-3. Click **Create/Register Virtual Machine**
-4. Select **Deploy a virtual machine from OVF or OVA file**
-5. Specify the virtual machine name
-6. Drag and drop the OVF and VMDK files to the upload area or use the file selection button
-7. Select storage for the VM placement
-8. Select a network for connection
-9. Click **Next** and then **Finish**
+1. Open the ESXi or vSphere web interface.
+2. Go to **Virtual Machines**.
+3. Click **Create/Register VM**.
+4. Select **Deploy a virtual machine from an OVF or OVA file**.
+5. Enter the virtual machine name.
+6. Upload the `.ovf` and `.vmdk` files.
+7. Select the datastore and network.
+8. Click **Finish** and wait for the deployment to complete.
+
+</details>
+
+<details>
+<summary>📝 Import into Proxmox VE</summary>
+
+1. Upload the backup file (`.vma.zst`) to the Proxmox server via SSH.
+2. In the Proxmox web interface, open **Datacenter** → **Storage** → **local**.
+3. Go to the **Backups** tab.
+4. Select the uploaded backup and click **Restore**.
+5. Adjust the following settings if necessary:
+    - **VM ID**;
+    - virtual machine name;
+    - storage for the virtual disks.
+6. Click **Restore** and wait for the restore process to complete.
+7. Start the virtual machine.
 
 </details>
 
@@ -296,8 +309,8 @@ TOR bridges are used to ensure access to updates even in case of access restrict
 
 ## 🤝 Contributing & Support
 
-Found a bug, have a feature request, or just want to ask a question? Join our Telegram chat - it's the fastest way
-to reach the community and the maintainer:
+Found a bug, have a feature request, or just want to ask a question? Join our Telegram chat - it's the fastest way to
+reach the community and the maintainer:
 
 [![Telegram](https://img.shields.io/badge/Join-Telegram_Chat-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/+XdMe68pac_cxZGVi)
 
