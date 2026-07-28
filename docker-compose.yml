@@ -11,6 +11,7 @@ services:
       - "443:443"
       - "8118:8118"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ./_nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./_nginx/ssl_params.conf:/etc/nginx/ssl_params.conf:ro
       - ./_nginx/acl:/etc/nginx/watch
@@ -32,13 +33,14 @@ services:
         max-file: "10"
 
   mirror:
-    image: "kum_mirror:v3.0.0"
+    image: "kum_mirror:v3.0.1"
     build:
       context: ./_mirror
       dockerfile: Dockerfile
     stop_signal: SIGINT
     restart: unless-stopped
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ./_mirror:/mirror
       - ./_nginx/acl:/mirror/nginx_acl
       - mirror-venv-data:/mirror/.venv
@@ -69,6 +71,7 @@ services:
 #    ports:
 #      - "1080:8118"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ./_xray/confs:/usr/local/etc/xray
       - ./_xray/geodata:/usr/local/share/xray
       - ./_xray/logs:/var/log/xray
@@ -103,6 +106,7 @@ services:
 #    ports:
 #      - "9050:9050"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ./_tor/start.sh:/tor/start.sh
       - ./_tor/tor.config:/etc/tor/torrc
       - ./_tor/bridges:/tor/bridges
