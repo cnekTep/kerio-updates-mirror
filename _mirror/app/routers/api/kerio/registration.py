@@ -10,6 +10,24 @@ from app.utils.app_logging import write_log
 router = APIRouter(prefix="/updates/registration", tags=["registration"])
 
 
+@router.head(
+    path="",
+)
+async def head_registration_info(
+    request: Request,
+    kerio_update_service: Annotated[
+        KerioUpdateService, Depends(get_kerio_update_service)
+    ],
+):
+    client_ip = request.client.host if request.client else None
+    write_log(
+        log_type=["system", "connections"],
+        message=f"Registration | HEAD request received",
+        ip=client_ip if settings.logging.log_ip else None,
+    )
+    return await kerio_update_service.get_registration_head_info(client_ip=client_ip)
+
+
 @router.post(
     path="",
 )
@@ -32,12 +50,27 @@ async def get_registration_info(
     )
 
     if command.lower() == "connect":
-        return await kerio_update_service.get_command_info(
-            client_ip=client_ip, content_type=content_type
+        return await kerio_update_service.get_registration_connect_info(
+            client_ip=client_ip,
+            content_type=content_type,
         )
     elif command.lower() == "lookup":
-        return await kerio_update_service.get_lookup_info(
-            client_ip=client_ip, base_id=base_id, token=token
+        return await kerio_update_service.get_registration_lookup_info(
+            client_ip=client_ip,
+            base_id=base_id,
+            token=token,
+        )
+    elif command.lower() == "readinfo":
+        return await kerio_update_service.get_registration_readinfo_info(
+            client_ip=client_ip,
+            base_id=base_id,
+            token=token,
+        )
+    elif command.lower() == "stored":
+        return await kerio_update_service.get_registration_stored_info(
+            client_ip=client_ip,
+            base_id=base_id,
+            token=token,
         )
 
     return ""

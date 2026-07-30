@@ -1,4 +1,5 @@
 import time
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from random import randint
 
@@ -480,7 +481,38 @@ class KerioUpdateService:
     # Registration
     # ------------------------------------------------------------------
 
-    async def get_command_info(self, client_ip: str, content_type: str) -> Response:
+    async def get_registration_head_info(self, client_ip: str) -> Response:
+        """
+        Handle HEAD probe requests to the registration endpoint.
+
+        Args:
+            client_ip: Client IP address, used for logging if enabled in settings.
+
+        Returns:
+            Empty response with Kerio-specific headers and status code 200.
+
+        Raises:
+            HTTPException: 404 if registration updates are disabled.
+        """
+        self._check_update_enabled(
+            enabled=settings.updates.update_registration,
+            service="Registration",
+            client_ip=client_ip,
+        )
+
+        response_headers = {
+            "X-Kerio-Token": "",
+            "X-Kerio-Reply-Code": "500",
+            "X-Kerio-Reply-Message": "Internal Server Error",
+        }
+
+        return Response(content="", status_code=200, headers=response_headers)
+
+    async def get_registration_connect_info(
+        self,
+        client_ip: str,
+        content_type: str,
+    ) -> Response:
         """
         Handle 'connect' command: serve captcha from file or download from kerio.com.
 
@@ -520,8 +552,11 @@ class KerioUpdateService:
 
         return self._make_registration_connect_response(captcha_data)
 
-    async def get_lookup_info(
-        self, client_ip: str, base_id: str, token: str
+    async def get_registration_lookup_info(
+        self,
+        client_ip: str,
+        base_id: str,
+        token: str,
     ) -> Response:
         """
         Handle 'lookup' command by returning registration and license information.
@@ -547,11 +582,12 @@ class KerioUpdateService:
             client_ip=client_ip,
         )
 
+        expiry_date = self._get_expiry_date()
         response_content = (
             f"base_id: {base_id}\n"
             "type: Server\n"
             "users: Kerio Control server\n"
-            "expires: 2111-11-11\n"
+            f"expires: {expiry_date}\n"
             "total_users: UNLIMITED\n"
             "edu_version: 0\n"
             "extensions: Kerio Antivirus for Kerio Control server,Kerio Web Filter server\n"
@@ -559,7 +595,7 @@ class KerioUpdateService:
             "product: Kerio Control\n"
             "company: GFI Software\n"
             "reg_type: TRIAL\n"
-            "dwn_trial_expires: 2111-11-11\n"
+            f"dwn_trial_expires: {expiry_date}\n"
         )
 
         response_headers = {
@@ -567,6 +603,119 @@ class KerioUpdateService:
             "X-Kerio-Reply-Code": "200",
             "X-Kerio-Reply-Message": "OK",
             "Content-Type": "application/x-kerio-registration",
+        }
+
+        return Response(
+            content=response_content, status_code=200, headers=response_headers
+        )
+
+    async def get_registration_readinfo_info(
+        self,
+        client_ip: str,
+        base_id: str,
+        token: str,
+    ) -> Response:
+        """
+        Handle 'readinfo' command by returning the registration profile.
+
+        Verifies that registration updates are enabled and returns a static
+        set of registration/company fields expected by Kerio Control. Most
+        fields are intentionally left empty since no real registration data
+        is stored.
+
+        Args:
+            client_ip: Client IP address, used for logging if enabled in settings.
+            base_id: Registration base identifier included in the addon_list entry.
+            token: Kerio session token returned in the response headers.
+
+        Returns:
+            Response containing registration profile information with
+            Kerio-specific headers and status code 200.
+
+        Raises:
+            HTTPException: 404 if registration updates are disabled.
+        """
+        self._check_update_enabled(
+            enabled=settings.updates.update_registration,
+            service="Registration",
+            client_ip=client_ip,
+        )
+
+        response_content = (
+            "company:\n"
+            "person:\n"
+            "address:\n"
+            "city:\n"
+            "zipcode:\n"
+            "country:\n"
+            "phone:\n"
+            "email:\n"
+            "website:\n"
+            "os: 2\n"
+            "lang_id: en\n"
+            "comment:\n"
+            "eduinfo:\n"
+            "state:\n"
+            "ico:\n"
+            "serialnumber:\n"
+            "reseller_company:\n"
+            "reseller_address:\n"
+            "reseller_city:\n"
+            "reseller_phone:\n"
+            "reseller_email:\n"
+            f"expires: {self._get_expiry_date()}\n"
+            "users: UNLIMITED\n"
+            f"addon_list[]: {base_id};Server;Kerio Control server\n"
+            "show_questions: 0"
+        )
+
+        response_headers = {
+            "X-Kerio-Token": token,
+            "X-Kerio-Reply-Code": "200",
+            "X-Kerio-Reply-Message": "OK, registration data follows",
+            "Content-Type": "application/x-kerio-registration",
+        }
+
+        return Response(
+            content=response_content, status_code=200, headers=response_headers
+        )
+
+    async def get_registration_stored_info(
+        self,
+        client_ip: str,
+        base_id: str,
+        token: str,
+    ) -> Response:
+        """
+        Handle 'stored' command by confirming the stored registration base_id.
+
+        Verifies that registration updates are enabled and echoes back the
+        base_id to confirm it has been "stored" server-side.
+
+        Args:
+            client_ip: Client IP address, used for logging if enabled in settings.
+            base_id: Registration base identifier to echo back.
+            token: Kerio session token returned in the response headers.
+
+        Returns:
+            Response confirming the stored base_id with Kerio-specific
+            headers and status code 200.
+
+        Raises:
+            HTTPException: 404 if registration updates are disabled.
+        """
+        self._check_update_enabled(
+            enabled=settings.updates.update_registration,
+            service="Registration",
+            client_ip=client_ip,
+        )
+
+        response_content = f"base_id: {base_id}"
+
+        response_headers = {
+            "X-Kerio-Token": token,
+            "X-Kerio-Reply-Code": "200",
+            "X-Kerio-Reply-Message": "OK, verified",
         }
 
         return Response(
@@ -1277,3 +1426,9 @@ class KerioUpdateService:
                 "X-Kerio-Reply-Message": "Internal Server Error",
             },
         )
+
+    @staticmethod
+    def _get_expiry_date() -> str:
+        """Return expiry date (30 days from now) in ISO format (YYYY-MM-DD)."""
+        now = datetime.now(timezone.utc)
+        return (now + timedelta(days=30)).strftime("%Y-%m-%d")

@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 from app.config import settings
@@ -13,8 +14,7 @@ class WebFilterService:
     acting as an intermediary between the API layer and data repository.
     """
 
-    @staticmethod
-    async def update_web_filter_key() -> None:
+    async def update_web_filter_key(self) -> None:
         """Updates Web Filter key by fetching it from Kerio server"""
         if not settings.updates.license_number:
             write_log(
@@ -98,13 +98,34 @@ class WebFilterService:
             )
             return
 
+        wfkey = response.text.strip()
+
+        if not self._is_valid_web_filter_key(wfkey):
+            write_log(
+                log_type=["system", "updates", "errors"],
+                message=(
+                    "Web Filter Key Update | "
+                    f"Received key has invalid format, skipping update: {wfkey}"
+                ),
+            )
+            return
+
         write_log(
             log_type=["system", "updates"],
-            message=f"Web Filter Key Update | Received key: {response.text.strip()}",
+            message=f"Web Filter Key Update | Received key: {wfkey}",
         )
         settings.bulk_update(
             {
-                "updates.web_filter_key": response.text.strip(),
+                "updates.web_filter_key": wfkey,
                 "updates.web_filter_key_last_update": date.today(),
             }
         )
+
+    @staticmethod
+    def _is_valid_web_filter_key(key: str) -> bool:
+        """Validate Kerio Web Filter key format"""
+        pattern = re.compile(
+            pattern=r"0:[a-z]{2}:[a-f0-9]{4,6}:[0-9]{1,15}:[0-9]{5,6}",
+            flags=re.IGNORECASE,
+        )
+        return bool(pattern.fullmatch(key))
