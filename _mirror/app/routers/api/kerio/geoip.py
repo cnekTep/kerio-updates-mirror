@@ -88,5 +88,8 @@ async def get_update_file(
         ip=client_ip if settings.logging.log_ip else None,
     )
 
-    file_path = kerio_update_service.validate_and_get_file_path(file_name=file_name)
+    file_path = kerio_update_service.validate_and_get_file_path(
+        file_name=file_name,
+        client_ip=client_ip,
+    )
     return FileResponse(file_path)

@@ -1,7 +1,9 @@
+import re
 import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from random import randint
+from typing import TypedDict, ClassVar
 
 from fastapi import HTTPException, Response, status
 from fastapi.responses import FileResponse
@@ -13,6 +15,11 @@ from app.utils.internet_utils import (
     download_file_with_retries,
     make_request_with_retries,
 )
+
+
+class ParsedFileName(TypedDict):
+    type: str
+    version: int | None
 
 
 class KerioUpdateService:
@@ -30,6 +37,37 @@ class KerioUpdateService:
     CDN URL and antivirus versions.id TTL are tracked via files on disk, so the
     cache is shared across all worker processes without inter-process communication.
     """
+
+    # For each update type, maps a supported major version to the settings
+    # flag(s) that must be enabled for it to be served. If several flags are
+    # listed, the version is served if ANY of them is enabled (e.g. IDS v2
+    # piggybacks on v3/v5 availability). Types with no numeric version (e.g.
+    # "snort") use `None` as the version key.
+    _VERSION_ENABLE_FLAGS: dict[str, dict[int | None, tuple[str, ...]]] = {
+        "ids": {
+            2: ("update_ids_3", "update_ids_5"),
+            3: ("update_ids_3",),
+            5: ("update_ids_5",),
+        },
+        "geoip": {
+            4: ("update_geoip_4",),
+            5: ("update_geoip_5",),
+        },
+        "snort": {
+            None: ("update_snort_template",),
+        },
+    }
+
+    # Special case: snort.tpl / snort.tpl.md5 have no numeric version
+    _SNORT_FILENAME_RE: ClassVar[re.Pattern[str]] = re.compile(
+        r"^snort\.tpl(\.md5)?$", re.IGNORECASE
+    )
+
+    # Matches patterns like "geoip_4_20260803.gz", "ids_2_3471.gz":
+    # <type>_<major_version>_<sub_version>.<ext>
+    _VERSION_FROM_FILENAME_RE: ClassVar[re.Pattern[str]] = re.compile(
+        r"^([A-Za-z0-9]+)_(\d+)_"
+    )
 
     # ------------------------------------------------------------------
     # Web Filter
@@ -81,7 +119,7 @@ class KerioUpdateService:
     # IDS / IPS
     # ------------------------------------------------------------------
 
-    async def get_ids_update_info(self, version: str, client_ip: str) -> str:
+    async def get_ids_update_info(self, version: str, client_ip: str | None) -> str:
         """
         Return IDS/IPS update information for the requested version.
 
@@ -97,56 +135,29 @@ class KerioUpdateService:
                            404 if updates are disabled or the version is unsupported.
         """
         major_version = self._parse_major_version(version=version, client_ip=client_ip)
-
-        # Map each supported major version to the setting flag(s) that enable it.
-        # Version 2: it is served as long as either v3 or v5 is enabled.
-        # Only the flags for the requested version are read - no unnecessary settings access.
-        match major_version:
-            case 2:
-                enabled = settings.updates.update_ids_3 or settings.updates.update_ids_5
-            case 3:
-                enabled = settings.updates.update_ids_3
-            case 5:
-                enabled = settings.updates.update_ids_5
-            case _:
-                write_log(
-                    log_type=["system", "errors"],
-                    message=(
-                        f"IDS v{major_version} | "
-                        f"Error: Updates for v{version} are not available"
-                    ),
-                    ip=client_ip if settings.logging.log_ip else None,
-                )
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Updates for IDS v{major_version} are not available.",
-                )
-
-        if not enabled:
-            write_log(
-                log_type=["system", "errors"],
-                message=(
-                    f"IDS v{major_version} | "
-                    f"Error: Updates for IDS v{major_version} are disabled"
-                ),
-                ip=client_ip if settings.logging.log_ip else None,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Updates for IDS v{major_version} are disabled.",
-            )
+        enabled = self._resolve_enabled_flag(
+            update_type="ids",
+            version=version,
+            major_version=major_version,
+            client_ip=client_ip,
+        )
+        label = self._format_update_label(
+            update_type="ids",
+            version=version,
+        )
+        self._check_update_enabled(enabled=enabled, service=label, client_ip=client_ip)
 
         return self._make_update_response(
             major_version=major_version,
             url_prefix="ids",
-            label=f"IDS v{major_version}",
+            label=label,
         )
 
     # ------------------------------------------------------------------
     # GeoIP
     # ------------------------------------------------------------------
 
-    async def get_geoip_update_info(self, version: str, client_ip: str) -> str:
+    async def get_geoip_update_info(self, version: str, client_ip: str | None) -> str:
         """
         Return GeoIP update information for the requested version.
 
@@ -162,75 +173,88 @@ class KerioUpdateService:
                            404 if updates are disabled or the version is unsupported.
         """
         major_version = self._parse_major_version(version=version, client_ip=client_ip)
-
-        # Map each supported major version to the setting flag that enables it.
-        # Only the flag for the requested version is read - no unnecessary settings access.
-        match major_version:
-            case 4:
-                enabled = settings.updates.update_geoip_4
-            case 5:
-                enabled = settings.updates.update_geoip_5
-            case _:
-                write_log(
-                    log_type=["system", "errors"],
-                    message=(
-                        f"GeoIP v{major_version} | "
-                        f"Error: Updates for v{version} are not available"
-                    ),
-                    ip=client_ip if settings.logging.log_ip else None,
-                )
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Updates for GeoIP v{major_version} are not available.",
-                )
-
-        if not enabled:
-            write_log(
-                log_type=["system", "errors"],
-                message=(
-                    f"GeoIP v{major_version} | "
-                    f"Error: Updates for GeoIP v{major_version} are disabled"
-                ),
-                ip=client_ip if settings.logging.log_ip else None,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Updates for GeoIP v{major_version} are disabled.",
-            )
+        enabled = self._resolve_enabled_flag(
+            update_type="geoip",
+            version=version,
+            major_version=major_version,
+            client_ip=client_ip,
+        )
+        label = self._format_update_label(
+            update_type="geoip",
+            version=version,
+        )
+        self._check_update_enabled(enabled=enabled, service=label, client_ip=client_ip)
 
         return self._make_update_response(
             major_version=major_version,
             url_prefix="geoip",
-            label=f"GeoIP v{major_version}",
+            label=label,
         )
 
     # ------------------------------------------------------------------
     # File serving (IDS / GeoIP shared)
     # ------------------------------------------------------------------
 
-    @staticmethod
-    def validate_and_get_file_path(file_name: str) -> Path:
+    def validate_and_get_file_path(self, file_name: str, client_ip: str | None) -> Path:
         """
         Validate a file name from the request and return a safe local path.
 
-        Performs path-traversal checks and extension allowlist validation
-        before resolving the final path.
+        Performs path-traversal checks, extension allowlist validation, type
+        allowlist validation, and an enabled-updates check before resolving
+        the final path.
 
         Args:
             file_name: Raw file name from the client request (URL path segment).
+            client_ip: Client IP address, used for logging if enabled in settings.
 
         Returns:
             Resolved Path object pointing to the validated file.
 
         Raises:
-            HTTPException: 400 if the file name contains illegal characters,
-                           400 if the resolved path escapes the update directory,
-                           400 if the file extension is not allowed,
-                           400 if the path is not a regular file,
-                           404 if the file does not exist.
+                HTTPException: 400 if the update type parsed from the file name is
+                                   not recognized,
+                               400 if the file name contains illegal characters,
+                               400 if the resolved path escapes the update directory,
+                               400 if the file extension is not allowed,
+                               400 if the path is not a regular file,
+                               404 if the type/version is unsupported,
+                               404 if updates for the parsed type/version are disabled,
+                               404 if the file does not exist.
         """
+        parsed = self._parse_type_and_version_from_filename(file_name, client_ip)
+        update_type = parsed["type"]
+        major_version = parsed["version"]
+
+        if update_type not in self._VERSION_ENABLE_FLAGS:
+            write_log(
+                log_type=["system", "errors"],
+                message=f"Unknown update type '{update_type}' parsed from file_name '{file_name}'",
+                ip=client_ip if settings.logging.log_ip else None,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unknown update type '{update_type}'",
+            )
+
+        enabled = self._resolve_enabled_flag(
+            update_type=update_type,
+            version=None,
+            major_version=major_version,
+            client_ip=client_ip,
+        )
+        label = self._format_update_label(
+            update_type=update_type,
+            version=major_version,
+        )
+        self._check_update_enabled(enabled=enabled, service=label, client_ip=client_ip)
+
         # Security: reject path separators and traversal sequences
         if "/" in file_name or "\\" in file_name or ".." in file_name:
+            write_log(
+                log_type=["system", "errors"],
+                message=f"Path traversal attempt in file_name '{file_name}'",
+                ip=client_ip if settings.logging.log_ip else None,
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid file name",
@@ -243,6 +267,11 @@ class KerioUpdateService:
             file_path = file_path.resolve()
             file_path.relative_to(settings.updates.update_dir.resolve())
         except (ValueError, RuntimeError):
+            write_log(
+                log_type=["system", "errors"],
+                message=f"Resolved path escapes update directory for file_name '{file_name}'",
+                ip=client_ip if settings.logging.log_ip else None,
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid file path",
@@ -250,18 +279,33 @@ class KerioUpdateService:
 
         allowed_extensions = {".gz", ".md5", ".sig", ".tpl"}
         if file_path.suffix.lower() not in allowed_extensions:
+            write_log(
+                log_type=["system", "errors"],
+                message=f"Disallowed file extension '{file_path.suffix}' for file_name '{file_name}'",
+                ip=client_ip if settings.logging.log_ip else None,
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="File type not allowed",
             )
 
         if not file_path.exists():
+            write_log(
+                log_type=["system", "errors"],
+                message=f"File not found: '{file_path}'",
+                ip=client_ip if settings.logging.log_ip else None,
+            )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="File not found",
             )
 
         if not file_path.is_file():
+            write_log(
+                log_type=["system", "errors"],
+                message=f"Path is not a regular file: '{file_path}'",
+                ip=client_ip if settings.logging.log_ip else None,
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid file",
@@ -958,14 +1002,68 @@ class KerioUpdateService:
             headers=dict(response.headers),
         )
 
+    def _resolve_enabled_flag(
+        self,
+        update_type: str,
+        version: str | None,
+        major_version: int | None,
+        client_ip: str | None,
+    ) -> bool:
+        """
+        Resolve whether the given update type/major_version is enabled.
+
+        Args:
+            update_type: Update family, e.g. "ids", "geoip", or "snort".
+            version: Requested full version, or None for version-less types.
+            major_version: Requested major version, or None for version-less types.
+            client_ip: Client IP address, used for logging if enabled in settings.
+
+        Returns:
+            True if any of the settings flags for this type/version are enabled.
+
+        Raises:
+            HTTPException: 404 if the type/version combination is unsupported.
+        """
+        flags = self._VERSION_ENABLE_FLAGS.get(update_type, {}).get(major_version)
+
+        if flags is None:
+            label = self._format_update_label(
+                update_type=update_type,
+                version=version if version else major_version,
+            )
+            write_log(
+                log_type=["system", "errors"],
+                message=f"{label} | Error: Updates for {label} are not available",
+                ip=client_ip if settings.logging.log_ip else None,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Updates for {label} are not available.",
+            )
+
+        return any(getattr(settings.updates, flag) for flag in flags)
+
+    @staticmethod
+    def _format_update_label(update_type: str, version: int | str | None) -> str:
+        """Build a display label like 'GeoIP v4.20260101', 'IDS v5.123' or 'Snort Template' (no version)."""
+        if update_type == "snort":
+            return "Snort Template"
+        if version is None:
+            return update_type.capitalize()
+        if update_type == "geoip":
+            return f"GeoIP v{version}"
+        return f"{update_type.upper()} v{version}"
+
     @staticmethod
     def _check_update_enabled(
-        enabled: bool, service: str, client_ip: str | None
+        enabled: bool,
+        service: str,
+        client_ip: str | None,
     ) -> None:
         """Raise HTTP 404 if the given service is disabled."""
         if not enabled:
             write_log(
-                log_type=["system"],
+                log_type=["system", "errors"],
                 message=f"{service} | Error: Updates for {service} are disabled",
                 ip=client_ip if settings.logging.log_ip else None,
             )
@@ -975,7 +1073,7 @@ class KerioUpdateService:
             )
 
     @staticmethod
-    def _parse_major_version(version: str, client_ip: str) -> int:
+    def _parse_major_version(version: str, client_ip: str | None) -> int:
         """
         Parse the major version number from a dotted version string.
 
@@ -993,7 +1091,7 @@ class KerioUpdateService:
             return int(version.split(".")[0])
         except (IndexError, ValueError) as err:
             write_log(
-                log_type=["system"],
+                log_type=["system", "errors"],
                 message=f"Version parse error for '{version}': {err}",
                 ip=client_ip if settings.logging.log_ip else None,
             )
@@ -1001,6 +1099,48 @@ class KerioUpdateService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid version format '{version}': {err}. Expected format: x.y",
             )
+
+    def _parse_type_and_version_from_filename(
+        self,
+        file_name: str,
+        client_ip: str | None,
+    ) -> ParsedFileName:
+        """
+        Parse the type and major version number from a file name that
+        encodes them (e.g. "geoip_4_20260803.gz").
+
+        Args:
+            file_name: File name to extract the type/version from (expected
+                format: ``type_x_rest.ext``). Special case: "snort.tpl" /
+                "snort.tpl.md5" have no numeric version and return "snort".
+            client_ip: Client IP address, used for logging if enabled in settings.
+
+        Returns:
+            ParsedFileName with keys "type" (str) and "version" (int or None), e.g.
+            {"type": "geoip", "version": 4} or {"type": "snort", "version": None}.
+
+        Raises:
+            HTTPException: 400 if the file name cannot be parsed.
+        """
+        if self._SNORT_FILENAME_RE.match(file_name):
+            return {"type": "snort", "version": None}
+
+        match = self._VERSION_FROM_FILENAME_RE.match(file_name)
+        if match:
+            return {"type": match.group(1), "version": int(match.group(2))}
+
+        write_log(
+            log_type=["system", "errors"],
+            message=f"Version parse error: could not extract type/version from file_name '{file_name}'",
+            ip=client_ip if settings.logging.log_ip else None,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"Could not extract type/version from file name '{file_name}'. "
+                "Expected format: type_x_rest.ext"
+            ),
+        )
 
     @staticmethod
     def _make_update_response(major_version: int, url_prefix: str, label: str) -> str:

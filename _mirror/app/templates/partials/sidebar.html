@@ -20,9 +20,8 @@
     <nav>
         <ul>
             {% for group, prefix, links in nav_groups %}
-                {% set is_open = (active | default("web/general/main")).startswith("web/" + prefix) %}
                 <li>
-                    <details {% if is_open %}open{% endif %}>
+                    <details open>
                         <summary>{{ group }}</summary>
                         <ul>
                             {% for slug, label in links %}

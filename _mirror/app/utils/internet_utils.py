@@ -1,3 +1,4 @@
+import asyncio
 import time
 import traceback
 from contextvars import ContextVar
@@ -352,10 +353,13 @@ async def download_file_with_retries(
                     await response.aread()
                     response.raise_for_status()
 
-                    # Write to file in chunks
+                    # Write to file in chunks. file.write() is a blocking call,
+                    # so run each write in the default executor to avoid
+                    # blocking the event loop on large downloads.
+                    loop = asyncio.get_running_loop()
                     with open(save_path, "wb") as file:
                         async for chunk in response.aiter_bytes(chunk_size=chunk_size):
-                            file.write(chunk)
+                            await loop.run_in_executor(None, file.write, chunk)
 
                 return True
 

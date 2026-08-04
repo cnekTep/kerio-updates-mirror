@@ -119,13 +119,13 @@ function initLogControls() {
  *   "disabled"      - sets/removes the disabled property; resets checkboxes when disabling
  *   "aria-disabled" - sets aria-disabled to "true" or "false"
  *   "hidden"        - toggles data-hidden attribute (allows CSS transitions)
+ *   "readonly"      - sets/removes the readOnly property (for input/textarea elements)
  *
  * @param {Element} target
  * @param {boolean} active - true when the parent checkbox is checked
  */
 function applyEffect(target, active) {
     const effects = (target.dataset.effect || "").split(" ");
-
     if (effects.includes("disabled")) {
         target.disabled = !active;
         // Reset only checkboxes (fieldset and other inputs are left as-is)
@@ -137,6 +137,10 @@ function applyEffect(target, active) {
     if (effects.includes("hidden")) {
         // Use data-hidden attribute instead of display:none to allow CSS transitions
         target.toggleAttribute("data-hidden", !active);
+    }
+    if (effects.includes("readonly")) {
+        // readOnly is only meaningful on input/textarea; harmless no-op elsewhere
+        target.readOnly = !active;
     }
 }
 

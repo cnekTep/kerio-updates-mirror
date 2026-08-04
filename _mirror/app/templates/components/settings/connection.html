@@ -5,68 +5,64 @@
           hx-swap="none">
 
         <article>
-            <details class="mb-0" open>
-                <summary>Connection methods</summary>
-                <label>
-                    <input id="direct" name="direct" type="checkbox"
-                           data-sort-key="direct" data-sort-label="Direct connection"
-                           {% if direct %}checked{% endif %}>
-                    <span>Direct connection</span>
-                    (<small>Use your normal internet connection</small>)
-                </label>
-                <label>
-                    <input id="tor" name="tor" type="checkbox"
-                           data-sort-key="tor" data-sort-label="TOR"
-                           {% if tor %}checked{% endif %}>
-                    <span>TOR network</span>
-                    (<small>Route traffic through the Tor network</small>)
-                </label>
-                <label>
-                    <input id="proxy" name="proxy" type="checkbox"
-                           data-sort-key="proxy" data-sort-label="Proxy"
-                           data-controls="proxy_settings"
-                           {% if proxy %}checked{% endif %}>
-                    <span>Proxy server</span>
-                    (<small>Use a configured proxy</small>)
-                </label>
-                <div id="proxy_settings" class="settings-margin-left mt-1r"
-                     data-controlled-by="proxy_settings" data-effect="hidden"
-                     {% if not proxy %}data-hidden{% endif %}>
-                    <fieldset class="mb-0" role="group">
-                        <select id="proxy_type" name="proxy_type">
-                            <option value="http"
-                                    {% if proxy_type == "http" %}selected{% endif %}>HTTP
-                            </option>
-                            <option value="socks5"
-                                    {% if proxy_type == "socks5" %}selected{% endif %}>SOCKS5
-                            </option>
-                        </select>
-                        <input name="proxy_host" placeholder="Host"
-                               value="{{ proxy_host or '' }}">
-                        <input name="proxy_port" placeholder="Port" type="number"
-                               value="{{ proxy_port or '' }}">
-                        <input name="proxy_username" placeholder="Username"
-                               value="{{ proxy_username or '' }}">
-                        <input name="proxy_password" placeholder="Password" type="password"
-                               value="{{ proxy_password or '' }}">
-                    </fieldset>
-                </div>
-            </details>
+            <header>Connection methods</header>
+            <label>
+                <input id="direct" name="direct" type="checkbox"
+                       data-sort-key="direct" data-sort-label="Direct connection"
+                       {% if direct %}checked{% endif %}>
+                <span>Direct connection</span>
+                (<small>Use your normal internet connection</small>)
+            </label>
+            <label>
+                <input id="tor" name="tor" type="checkbox"
+                       data-sort-key="tor" data-sort-label="TOR"
+                       {% if tor %}checked{% endif %}>
+                <span>TOR network</span>
+                (<small>Route traffic through the Tor network</small>)
+            </label>
+            <label>
+                <input id="proxy" name="proxy" type="checkbox"
+                       data-sort-key="proxy" data-sort-label="Proxy"
+                       data-controls="proxy_settings"
+                       {% if proxy %}checked{% endif %}>
+                <span>Proxy server</span>
+                (<small>Use a configured proxy</small>)
+            </label>
+            <div id="proxy_settings" class="settings-margin-left mt-1r"
+                 data-controlled-by="proxy_settings" data-effect="hidden"
+                 {% if not proxy %}data-hidden{% endif %}>
+                <fieldset class="mb-0" role="group">
+                    <select id="proxy_type" name="proxy_type">
+                        <option value="http"
+                                {% if proxy_type=="http" %}selected{% endif %}>HTTP
+                        </option>
+                        <option value="socks5"
+                                {% if proxy_type=="socks5" %}selected{% endif %}>SOCKS5
+                        </option>
+                    </select>
+                    <input name="proxy_host" placeholder="Host"
+                           value="{{ proxy_host or '' }}">
+                    <input name="proxy_port" placeholder="Port" type="number"
+                           value="{{ proxy_port or '' }}">
+                    <input name="proxy_username" placeholder="Username"
+                           value="{{ proxy_username or '' }}">
+                    <input name="proxy_password" placeholder="Password" type="password"
+                           value="{{ proxy_password or '' }}">
+                </fieldset>
+            </div>
         </article>
 
         <article>
-            <details class="mb-0" open>
-                <summary>Connection priority</summary>
-                <div id="sortable-priority" class="sortable">
-                    {% for method in download_priority %}
-                        {%- set labels = {"direct": "Direct connection", "tor": "TOR", "proxy": "Proxy"} %}
-                        <div class="sortable-item" data-key="{{ method }}">
-                            <input type="hidden" name="download_priority" value="{{ method }}">
-                            {{ labels[method] }}
-                        </div>
-                    {% endfor %}
+            <header>Connection priority</header>
+            <div id="sortable-priority" class="sortable">
+                {% for method in download_priority %}
+                {%- set labels = {"direct": "Direct connection", "tor": "TOR", "proxy": "Proxy"} %}
+                <div class="sortable-item" data-key="{{ method }}">
+                    <input type="hidden" name="download_priority" value="{{ method }}">
+                    {{ labels[method] }}
                 </div>
-            </details>
+                {% endfor %}
+            </div>
         </article>
 
         <dialog id="save-dialog">

@@ -4,7 +4,10 @@ from typing import Union
 
 
 def write_log(
-    log_type: Union[str, list[str]], message: str, date: bool = True, ip: str = None
+    log_type: Union[str, list[str]],
+    message: str,
+    date: bool = True,
+    ip: str | None = None,
 ) -> None:
     """
     Write a formatted message to one or more log files with optional timestamp and IP.

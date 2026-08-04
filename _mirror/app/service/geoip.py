@@ -1,3 +1,4 @@
+import asyncio
 import csv
 import gzip
 import tarfile
@@ -89,8 +90,11 @@ class GeoIPService:
 
         # Process the archive if modification is enabled in config
         if version == "5" and settings.updates.geoip_5_copy_geoname_id:
-            if not self._copy_geoname_id_in_v5_archive(
-                archive_path=update_dir / filename
+            # This does blocking tar/CSV I/O over potentially large files,
+            # so run it in a worker thread to avoid blocking the event loop.
+            if not await asyncio.to_thread(
+                self._copy_geoname_id_in_v5_archive,
+                archive_path=update_dir / filename,
             ):
                 return
 
@@ -143,7 +147,10 @@ class GeoIPService:
             ):
                 return
 
-        if not self._combine_and_compress_geo_files(
+        # This reads/writes/compresses potentially large CSV files, so run it
+        # in a worker thread to avoid blocking the event loop.
+        if not await asyncio.to_thread(
+            self._combine_and_compress_geo_files,
             v4_path=update_dir / "v4.csv",
             v6_path=update_dir / "v6.csv",
             version=current_dt,
@@ -367,21 +374,12 @@ class GeoIPService:
                 temp_path.replace(output_path)
                 return True
 
-            # Normalize columns 2 and 3: copy non-empty value to the other column
-            with open(temp_path, "r", encoding="utf-8", newline="") as infile:
-                reader = csv.reader(infile)
-
-                with open(output_path, "w", newline="", encoding="utf-8") as outfile:
-                    writer = csv.writer(outfile)
-                    writer.writerow(next(reader))  # Copy header as-is
-
-                    for row in reader:
-                        if len(row) < 3:
-                            writer.writerow(row)
-                            continue
-                        row = self._normalize_geoname_row(row)
-                        if row is not None:
-                            writer.writerow(row)
+            # Normalize columns 2 and 3: copy non-empty value to the other column.
+            # This reads/writes potentially large CSV files, so run it in a
+            # worker thread to avoid blocking the event loop.
+            await asyncio.to_thread(
+                self._normalize_csv_file, temp_path=temp_path, output_path=output_path
+            )
 
             write_log(
                 log_type=["system"],
@@ -400,6 +398,29 @@ class GeoIPService:
             # Always clean up the temp file
             if temp_path.exists():
                 delete_file(temp_path)
+
+    def _normalize_csv_file(self, temp_path: Path, output_path: Path) -> None:
+        """
+        CSV normalization: copy non-empty value between columns 2 and 3.
+
+        Args:
+            temp_path: Path to the raw downloaded CSV file.
+            output_path: Path to write the normalized CSV file to.
+        """
+        with open(temp_path, "r", encoding="utf-8", newline="") as infile:
+            reader = csv.reader(infile)
+
+            with open(output_path, "w", newline="", encoding="utf-8") as outfile:
+                writer = csv.writer(outfile)
+                writer.writerow(next(reader))  # Copy header as-is
+
+                for row in reader:
+                    if len(row) < 3:
+                        writer.writerow(row)
+                        continue
+                    row = self._normalize_geoname_row(row)
+                    if row is not None:
+                        writer.writerow(row)
 
     def _combine_and_compress_geo_files(
         self, v4_path: Path, v6_path: Path, version: str

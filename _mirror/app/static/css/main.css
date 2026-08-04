@@ -14,7 +14,12 @@
     --pico-table-row-stripped-background-color: var(--color-surface);
 }
 
-header {
+aside {
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+}
+
+.site-header {
     position: sticky;
     top: 0;
     height: var(--header-height);
@@ -22,11 +27,6 @@ header {
     padding: 0.3rem !important;
     background-color: var(--pico-background-color);
     border-bottom: var(--pico-border-width) solid var(--pico-muted-border-color);
-}
-
-aside {
-    position: sticky;
-    top: calc(var(--header-height) + 2rem);
 }
 
 .layout {

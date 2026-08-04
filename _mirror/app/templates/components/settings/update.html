@@ -10,242 +10,222 @@
         </div>
 
         <article>
-            <details class="mb-0" open>
-                <summary>IDS/IPS Snort</summary>
-                <label>
-                    <input id="update_ids_3" name="update_ids_3" type="checkbox"
-                           {% if update_ids_3 %}checked{% endif %}>
-                    Update IPS/IDS Snort system (Kerio Control &lt; 9.5)
-                </label>
-                <label>
-                    <input id="update_ids_5" name="update_ids_5" type="checkbox" data-controls="ids_5"
-                           {% if update_ids_5 %}checked{% endif %}>
-                    Update IPS/IDS Snort system (Kerio Control &gt;= 9.5)
-                </label>
+            <header>
+                IDS/IPS Snort
+            </header>
+            <label>
+                <input id="update_ids_3" name="update_ids_3" type="checkbox"
+                       {% if update_ids_3 %}checked{% endif %}>
+                Update IPS/IDS Snort system (Kerio Control &lt; 9.5)
+            </label>
+            <label>
+                <input id="update_ids_5" name="update_ids_5" type="checkbox" data-controls="ids_5"
+                       {% if update_ids_5 %}checked{% endif %}>
+                Update IPS/IDS Snort system (Kerio Control &gt;= 9.5)
+            </label>
+            <label class="settings-margin-left"
+                   data-controlled-by="ids_5" data-effect="aria-disabled"
+                   aria-disabled="{% if update_ids_5 %}false{% else %}true{% endif %}">
+                <input id="update_snort_template" name="update_snort_template" type="checkbox"
+                       {% if update_snort_template %}checked{% endif %}>
+                Update Snort template
+            </label>
+        </article>
+
+        <article>
+            <header>GeoIP</header>
+            <label>
+                <input id="update_geoip_4" name="update_geoip_4" type="checkbox" data-controls="geoip_4"
+                       {% if update_geoip_4 %}checked{% endif %}>
+                Update GeoIP database files (Kerio Control &lt; 9.4.5)
+            </label>
+            <label class="settings-margin-left"
+                   data-controlled-by="geoip_4" data-effect="aria-disabled"
+                   aria-disabled="{% if update_geoip_4 %}false{% else %}true{% endif %}">
+                <input id="geoip_custom_url" name="geoip_custom_url" type="checkbox"
+                       {% if geoip_custom_url %}checked{% endif %}>
+                Use GitHub as a source for GeoIP database updates
+            </label>
+            <label>
+                <input id="update_geoip_5" name="update_geoip_5" type="checkbox" data-controls="geoip_5"
+                       {% if update_geoip_5 %}checked{% endif %}>
+                Update GeoIP database files (Kerio Control &gt;= 9.6.0)
+            </label>
+            <label class="settings-margin-left"
+                   data-controlled-by="geoip_5" data-effect="aria-disabled"
+                   aria-disabled="{% if update_geoip_5 %}false{% else %}true{% endif %}">
+                <input id="geoip_5_copy_geoname_id" name="geoip_5_copy_geoname_id" type="checkbox"
+                       {% if geoip_5_copy_geoname_id %}checked{% endif %}>
+                Modify GeoIP database (geoname_id and registered_country_geoname_id columns are swapped)
+            </label>
+        </article>
+
+        <article>
+            <header>Web Filter</header>
+            <label>
+                <input id="update_web_filter_key" name="update_web_filter_key" type="checkbox"
+                       data-controls="web_filter"
+                       {% if update_web_filter_key %}checked{% endif %}>
+                Update Kerio Control Web Filter Content Filtering Subsystem Key
+            </label>
+            <div class="settings-grid size-12">
                 <label class="settings-margin-left"
-                       data-controlled-by="ids_5" data-effect="aria-disabled"
-                       aria-disabled="{% if update_ids_5 %}false{% else %}true{% endif %}">
-                    <input id="update_snort_template" name="update_snort_template" type="checkbox"
-                           {% if update_snort_template %}checked{% endif %}
-                           data-controlled-by="ids_5" data-effect="disabled"
-                           {% if not update_ids_5 %}disabled{% endif %}>
-                    Update Snort template
+                       data-controlled-by="web_filter" data-effect="aria-disabled"
+                       aria-disabled="{% if update_web_filter_key %}false{% else %}true{% endif %}">
+                    <input id="forced_web_filter_key" name="forced_web_filter_key" type="checkbox"
+                           {% if forced_web_filter_key %}checked{% endif %}>
+                    Use manual key:
                 </label>
-            </details>
+                <input class="mb-0" type="text" name="forced_web_filter_key_value"
+                       placeholder="Enter Web Filter key" aria-label="Web Filter key"
+                       data-controlled-by="web_filter" data-effect="readonly aria-disabled"
+                       {% if not update_web_filter_key %}readonly aria-disabled="true" {% endif %}
+                       {% if forced_web_filter_key %}value="{{ forced_web_filter_key }}" {% endif %}>
+            </div>
         </article>
 
         <article>
-            <details class="mb-0" open>
-                <summary>GeoIP</summary>
+            <header>ShieldMatrix</header>
+            <label>
+                <input id="update_shieldmatrix" name="update_shieldmatrix" type="checkbox"
+                       {% if update_shieldmatrix %}checked{% endif %}>
+                Update Shield Matrix signatures and blacklists
+            </label>
+        </article>
+
+        <article>
+            <header>Antivirus</header>
+            <fieldset>
                 <label>
-                    <input id="update_geoip_4" name="update_geoip_4" type="checkbox" data-controls="geoip_4"
-                           {% if update_geoip_4 %}checked{% endif %}>
-                    Update GeoIP database files (Kerio Control &lt; 9.4.5)
-                </label>
-                <label class="settings-margin-left"
-                       data-controlled-by="geoip_4" data-effect="aria-disabled"
-                       aria-disabled="{% if update_geoip_4 %}false{% else %}true{% endif %}">
-                    <input id="geoip_custom_url" name="geoip_custom_url" type="checkbox"
-                           {% if geoip_custom_url %}checked{% endif %}
-                           data-controlled-by="geoip_4" data-effect="disabled"
-                           {% if not update_geoip_4 %}disabled{% endif %}>
-                    Use GitHub as a source for GeoIP database updates
+                    <input type="radio" name="antivirus" value="disabled"
+                           {% if not update_antivirus %}checked{% endif %}/>
+                    Disabled (Antivirus updates are disabled)
                 </label>
                 <label>
-                    <input id="update_geoip_5" name="update_geoip_5" type="checkbox" data-controls="geoip_5"
-                           {% if update_geoip_5 %}checked{% endif %}>
-                    Update GeoIP database files (Kerio Control &gt;= 9.6.0)
+                    <input type="radio" name="antivirus" value="direct"
+                           {% if update_antivirus and not antivirus_through_mirror %}checked{% endif %}/>
+                    Direct Mode (Update antivirus without using Mirror)
                 </label>
-                <label class="settings-margin-left"
-                       data-controlled-by="geoip_5" data-effect="aria-disabled"
-                       aria-disabled="{% if update_geoip_5 %}false{% else %}true{% endif %}">
-                    <input id="geoip_5_copy_geoname_id" name="geoip_5_copy_geoname_id" type="checkbox"
-                           {% if geoip_5_copy_geoname_id %}checked{% endif %}
-                           data-controlled-by="geoip_5" data-effect="disabled"
-                           {% if not update_geoip_5 %}disabled{% endif %}>
-                    Modify GeoIP database (geoname_id and registered_country_geoname_id columns are swapped)
-                </label>
-            </details>
-        </article>
-
-        <article>
-            <details class="mb-0" open>
-                <summary>Web Filter</summary>
                 <label>
-                    <input id="update_web_filter_key" name="update_web_filter_key" type="checkbox"
-                           data-controls="web_filter"
-                           {% if update_web_filter_key %}checked{% endif %}>
-                    Update Kerio Control Web Filter Content Filtering Subsystem Key
+                    <input type="radio" name="antivirus" value="proxy"
+                           {% if update_antivirus and antivirus_through_mirror and not antivirus_cache %}checked{% endif %}/>
+                    Proxy Mode (Update antivirus through Mirror)
                 </label>
-                <div class="settings-grid size-12">
-                    <label class="settings-margin-left"
-                           data-controlled-by="web_filter" data-effect="aria-disabled"
-                           aria-disabled="{% if update_web_filter_key %}false{% else %}true{% endif %}">
-                        <input id="forced_web_filter_key" name="forced_web_filter_key" type="checkbox"
-                               {% if forced_web_filter_key %}checked{% endif %}
-                               data-controlled-by="web_filter" data-effect="disabled"
-                               {% if not update_web_filter_key %}disabled{% endif %}>
-                        Use manual key:
-                    </label>
-                    <input class="mb-0" type="text" name="forced_web_filter_key_value"
-                           placeholder="Enter Web Filter key" aria-label="Web Filter key"
-                           data-controlled-by="web_filter" data-effect="disabled"
-                           {% if not update_web_filter_key %}disabled{% endif %}
-                           {% if forced_web_filter_key %}value="{{ forced_web_filter_key }}" {% endif %}>
-                </div>
-            </details>
-        </article>
-
-        <article>
-            <details class="mb-0" open>
-                <summary>ShieldMatrix</summary>
                 <label>
-                    <input id="update_shieldmatrix" name="update_shieldmatrix" type="checkbox"
-                           {% if update_shieldmatrix %}checked{% endif %}>
-                    Update Shield Matrix signatures and blacklists
+                    <input type="radio" name="antivirus" value="mirror"
+                           {% if update_antivirus and antivirus_through_mirror and antivirus_cache %}checked{% endif %}/>
+                    Mirror Mode (Update antivirus through Mirror with caching)
                 </label>
-            </details>
+            </fieldset>
+            <div class="settings-grid size-4_4">
+                <label for="antivirus-urls" class="settings-margin-left">URL:</label>
+                <select id="antivirus-urls" class="mb-0" name="antivirus_url"
+                        aria-label="Select Antivirus update source URL" required>
+                    <option disabled value="">Select Antivirus update source URL</option>
+                    <option value="https://bdupdate.kerio.com"
+                            {% if antivirus_url=="https://bdupdate.kerio.com" %}selected{% endif %}>
+                        bdupdate.kerio.com (official Kerio Antivirus update source)
+                    </option>
+                    <option value="http://upgrade.bitdefender.com"
+                            {% if antivirus_url=="http://upgrade.bitdefender.com" %}selected{% endif %}>
+                        upgrade.bitdefender.com
+                    </option>
+                    <option value="https://av-patterns.nospamproxy.com"
+                            {% if antivirus_url=="https://av-patterns.nospamproxy.com" %}selected{% endif %}>
+                        av-patterns.nospamproxy.com
+                    </option>
+                    <option value="http://breck-update.logicnow.us"
+                            {% if antivirus_url=="http://breck-update.logicnow.us" %}selected{% endif %}>
+                        breck-update.logicnow.us
+                    </option>
+                    <option value="https://update-service.onesec.net"
+                            {% if antivirus_url=="https://update-service.onesec.net" %}selected{% endif %}>
+                        update-service.onesec.net
+                    </option>
+                    <option value="http://avupdate.fireeye.com"
+                            {% if antivirus_url=="http://avupdate.fireeye.com" %}selected{% endif %}>
+                        avupdate.fireeye.com
+                    </option>
+                    <option value="http://update.amp.cisco.com"
+                            {% if antivirus_url=="http://update.amp.cisco.com" %}selected{% endif %}>
+                        update.amp.cisco.com
+                    </option>
+                </select>
+            </div>
         </article>
 
         <article>
-            <details class="mb-0" open>
-                <summary>Antivirus</summary>
-                <fieldset>
-                    <label>
-                        <input type="radio" name="antivirus" value="disabled"
-                               {% if not update_antivirus %}checked{% endif %}/>
-                        Disabled (Antivirus updates are disabled)
-                    </label>
-                    <label>
-                        <input type="radio" name="antivirus" value="direct"
-                               {% if update_antivirus and not antivirus_through_mirror %}checked{% endif %}/>
-                        Direct Mode (Update antivirus without using Mirror)
-                    </label>
-                    <label>
-                        <input type="radio" name="antivirus" value="proxy"
-                               {% if update_antivirus and antivirus_through_mirror and not antivirus_cache %}checked{% endif %}/>
-                        Proxy Mode (Update antivirus through Mirror)
-                    </label>
-                    <label>
-                        <input type="radio" name="antivirus" value="mirror"
-                               {% if update_antivirus and antivirus_through_mirror and antivirus_cache %}checked{% endif %}/>
-                        Mirror Mode (Update antivirus through Mirror with caching)
-                    </label>
-                </fieldset>
-                <div class="settings-grid size-4_4">
-                    <label for="antivirus-urls" class="settings-margin-left">URL:</label>
-                    <select id="antivirus-urls" class="mb-0" name="antivirus_url"
-                            aria-label="Select Antivirus update source URL" required>
-                        <option disabled value="">Select Antivirus update source URL</option>
-                        <option value="https://bdupdate.kerio.com"
-                                {% if antivirus_url == "https://bdupdate.kerio.com" %}selected{% endif %}>
-                            bdupdate.kerio.com (official Kerio Antivirus update source)
-                        </option>
-                        <option value="http://upgrade.bitdefender.com"
-                                {% if antivirus_url == "http://upgrade.bitdefender.com" %}selected{% endif %}>
-                            upgrade.bitdefender.com
-                        </option>
-                        <option value="https://av-patterns.nospamproxy.com"
-                                {% if antivirus_url == "https://av-patterns.nospamproxy.com" %}selected{% endif %}>
-                            av-patterns.nospamproxy.com
-                        </option>
-                        <option value="http://breck-update.logicnow.us"
-                                {% if antivirus_url == "http://breck-update.logicnow.us" %}selected{% endif %}>
-                            breck-update.logicnow.us
-                        </option>
-                        <option value="https://update-service.onesec.net"
-                                {% if antivirus_url == "https://update-service.onesec.net" %}selected{% endif %}>
-                            update-service.onesec.net
-                        </option>
-                        <option value="http://avupdate.fireeye.com"
-                                {% if antivirus_url == "http://avupdate.fireeye.com" %}selected{% endif %}>
-                            avupdate.fireeye.com
-                        </option>
-                        <option value="http://update.amp.cisco.com"
-                                {% if antivirus_url == "http://update.amp.cisco.com" %}selected{% endif %}>
-                            update.amp.cisco.com
-                        </option>
-                    </select>
-                </div>
-            </details>
-        </article>
-
-        <article>
-            <details class="mb-0" open>
-                <summary>Antispam</summary>
-                <fieldset>
-                    <label>
-                        <input type="radio" name="antispam" value="disabled"
-                               {% if not update_antispam %}checked{% endif %}/>
-                        Disabled (Antispam updates are disabled)
-                    </label>
-                    <label>
-                        <input type="radio" name="antispam" value="proxy"
-                               {% if update_antispam and not antispam_cache %}checked{% endif %}/>
-                        Proxy Mode (Update antispam through Mirror)
-                    </label>
-                    <label>
-                        <input type="radio" name="antispam" value="mirror"
-                               {% if update_antispam and antispam_cache %}checked{% endif %}/>
-                        Mirror Mode (Update antispam through Mirror with caching)
-                    </label>
-                </fieldset>
-                <div class="settings-grid size-4_4">
-                    <label for="antispam-urls" class="settings-margin-left">URL:</label>
-                    <select id="antispam-urls" class="mb-0" name="antispam_url"
-                            aria-label="Select Antispam update source URL" required>
-                        <option disabled value="">Select Antispam update source URL</option>
-                        <option value="http://bda-update.kerio.com"
-                                {% if antispam_url == "http://bda-update.kerio.com" %}selected{% endif %}>
-                            bda-update.kerio.com (official Kerio Antispam update source)
-                        </option>
-                        <option value="http://upgrade.bitdefender.com"
-                                {% if antispam_url == "http://upgrade.bitdefender.com" %}selected{% endif %}>
-                            upgrade.bitdefender.com
-                        </option>
-                        <option value="https://av-patterns.nospamproxy.com"
-                                {% if antispam_url == "https://av-patterns.nospamproxy.com" %}selected{% endif %}>
-                            av-patterns.nospamproxy.com
-                        </option>
-                        <option value="http://breck-update.logicnow.us"
-                                {% if antispam_url == "http://breck-update.logicnow.us" %}selected{% endif %}>
-                            breck-update.logicnow.us
-                        </option>
-                    </select>
-                </div>
-            </details>
-        </article>
-
-        <article>
-            <details class="mb-0" open>
-                <summary>Software Update</summary>
+            <header>Antispam</header>
+            <fieldset>
                 <label>
-                    <input id="update_kerio_control_distro" name="update_kerio_control_distro" type="checkbox"
-                           data-controls="kerio_control_distro"
-                           {% if update_kerio_control_distro %}checked{% endif %}>
-                    Update Kerio Control distributive
+                    <input type="radio" name="antispam" value="disabled"
+                           {% if not update_antispam %}checked{% endif %}/>
+                    Disabled (Antispam updates are disabled)
                 </label>
-                <div class="form-group settings-grid size-12">
-                    <label for="kerio_control_update_file" class="settings-margin-left">Select the update file:</label>
-                    {% include "components/settings/update/_distro_select.html" %}
-                    </select>
-                </div>
-                <div class="form-group settings-grid size-12">
-                    <label for="distro-upload-form" class="settings-margin-left">Upload new file:</label>
-                    <form id="distro-upload-form"
-                          hx-post="{{ request.url_for('upload_distro') }}"
-                          hx-encoding="multipart/form-data"
-                          hx-trigger="change from:find input[type=file]"
-                          hx-indicator="#distro-upload-indicator">
-                        <input class="mb-0" data-controlled-by="kerio_control_distro" data-effect="disabled"
-                               {% if not update_kerio_control_distro %}disabled{% endif %}
-                               type="file" name="distro_file" accept=".img">
-                    </form>
-                </div>
-                <div id="distro-upload-indicator" class="htmx-indicator settings-margin-left" aria-busy="true">
-                    Uploading and signing file...
-                </div>
-            </details>
+                <label>
+                    <input type="radio" name="antispam" value="proxy"
+                           {% if update_antispam and not antispam_cache %}checked{% endif %}/>
+                    Proxy Mode (Update antispam through Mirror)
+                </label>
+                <label>
+                    <input type="radio" name="antispam" value="mirror"
+                           {% if update_antispam and antispam_cache %}checked{% endif %}/>
+                    Mirror Mode (Update antispam through Mirror with caching)
+                </label>
+            </fieldset>
+            <div class="settings-grid size-4_4">
+                <label for="antispam-urls" class="settings-margin-left">URL:</label>
+                <select id="antispam-urls" class="mb-0" name="antispam_url"
+                        aria-label="Select Antispam update source URL" required>
+                    <option disabled value="">Select Antispam update source URL</option>
+                    <option value="http://bda-update.kerio.com"
+                            {% if antispam_url=="http://bda-update.kerio.com" %}selected{% endif %}>
+                        bda-update.kerio.com (official Kerio Antispam update source)
+                    </option>
+                    <option value="http://upgrade.bitdefender.com"
+                            {% if antispam_url=="http://upgrade.bitdefender.com" %}selected{% endif %}>
+                        upgrade.bitdefender.com
+                    </option>
+                    <option value="https://av-patterns.nospamproxy.com"
+                            {% if antispam_url=="https://av-patterns.nospamproxy.com" %}selected{% endif %}>
+                        av-patterns.nospamproxy.com
+                    </option>
+                    <option value="http://breck-update.logicnow.us"
+                            {% if antispam_url=="http://breck-update.logicnow.us" %}selected{% endif %}>
+                        breck-update.logicnow.us
+                    </option>
+                </select>
+            </div>
+        </article>
+
+        <article>
+            <header>Software Update</header>
+            <label>
+                <input id="update_kerio_control_distro" name="update_kerio_control_distro" type="checkbox"
+                       data-controls="kerio_control_distro"
+                       {% if update_kerio_control_distro %}checked{% endif %}>
+                Update Kerio Control distributive
+            </label>
+            <div class="form-group settings-grid size-12">
+                <label for="kerio_control_update_file" class="settings-margin-left">Select the update file:</label>
+                {% include "components/settings/update/_distro_select.html" %}
+                </select>
+            </div>
+            <div class="form-group settings-grid size-12">
+                <label for="distro-upload-form" class="settings-margin-left">Upload new file:</label>
+                <form id="distro-upload-form"
+                      hx-post="{{ request.url_for('upload_distro') }}"
+                      hx-encoding="multipart/form-data"
+                      hx-trigger="change from:find input[type=file]"
+                      hx-indicator="#distro-upload-indicator">
+                    <input class="mb-0" data-controlled-by="kerio_control_distro" data-effect="disabled"
+                           {% if not update_kerio_control_distro %}disabled{% endif %}
+                           type="file" name="distro_file" accept=".img">
+                </form>
+            </div>
+            <div id="distro-upload-indicator" class="htmx-indicator settings-margin-left" aria-busy="true">
+                Uploading and signing file...
+            </div>
         </article>
 
         <dialog id="save-dialog">
