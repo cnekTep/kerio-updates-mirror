@@ -15,6 +15,7 @@ class HostRoutingMiddleware:
       - shieldmatrix-updates.gfikeriocontrol.com -> /api/kerio/updates/shieldmatrix/link
       - register.kerio.com                       -> /api/kerio/updates/registration
       - prod-update.kerio.com/checknew.php       -> /api/kerio/updates/distributive/check
+      - kc-mirror.domain.net/checknew.php        -> /api/kerio/updates/distributive/check
     """
 
     # Base path for all Kerio API routes
@@ -60,6 +61,7 @@ class HostRoutingMiddleware:
         #   web filter:     wf-activation.kerio.com/getkey.php?id=78688-GTIKA
         #
         #   distributive:   prod-update.kerio.com/checknew.php {form-data}
+        #   distributive:   kc-mirror.domain.net/checknew.php {form-data} | unofficial build
         #
         #   registration:   register.kerio.com/registration/LD.php
 
@@ -101,6 +103,9 @@ class HostRoutingMiddleware:
                 scope["path"] = f"{self.WEBFILTER_API_BASE}/key"
 
             case "prod-update.kerio.com":  # Distributive
+                scope["path"] = f"{self.DISTRIBUTIVE_API_BASE}/check"
+
+            case "kc-mirror.domain.net":  # Distributive (unofficial build)
                 scope["path"] = f"{self.DISTRIBUTIVE_API_BASE}/check"
 
             case "register.kerio.com":  # Registration
