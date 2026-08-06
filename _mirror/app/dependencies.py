@@ -89,3 +89,14 @@ def require_auth(
         status_code=status.HTTP_303_SEE_OTHER,
         headers={"Location": "/web/login"},
     )
+
+
+def get_client_ip(request: Request) -> str | None:
+    """
+    Dependency that extracts the client's IP address from the request.
+
+    Returns None if IP logging is disabled in settings or if client info
+    is unavailable (e.g. request came through a test client without connection info).
+    """
+    client = request.client
+    return client.host if settings.logging.log_ip and client else None

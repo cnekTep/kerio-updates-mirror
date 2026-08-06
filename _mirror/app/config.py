@@ -195,6 +195,11 @@ class UpdatesConfig(BaseModel):
 class NetworkConfig(BaseModel):
     direct: bool = Field(description="Use direct connection")
 
+    # Xray settings
+    xray: bool = Field(description="Use Xray")
+    xray_host: str = Field(description="Xray host")
+    xray_port: int = Field(description="Xray port")
+
     # TOR settings
     tor: bool = Field(description="Use TOR")
     tor_host: str = Field(description="TOR host")

@@ -74,7 +74,7 @@ class KerioUpdateService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    async def get_web_filter_key(client_ip: str) -> str:
+    async def get_web_filter_key(client_ip: str | None) -> str:
         """
         Return the Web Filter activation key from settings or forced settings.
 
@@ -91,7 +91,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message="Web Filter | Error: Updates for Web Filter are disabled",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -106,7 +106,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message="Web Filter | Error: Web Filter key not found",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -229,7 +229,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message=f"Unknown update type '{update_type}' parsed from file_name '{file_name}'",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -253,7 +253,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message=f"Path traversal attempt in file_name '{file_name}'",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -270,7 +270,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message=f"Resolved path escapes update directory for file_name '{file_name}'",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -282,7 +282,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message=f"Disallowed file extension '{file_path.suffix}' for file_name '{file_name}'",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -293,7 +293,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message=f"File not found: '{file_path}'",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -304,7 +304,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message=f"Path is not a regular file: '{file_path}'",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -369,7 +369,9 @@ class KerioUpdateService:
         settings.update("updates.shieldmatrix_url", data["url"].rstrip("/"))
 
     async def get_shieldmatrix_update_info(
-        self, client_ip: str, updates_version: str
+        self,
+        client_ip: str | None,
+        updates_version: str,
     ) -> str:
         """
         Return ShieldMatrix update availability by comparing versions with upstream.
@@ -411,7 +413,7 @@ class KerioUpdateService:
 
         return '{"available": false}'
 
-    async def get_shieldmatrix_update_version(self, client_ip: str) -> str:
+    async def get_shieldmatrix_update_version(self, client_ip: str | None) -> str:
         """
         Return the currently cached ShieldMatrix version string.
 
@@ -443,7 +445,9 @@ class KerioUpdateService:
         return version_cache_file.read_text().strip()
 
     async def get_shieldmatrix_update_file(
-        self, client_ip: str, full_path: str
+        self,
+        client_ip: str | None,
+        full_path: str,
     ) -> FileResponse:
         """
         Serve a ShieldMatrix update file from cache, downloading it if absent.
@@ -512,7 +516,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system"],
                 message=f"ShieldMatrix | Failed to download: {full_path}",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
@@ -525,7 +529,7 @@ class KerioUpdateService:
     # Registration
     # ------------------------------------------------------------------
 
-    async def get_registration_head_info(self, client_ip: str) -> Response:
+    async def get_registration_head_info(self, client_ip: str | None) -> Response:
         """
         Handle HEAD probe requests to the registration endpoint.
 
@@ -554,7 +558,7 @@ class KerioUpdateService:
 
     async def get_registration_connect_info(
         self,
-        client_ip: str,
+        client_ip: str | None,
         content_type: str,
     ) -> Response:
         """
@@ -598,7 +602,7 @@ class KerioUpdateService:
 
     async def get_registration_lookup_info(
         self,
-        client_ip: str,
+        client_ip: str | None,
         base_id: str,
         token: str,
     ) -> Response:
@@ -655,7 +659,7 @@ class KerioUpdateService:
 
     async def get_registration_readinfo_info(
         self,
-        client_ip: str,
+        client_ip: str | None,
         base_id: str,
         token: str,
     ) -> Response:
@@ -726,7 +730,7 @@ class KerioUpdateService:
 
     async def get_registration_stored_info(
         self,
-        client_ip: str,
+        client_ip: str | None,
         base_id: str,
         token: str,
     ) -> Response:
@@ -770,14 +774,18 @@ class KerioUpdateService:
     # Antivirus
     # ------------------------------------------------------------------
 
-    async def get_antivirus_update_info(self, version: str, client_ip: str) -> str:
+    async def get_antivirus_update_info(
+        self,
+        client_ip: str | None,
+        version: str,
+    ) -> str:
         """
         Return antivirus update information for the requested client version.
 
         Args:
+            client_ip: Client IP address, used for logging if enabled in settings.
             version: Antivirus version string reported by the client
                      (e.g. "9.5.0-T3-9017").
-            client_ip: Client IP address, used for logging if enabled in settings.
 
         Returns:
             Update response string in the format expected by Kerio Control.
@@ -792,11 +800,14 @@ class KerioUpdateService:
             client_ip=client_ip,
         )
         return await self._make_antivirus_update_response(
-            version=version, client_ip=client_ip
+            version=version,
+            client_ip=client_ip,
         )
 
     async def get_antivirus_update_file(
-        self, client_ip: str, full_path: str
+        self,
+        client_ip: str | None,
+        full_path: str,
     ) -> FileResponse | Response:
         """
         Serve an antivirus update file from cache or proxy it from upstream.
@@ -853,7 +864,9 @@ class KerioUpdateService:
     # ------------------------------------------------------------------
 
     async def get_antispam_update_file(
-        self, client_ip: str, full_path: str
+        self,
+        client_ip: str | None,
+        full_path: str,
     ) -> FileResponse | Response:
         """
         Serve an antispam update file from cache or proxy it from upstream.
@@ -1034,7 +1047,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message=f"{label} | Error: Updates for {label} are not available",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -1065,7 +1078,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message=f"{service} | Error: Updates for {service} are disabled",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -1093,7 +1106,7 @@ class KerioUpdateService:
             write_log(
                 log_type=["system", "errors"],
                 message=f"Version parse error for '{version}': {err}",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -1132,7 +1145,7 @@ class KerioUpdateService:
         write_log(
             log_type=["system", "errors"],
             message=f"Version parse error: could not extract type/version from file_name '{file_name}'",
-            ip=client_ip if settings.logging.log_ip else None,
+            ip=client_ip,
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -1193,7 +1206,9 @@ class KerioUpdateService:
         )
 
     async def _make_antivirus_update_response(
-        self, version: str, client_ip: str
+        self,
+        version: str,
+        client_ip: str | None,
     ) -> str:
         """
         Build the antivirus update response string for Kerio Control.
@@ -1233,7 +1248,7 @@ class KerioUpdateService:
                 write_log(
                     log_type=["system"],
                     message="Antivirus | Error: License number is missing",
-                    ip=client_ip if settings.logging.log_ip else None,
+                    ip=client_ip,
                 )
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,

@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile, status
 from fastapi.responses import PlainTextResponse, HTMLResponse, FileResponse
 
-from app.config import settings, templates
-from app.dependencies import get_distro_service
+from app.config import templates
+from app.dependencies import get_distro_service, get_client_ip
 from app.service.distro import DistroService
 from app.utils.app_logging import write_log
 
@@ -40,20 +40,18 @@ router = APIRouter(prefix="/updates/distro", tags=["distro"])
     },
 )
 async def check_update(
-    request: Request,
     distro_service: Annotated[DistroService, Depends(get_distro_service)],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
     prod_code: str = Form(default=""),
     prod_major: int | None = Form(default=None),
     prod_minor: int | None = Form(default=None),
     prod_build: int | None = Form(default=None),
     prod_build_number: int | None = Form(default=None),
 ) -> str:
-    client_ip = request.client.host if request.client else None
-
     write_log(
         log_type=["system", "connections"],
         message="Distro | Update link request received",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
 
     return await distro_service.get_distro_update_info(
@@ -82,16 +80,14 @@ async def check_update(
     },
 )
 async def get_update_file(
-    request: Request,
     file_name: str,
     distro_service: Annotated[DistroService, Depends(get_distro_service)],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> FileResponse:
-    client_ip = request.client.host if request.client else None
-
     write_log(
         log_type=["system", "connections"],
         message="Distro | Update file request received",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
 
     file_path = distro_service.validate_and_get_file_path(file_name=file_name)

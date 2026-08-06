@@ -112,7 +112,7 @@ class DistroService:
         prod_minor: int | None,
         prod_build: int | None,
         prod_build_number: int | None,
-        client_ip: str | None = None,
+        client_ip: str | None,
     ) -> str:
         """
         Handle a Kerio Control version-check callback end to end.
@@ -138,7 +138,7 @@ class DistroService:
             write_log(
                 log_type=["system", "connections"],
                 message="Distro | Update disabled",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             return NO_UPDATE_RESPONSE
 
@@ -146,7 +146,7 @@ class DistroService:
             write_log(
                 log_type=["system", "connections"],
                 message="Distro | Update check received: non-Kerio Control product",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             return NO_UPDATE_RESPONSE
 
@@ -155,7 +155,7 @@ class DistroService:
                 log_type=["system", "connections"],
                 message="Distro | Update check received: missing version fields - "
                 f"{prod_major}.{prod_minor}.{prod_build} (build number: {prod_build_number})",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             return NO_UPDATE_RESPONSE
 
@@ -165,7 +165,7 @@ class DistroService:
                 f"Distro | Update check received: v{prod_major}.{prod_minor}.{prod_build} "
                 f"(build number: {prod_build_number})"
             ),
-            ip=client_ip if settings.logging.log_ip else None,
+            ip=client_ip,
         )
 
         try:
@@ -174,7 +174,7 @@ class DistroService:
             write_log(
                 log_type=["system", "errors"],
                 message=f"Distro Update | Error: Failed to parse version from config: {exc}",
-                ip=client_ip if settings.logging.log_ip else None,
+                ip=client_ip,
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -164,6 +164,7 @@ class SettingsService:
 
         data = {
             "network.direct": self._bool(form, "direct"),
+            "network.xray": self._bool(form, "xray"),
             "network.tor": self._bool(form, "tor"),
             "network.proxy": self._bool(form, "proxy"),
             "network.proxy_type": self._get(form, "proxy_type", "None"),

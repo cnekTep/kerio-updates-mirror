@@ -1,9 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Request, Depends, Form, Header
+from fastapi import APIRouter, Depends, Form, Header
 
-from app.config import settings
-from app.dependencies import get_kerio_update_service
+from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
 from app.utils.app_logging import write_log
 
@@ -14,17 +13,17 @@ router = APIRouter(prefix="/updates/registration", tags=["registration"])
     path="",
 )
 async def head_registration_info(
-    request: Request,
     kerio_update_service: Annotated[
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
 ):
-    client_ip = request.client.host if request.client else None
     write_log(
         log_type=["system", "connections"],
         message=f"Registration | HEAD request received",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
+
     return await kerio_update_service.get_registration_head_info(client_ip=client_ip)
 
 
@@ -32,21 +31,19 @@ async def head_registration_info(
     path="",
 )
 async def get_registration_info(
-    request: Request,
     kerio_update_service: Annotated[
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
     command: str = Form(...),
     content_type: str = Header(...),
     base_id: str = Form(default=""),
     token: str = Form(default=""),
 ):
-    client_ip = request.client.host if request.client else None
-
     write_log(
         log_type=["system", "connections"],
         message=f"Registration | {command.capitalize()} request received",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
 
     if command.lower() == "connect":

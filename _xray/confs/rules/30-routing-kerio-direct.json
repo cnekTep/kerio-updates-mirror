@@ -1,6 +1,9 @@
 [
   {
     "type": "field",
+    "source": [
+      "172.200.0.20"
+    ],
     "domain": [
       "domain:kerio-updates-mirror.local",
       "domain:kerio.com"

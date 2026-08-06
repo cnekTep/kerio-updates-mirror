@@ -3,8 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Request, status
 from fastapi.responses import PlainTextResponse
 
-from app.config import settings
-from app.dependencies import get_kerio_update_service
+from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
 from app.utils.app_logging import write_log
 
@@ -33,24 +32,23 @@ router = APIRouter(prefix="/updates/shieldmatrix", tags=["shieldmatrix"])
     },
 )
 async def get_update_link(
-    request: Request,
     kerio_update_service: Annotated[
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
     last_update: Annotated[
         str, Query(alias="last-update", description="Last update timestamp")
-    ] = 0,
+    ] = "0",
 ) -> str:
-    client_ip = request.client.host if request.client else None
-
     write_log(
         log_type=["system", "connections"],
         message="ShieldMatrix | Update link request received",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
 
     return await kerio_update_service.get_shieldmatrix_update_info(
-        client_ip=client_ip, updates_version=last_update
+        client_ip=client_ip,
+        updates_version=last_update,
     )
 
 
@@ -71,17 +69,15 @@ async def get_update_link(
     },
 )
 async def get_update_version(
-    request: Request,
     kerio_update_service: Annotated[
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> str:
-    client_ip = request.client.host if request.client else None
-
     write_log(
         log_type=["system"],
         message="ShieldMatrix | Update version request received",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
 
     return await kerio_update_service.get_shieldmatrix_update_version(
@@ -113,15 +109,15 @@ async def get_update_file(
     kerio_update_service: Annotated[
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
 ):
-    client_ip = request.client.host if request.client else None
-
     write_log(
         log_type=["system"],
         message=f"ShieldMatrix | Update file request received: {request.url}",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
 
     return await kerio_update_service.get_shieldmatrix_update_file(
-        client_ip=client_ip, full_path=full_path
+        client_ip=client_ip,
+        full_path=full_path,
     )

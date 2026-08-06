@@ -2,8 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, status
 
-from app.config import settings
-from app.dependencies import get_kerio_update_service
+from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
 from app.utils.app_logging import write_log
 
@@ -38,15 +37,15 @@ async def get_update_file(
     kerio_update_service: Annotated[
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
 ):
-    client_ip = request.client.host if request.client else None
-
     write_log(
         log_type=["system"],
         message=f"Antispam | Update file request received: {request.url}",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
 
     return await kerio_update_service.get_antispam_update_file(
-        client_ip=client_ip, full_path=full_path
+        client_ip=client_ip,
+        full_path=full_path,
     )

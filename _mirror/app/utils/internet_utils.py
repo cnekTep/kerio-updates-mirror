@@ -114,6 +114,8 @@ async def _get_connection_attempts() -> list[dict[str, str]]:
     for priority in priorities:
         if priority == "direct" and settings.network.direct:
             connection_attempts.append({"type": "direct"})
+        elif priority == "xray" and settings.network.xray:
+            connection_attempts.append({"type": "xray"})
         elif priority == "tor" and settings.network.tor:
             connection_attempts.append({"type": "tor"})
         elif priority == "proxy" and settings.network.proxy:
@@ -126,6 +128,8 @@ def _get_attempt_description(attempt_type: str) -> str:
     """Get human-readable description for connection attempt type."""
     if attempt_type == "direct":
         return "without proxy"
+    elif attempt_type == "xray":
+        return "via Xray"
     elif attempt_type == "tor":
         return "via TOR"
     else:  # proxy
@@ -137,12 +141,15 @@ def _get_proxy_url(proxy_type: str) -> str | None:
     Get proxy URL based on proxy type.
 
     Args:
-        proxy_type: Type of proxy ('tor' or 'proxy')
+        proxy_type: Type of proxy ('xray', 'tor' or 'proxy')
 
     Returns:
         Proxy URL string or None
     """
-    if proxy_type == "tor":
+    if proxy_type == "xray":
+        return f"socks5://{settings.network.xray_host}:{settings.network.xray_port}"
+
+    elif proxy_type == "tor":
         return f"socks5://{settings.network.tor_host}:{settings.network.tor_port}"
 
     elif proxy_type == "proxy":
@@ -174,7 +181,7 @@ def _prepare_client(
     Prepare httpx client kwargs and transport for given attempt type.
 
     Args:
-        attempt_type: Connection attempt type ('direct', 'tor', or 'proxy')
+        attempt_type: Connection attempt type ('direct', 'xray', 'tor', or 'proxy')
         timeout: Request timeout in seconds
 
     Returns:

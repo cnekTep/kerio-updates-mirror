@@ -3,8 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Request, status
 from fastapi.responses import FileResponse, PlainTextResponse
 
-from app.config import settings
-from app.dependencies import get_kerio_update_service
+from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
 from app.utils.app_logging import write_log
 
@@ -39,22 +38,21 @@ router = APIRouter(prefix="/updates/ids", tags=["ids"])
     },
 )
 async def get_update_link(
-    request: Request,
     version: Annotated[str, Query(description="IDS version (x.y)")],
     kerio_update_service: Annotated[
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> str:
-    client_ip = request.client.host if request.client else None
-
     write_log(
         log_type=["system", "connections"],
         message=f"IDS v{version} | Update link request received",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
 
     return await kerio_update_service.get_ids_update_info(
-        version=version, client_ip=client_ip
+        version=version,
+        client_ip=client_ip,
     )
 
 
@@ -79,13 +77,12 @@ async def get_update_file(
     kerio_update_service: Annotated[
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> FileResponse:
-    client_ip = request.client.host if request.client else None
-
     write_log(
         log_type=["system"],
         message=f"IDS | Update file request received: {request.url}",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
 
     file_path = kerio_update_service.validate_and_get_file_path(

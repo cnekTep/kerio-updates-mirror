@@ -14,6 +14,13 @@
                 (<small>Use your normal internet connection</small>)
             </label>
             <label>
+                <input id="xray" name="xray" type="checkbox"
+                       data-sort-key="xray" data-sort-label="Xray"
+                       {% if xray %}checked{% endif %}>
+                <span>Xray</span>
+                (<small>Route traffic through local Xray</small>)
+            </label>
+            <label>
                 <input id="tor" name="tor" type="checkbox"
                        data-sort-key="tor" data-sort-label="TOR"
                        {% if tor %}checked{% endif %}>
@@ -56,7 +63,7 @@
             <header>Connection priority</header>
             <div id="sortable-priority" class="sortable">
                 {% for method in download_priority %}
-                {%- set labels = {"direct": "Direct connection", "tor": "TOR", "proxy": "Proxy"} %}
+                {%- set labels = {"direct": "Direct connection", "xray": "Xray", "tor": "TOR", "proxy": "Proxy"} %}
                 <div class="sortable-item" data-key="{{ method }}">
                     <input type="hidden" name="download_priority" value="{{ method }}">
                     {{ labels[method] }}

@@ -1,10 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import PlainTextResponse
 
-from app.config import settings
-from app.dependencies import get_kerio_update_service
+from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
 from app.utils.app_logging import write_log
 
@@ -29,17 +28,15 @@ router = APIRouter(prefix="/updates/webfilter", tags=["web filter"])
     },
 )
 async def get_web_filter_key(
-    request: Request,
     kerio_update_service: Annotated[
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
+    client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> str:
-    client_ip = request.client.host if request.client else None
-
     write_log(
         log_type=["system", "connections"],
         message="Web Filter | Key request received",
-        ip=client_ip if settings.logging.log_ip else None,
+        ip=client_ip,
     )
 
     return await kerio_update_service.get_web_filter_key(client_ip=client_ip)

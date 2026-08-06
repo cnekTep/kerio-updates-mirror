@@ -29,6 +29,7 @@ def _active_priority() -> list[str]:
         m
         for m, enabled in [
             ("direct", settings.network.direct),
+            ("xray", settings.network.xray),
             ("tor", settings.network.tor),
             ("proxy", settings.network.proxy),
         ]
@@ -174,6 +175,7 @@ async def get_settings(
         "distro_list": distro_service.list_distros(),
         # Connection settings
         "direct": settings.network.direct,
+        "xray": settings.network.xray,
         "tor": settings.network.tor,
         "proxy": settings.network.proxy,
         "proxy_type": settings.network.proxy_type,
