@@ -1,5 +1,5 @@
 # Production Dockerfile - builds venv only, application code is bind-mounted at runtime
-FROM ghcr.io/astral-sh/uv:0.12.1-python3.14-trixie-slim AS builder
+FROM ghcr.io/astral-sh/uv:0.12.3-python3.14-trixie-slim AS builder
 
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project
 
 # Final stage - minimal runtime image without uv
-FROM python:3.14.6-slim-trixie
+FROM python:3.14.7-slim-trixie
 
 # gosu lets entrypoint run as root (needed to set ACLs),
 # then drop to appuser cleanly before starting the app.

@@ -54,7 +54,7 @@ class KerioUpdateService:
             5: ("update_geoip_5",),
         },
         "snort": {
-            None: ("update_snort_template",),
+            None: ("update_ids_5",),
         },
     }
 

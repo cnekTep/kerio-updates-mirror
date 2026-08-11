@@ -158,7 +158,6 @@ async def get_settings(
         "license_number": settings.updates.license_number,
         "update_ids_3": settings.updates.update_ids_3,
         "update_ids_5": settings.updates.update_ids_5,
-        "update_snort_template": settings.updates.update_snort_template,
         "update_geoip_4": settings.updates.update_geoip_4,
         "geoip_custom_url": settings.updates.geoip_custom_url,
         "update_geoip_5": settings.updates.update_geoip_5,

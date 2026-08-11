@@ -1,18 +1,18 @@
 [project]
 name = "kerio-updates-mirror"
-version = "3.2.0"
+version = "3.2.1"
 requires-python = ">=3.14"
 dependencies = [
     "aiosqlite>=0.22.1",
-    "alembic>=1.18.5",
+    "alembic>=1.19.1",
     "apscheduler>=3.11.3",
     "cryptography>=50.0.0",
     "fastapi>=0.141.1",
-    "granian>=2.8.0",
+    "granian>=2.8.1",
     "httpx[socks]>=0.28.1",
     "itsdangerous>=2.2.0",
     "jinja2>=3.1.6",
-    "pydantic-settings>=2.14.2",
+    "pydantic-settings>=2.15.0",
     "python-multipart>=0.0.32",
     "sqlalchemy[asyncio]>=2.0.51",
 ]
