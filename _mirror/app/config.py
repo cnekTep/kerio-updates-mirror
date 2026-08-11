@@ -28,7 +28,9 @@ class AppConfig(BaseModel):
 
 class RunConfig(BaseModel):
     host: str = Field(description="Host to run on")
-    ports: int | list[int] = Field(description="Ports to run on")
+    single_port: int = Field(description="Port to run on in single mode")
+    dual_http_port: int = Field(description="Port to run on in dual mode (HTTP)")
+    dual_https_port: int = Field(description="Port to run on in dual mode (HTTPS)")
 
 
 class LoggingConfig(BaseModel):
@@ -238,6 +240,16 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
         env_file_encoding="utf-8",
         env_parse_none_str="None",
+    )
+
+    has_nginx: bool = Field(
+        default=False, description="Whether mirror runs behind nginx"
+    )
+    has_tor: bool = Field(
+        default=False, description="Whether mirror runs with local TOR container"
+    )
+    has_xray: bool = Field(
+        default=False, description="Whether mirror runs with local XRAY container"
     )
 
     app: AppConfig = Field(default_factory=AppConfig)

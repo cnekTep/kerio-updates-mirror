@@ -1,0 +1,48 @@
+services:
+
+  tor:
+    image: "kum_tor:v0.4.9.11"
+    build:
+      context: ./_tor
+    stop_signal: SIGINT
+    restart: unless-stopped
+    #ports:
+    #  - "9050:9050"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./_tor/start.sh:/tor/start.sh
+      - ./_tor/tor.config:/etc/tor/torrc
+      - ./_tor/bridges:/tor/bridges
+      - ./_tor/check_tor:/tor/check_tor
+      - tor-data:/var/lib/tor
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          memory: 16M
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    networks:
+      mirror_net:
+        ipv4_address: 172.200.0.30
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+  mirror:
+    environment:
+      APP_CONFIG__HAS_TOR: "true"
+
+volumes:
+  tor-data:
+    driver: local

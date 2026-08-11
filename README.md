@@ -76,7 +76,8 @@ products, which allows you to:
 
 #### Prerequisites
 
-- Docker and Docker Compose ([installation guide](./docs/en/docker.md))
+- **Docker**
+- **Docker Compose v2 or later** - Docker Compose v1 is not supported ([installation guide](./docs/en/docker.md))
 
 #### Option 1: Running from pre-built Docker images (recommended)
 
@@ -100,6 +101,63 @@ Uses ready-made images, so nothing is compiled locally - the fastest way to get 
    ```bash
    sudo docker compose up -d
    ```
+   > By default, this starts the complete stack. If you only need specific components, see the modular deployment
+   options below.
+
+<details>
+<summary><strong>Modular deployment</strong></summary>
+
+The mirror is modular. You can run only the components you need instead of starting the complete stack.
+
+The **mirror** is the base component. Additional components can be enabled by adding their Compose files:
+
+* `compose.nginx.yml` - Nginx
+* `compose.tor.yml` - Tor
+* `compose.xray.yml` - Xray
+
+Some features are only available when the corresponding component is enabled:
+
+* **Tor** - `Route traffic through the Tor network`
+* **Xray** - `Route traffic through local Xray`
+* **Nginx** - `Restrict access to the web interface by IP` and `Restrict access to the API / Kerio updates by IP`
+
+If a component is not enabled, the corresponding settings will be unavailable in the web interface.
+
+**Mirror only:**
+
+```bash
+sudo docker compose -f compose.mirror.yml up -d
+```
+
+**Mirror + Nginx:**
+
+```bash
+sudo docker compose \
+  -f compose.mirror.yml \
+  -f compose.nginx.yml \
+  up -d
+```
+
+Additional components can be combined as needed. For example: **Mirror + Nginx + Tor**:
+
+```bash
+sudo docker compose \
+  -f compose.mirror.yml \
+  -f compose.nginx.yml \
+  -f compose.tor.yml \
+  up -d
+```
+
+When building images from source, add `--build` to the command. For example:
+
+```bash
+sudo docker compose \
+  -f compose.mirror.yml \
+  -f compose.nginx.yml \
+  up -d --build
+```
+
+</details>
 
 #### Option 2: Building from source code
 
@@ -114,6 +172,17 @@ Builds all images locally from the repository source instead of using pre-built 
    ```bash
    sudo docker compose up -d --build
    ```
+   > By default, this builds and starts the complete stack. You can also build and start only the components you need
+   using the modular deployment options above.
+
+   For example, to build and start **Mirror + Xray**:
+
+    ```bash
+    sudo docker compose \
+      -f compose.mirror.yml \
+      -f compose.xray.yml \
+      up -d --build
+    ```
 
 #### Option 3: Importing a Ready-to-Use Virtual Machine
 

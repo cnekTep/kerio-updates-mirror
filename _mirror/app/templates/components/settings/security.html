@@ -25,7 +25,7 @@
                 </fieldset>
             </div>
             <hr>
-            <label>
+            <label {% if not has_nginx %} aria-disabled="true" {% endif %}>
                 <input id="web_allowed_ips" name="web_allowed_ips" type="checkbox"
                        data-controls="web_allowed_ips_block"
                        {% if web_allowed_ips %}checked{% endif %}>
@@ -43,7 +43,7 @@
 
         <article>
             <header>API / Kerio updates</header>
-            <label>
+            <label {% if not has_nginx %} aria-disabled="true" {% endif %}>
                 <input id="api_allowed_ips" name="api_allowed_ips" type="checkbox"
                        data-controls="api_allowed_ips_block"
                        {% if api_allowed_ips %}checked{% endif %}>

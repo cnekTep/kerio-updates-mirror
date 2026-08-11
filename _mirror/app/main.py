@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -20,8 +21,13 @@ async def lifespan(app: FastAPI):
     """
     # Startup
     write_log(log_type="system", message="Application started")
-    scheduler = create_scheduler()
-    scheduler.start()
+
+    # Only the designated process owns the scheduler in dual-server mode
+    run_scheduler = os.environ.get("RUN_SCHEDULER", "1") == "1"
+    scheduler = None
+    if run_scheduler:
+        scheduler = create_scheduler()
+        scheduler.start()
 
     yield
 

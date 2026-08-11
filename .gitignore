@@ -5,7 +5,9 @@ __pycache__/
 .idea
 .vscode
 __temp__
+_mirror/.env
 _mirror/logs/*.*
+_mirror/nginx_acl/*.conf
 _mirror/update_files/security_image
 _mirror/update_files/*.csv
 _mirror/update_files/*.gz
@@ -30,9 +32,7 @@ _tor/bridges/cache
 _xray/confs/routing.json
 _xray/geodata/*.dat
 _xray/geodata/*.etag
-Dockerfile.dev
-docker-compose.dev.yml
-docker-compose.tinyproxy.dev.yml
+compose.mirror-dev.yml
 db.sqlite3
+Dockerfile.dev
 *.cache
-*.env

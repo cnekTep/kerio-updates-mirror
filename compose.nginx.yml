@@ -1,0 +1,40 @@
+services:
+
+  nginx:
+    image: "kum_nginx:v1.31.3"
+    build:
+      context: ./_nginx
+    stop_signal: SIGTERM
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8118:8118"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./_nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./_nginx/ssl_params.conf:/etc/nginx/ssl_params.conf:ro
+      - ./_nginx/acl:/etc/nginx/watch
+      - ./_mirror/certs:/etc/nginx/ssl:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          memory: 32M
+    networks:
+      mirror_net:
+        ipv4_address: 172.200.0.20
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+  mirror:
+    environment:
+      APP_CONFIG__HAS_NGINX: "true"
+    ports: !reset []
+    volumes:
+      - ./_nginx/acl:/mirror/nginx_acl

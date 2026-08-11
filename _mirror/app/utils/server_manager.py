@@ -52,13 +52,21 @@ def verify_ssl_or_exit() -> tuple[Path, Path]:
     return ssl_context
 
 
-def run_granian_server(port: int, ssl: bool = False) -> None:
+def run_granian_server(
+    port: int,
+    ssl: bool = False,
+    run_scheduler: bool = False,
+) -> None:
     """Run a single Granian server instance.
 
     Args:
         port: Port number to listen on
         ssl: Whether to use SSL/HTTPS (default: False)
+        run_scheduler: Whether this process should own the scheduler
     """
+    # Pass the flag down via env var, since granian spawns this in a fresh process
+    os.environ["RUN_SCHEDULER"] = "1" if run_scheduler else "0"
+
     config = {
         "target": "app.main:app",
         "address": settings.run.host,
@@ -109,11 +117,11 @@ def start_dual_granian_servers() -> (
     try:
         http_process = multiprocessing.Process(
             target=run_granian_server,
-            args=(settings.run.ports[0], False),
+            args=(settings.run.dual_http_port, False, True),
         )
         https_process = multiprocessing.Process(
             target=run_granian_server,
-            args=(settings.run.ports[1], True),
+            args=(settings.run.dual_https_port, True, False),
         )
 
         http_process.start()
@@ -133,7 +141,7 @@ def start_single_server() -> None:
     Granian(
         target="app.main:app",
         address=settings.run.host,
-        port=settings.run.ports,
+        port=settings.run.single_port,
         interface=Interfaces.ASGI,
         reload=False,
         workers=1,

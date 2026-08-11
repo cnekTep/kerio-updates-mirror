@@ -1,0 +1,52 @@
+services:
+
+  mirror:
+    image: "kum_mirror:v3.2.0"
+    build:
+      context: ./_mirror
+      dockerfile: Dockerfile
+    stop_signal: SIGINT
+    restart: unless-stopped
+    environment:
+      # Overridden per-key by compose.nginx.yml / compose.tor.yml / compose.xray.yml
+      # when those patch files are layered on top via "-f"
+      APP_CONFIG__HAS_NGINX: "false"
+      APP_CONFIG__HAS_TOR: "false"
+      APP_CONFIG__HAS_XRAY: "false"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./_mirror:/mirror
+      - mirror-venv-data:/mirror/.venv
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          memory: 32M
+    networks:
+      mirror_net:
+        ipv4_address: 172.200.0.10
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+volumes:
+  mirror-venv-data:
+    driver: local
+
+networks:
+  # 172.200.0.10 - mirror
+  # 172.200.0.20 - nginx  (added by compose.nginx.yml)
+  # 172.200.0.30 - tor    (added by compose.tor.yml)
+  # 172.200.0.5  - xray   (added by compose.xray.yml)
+  mirror_net:
+    driver: bridge
+    enable_ipv6: false
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.200.0.0/24
+          gateway: 172.200.0.1

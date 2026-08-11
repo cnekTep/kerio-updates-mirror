@@ -25,12 +25,15 @@ SETTINGS_SECTIONS = {"update", "connection", "security"}
 
 def _active_priority() -> list[str]:
     """Returns download_priority filtered to only currently enabled connection methods."""
+    if_tor_enabled = settings.network.tor if settings.has_tor else False
+    if_xray_enabled = settings.network.xray if settings.has_xray else False
+
     active = {
         m
         for m, enabled in [
             ("direct", settings.network.direct),
-            ("xray", settings.network.xray),
-            ("tor", settings.network.tor),
+            ("xray", if_xray_enabled),
+            ("tor", if_tor_enabled),
             ("proxy", settings.network.proxy),
         ]
         if enabled
@@ -175,8 +178,10 @@ async def get_settings(
         "distro_list": distro_service.list_distros(),
         # Connection settings
         "direct": settings.network.direct,
-        "xray": settings.network.xray,
-        "tor": settings.network.tor,
+        "xray": settings.network.xray if settings.has_xray else False,
+        "has_xray": settings.has_xray,
+        "tor": settings.network.tor if settings.has_tor else False,
+        "has_tor": settings.has_tor,
         "proxy": settings.network.proxy,
         "proxy_type": settings.network.proxy_type,
         "proxy_host": settings.network.proxy_host,
@@ -189,6 +194,7 @@ async def get_settings(
         "username": settings.security.username,
         "password": bool(settings.security.password_hash),
         **_security_context(nginx_acl_service),
+        "has_nginx": settings.has_nginx,
     }
 
     if not request.headers.get("HX-Request"):

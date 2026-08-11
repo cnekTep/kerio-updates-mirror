@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # apply_migrations()
 
     try:
-        if isinstance(settings.run.ports, int):
+        if settings.has_nginx:
             # Single server mode (default: 8000 port)
             start_single_server()
         else:

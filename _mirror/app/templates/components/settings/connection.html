@@ -13,17 +13,17 @@
                 <span>Direct connection</span>
                 (<small>Use your normal internet connection</small>)
             </label>
-            <label>
+            <label {% if not has_xray %} aria-disabled="true" {% endif %}>
                 <input id="xray" name="xray" type="checkbox"
                        data-sort-key="xray" data-sort-label="Xray"
-                       {% if xray %}checked{% endif %}>
+                       {% if xray %} checked {% endif %}>
                 <span>Xray</span>
                 (<small>Route traffic through local Xray</small>)
             </label>
-            <label>
+            <label {% if not has_tor %} aria-disabled="true" {% endif %}>
                 <input id="tor" name="tor" type="checkbox"
                        data-sort-key="tor" data-sort-label="TOR"
-                       {% if tor %}checked{% endif %}>
+                       {% if tor %} checked {% endif %}>
                 <span>TOR network</span>
                 (<small>Route traffic through the Tor network</small>)
             </label>
