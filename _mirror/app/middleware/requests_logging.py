@@ -29,8 +29,17 @@ class RequestsLoggingMiddleware:
             await self.app(scope, receive, send)
             return
 
-        if not settings.logging.debug:
+        debug_enabled = settings.logging.debug
+        log_unmatched = settings.logging.unmatched_requests
+
+        if not debug_enabled and not log_unmatched:
             await self.app(scope, receive, send)
+            return
+
+        # Lightweight path: unmatched-request logging only, no body capture overhead.
+        # Used when full debug logging is off but unmatched-request tracking is on.
+        if not debug_enabled:
+            await self._handle_unmatched_only(scope, receive, send)
             return
 
         request = Request(scope, receive)
@@ -130,6 +139,8 @@ class RequestsLoggingMiddleware:
 
         try:
             await self.app(scope, receive_with_cached_body, send_wrapper)
+            if log_unmatched:
+                _log_if_unmatched(scope, response_status)
         except Exception as e:
             process_ms = (time.perf_counter() - start) * 1000
             write_log(
@@ -139,6 +150,49 @@ class RequestsLoggingMiddleware:
                 f"error={type(e).__name__}: {str(e)}",
             )
             raise
+
+    async def _handle_unmatched_only(self, scope: Scope, receive: Receive, send: Send):
+        """
+        Minimal path used when only unmatched-request tracking is enabled.
+        Passes the request through untouched, just captures the final status code
+        so it can be included in the unmatched-request log entry, if logged.
+        """
+        status_holder: dict[str, int | None] = {"status": None}
+
+        async def send_wrapper(message: Message) -> None:
+            if message["type"] == "http.response.start":
+                status_holder["status"] = message["status"]
+            await send(message)
+
+        await self.app(scope, receive, send_wrapper)
+        _log_if_unmatched(scope, status_holder["status"])
+
+
+def _log_if_unmatched(scope: Scope, status_code: int | None) -> None:
+    """
+    Log requests that did not match any registered route.
+
+    Starlette's router sets scope["route"] only when a route is fully matched.
+    Checking this (instead of status_code == 404) avoids false positives from
+    legitimate 404 responses returned by real endpoints.
+    """
+    if scope.get("endpoint") is not None:
+        return
+
+    request = Request(scope)
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "unknown")
+    referer = request.headers.get("referer", "-")
+    forwarded_for = request.headers.get("x-forwarded-for", "-")
+    content_length = request.headers.get("content-length", "0")
+
+    write_log(
+        log_type="unmatched_requests",
+        message=f"{request.method} {request.url} status={status_code} "
+        f"from {client_ip} x_forwarded_for={forwarded_for} "
+        f"referer={referer} content_length={content_length} "
+        f"user_agent={user_agent}",
+    )
 
 
 def _log_request(request: Request, body_bytes: bytes, body_too_large: bool):

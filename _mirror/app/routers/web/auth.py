@@ -17,6 +17,11 @@ async def login_form(
 ):
     if not auth_service.enabled:
         return RedirectResponse(url="/web/general/main")
+
+    if request.url.scheme == "http":
+        https_url = request.url.replace(scheme="https")
+        return RedirectResponse(url=str(https_url))
+
     return templates.TemplateResponse(
         request=request,
         name="pages/login.html",

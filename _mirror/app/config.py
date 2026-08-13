@@ -45,6 +45,7 @@ class LoggingConfig(BaseModel):
     date_format: str = Field(description="Date format")
     log_ip: bool = Field(description="Log IP address in logs")
     debug: bool = Field(description="Enable debug mode")
+    unmatched_requests: bool = Field(description="Enable unmatched requests logging")
     log_requests_body: bool = Field(description="Log requests body in debug mode")
     log_responses_body: bool = Field(description="Log responses body in debug mode")
     log_body_limit: int = Field(description="Log body limit in bytes")
@@ -230,6 +231,11 @@ class SecurityConfig(BaseModel):
     username: str | None = Field(description="Username for basic auth")
     password_hash: str | None = Field(description="Password hash for basic auth")
     secret_key: str | None = Field(description="Secret key for basic auth")
+
+    # Single static token for write-access API endpoints
+    api_write_token: str | None = Field(
+        description="API token for write access (sent via X-API-Key header)"
+    )
 
 
 class Settings(BaseSettings):

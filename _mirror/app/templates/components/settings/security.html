@@ -59,6 +59,18 @@
             </div>
         </article>
 
+        <article>
+            <header>API tokens</header>
+            <div class="settings-grid size-5_5-with-action">
+                <p class="pb-1r">Write token:</p>
+                {% include "components/settings/security/api_token_input.html" %}
+                <input type="button" value="Generate" id="api-token-generate-btn"
+                       hx-post="{{ url_for('generate_api_token') }}"
+                       hx-target="#api_write_token"
+                       hx-swap="outerHTML"/>
+            </div>
+        </article>
+
         <dialog id="save-dialog">
             <article>
                 <h3 id="save-dialog-message"></h3>

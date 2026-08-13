@@ -1,6 +1,6 @@
 [project]
 name = "kerio-updates-mirror"
-version = "3.2.1"
+version = "3.2.2"
 requires-python = ">=3.14"
 dependencies = [
     "aiosqlite>=0.22.1",
@@ -14,7 +14,7 @@ dependencies = [
     "jinja2>=3.1.6",
     "pydantic-settings>=2.15.0",
     "python-multipart>=0.0.32",
-    "sqlalchemy[asyncio]>=2.0.51",
+    "sqlalchemy[asyncio]>=2.0.52",
 ]
 
 [dependency-groups]

@@ -92,7 +92,7 @@ class AuthService:
             max_age=cookie_max_age,
             httponly=True,
             samesite="lax",
-            secure=False,  # site is served over both http and https
+            secure=True,
         )
 
     @staticmethod

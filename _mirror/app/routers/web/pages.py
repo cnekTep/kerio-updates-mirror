@@ -1,3 +1,4 @@
+import secrets
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Query, status
@@ -194,6 +195,7 @@ async def get_settings(
         "password": bool(settings.security.password_hash),
         **_security_context(nginx_acl_service),
         "has_nginx": settings.has_nginx,
+        "api_write_token": settings.security.api_write_token,
     }
 
     if not request.headers.get("HX-Request"):
@@ -207,6 +209,22 @@ async def get_settings(
         request=request,
         name=f"components/settings/{name}.html",
         context={**settings_data},
+    )
+
+
+@router.post(
+    path="/settings/api-token/generate",
+    response_class=HTMLResponse,
+    status_code=status.HTTP_200_OK,
+    name="generate_api_token",
+)
+async def generate_api_token(request: Request) -> HTMLResponse:
+    token = secrets.token_urlsafe(32)  # Generate a secure random token
+
+    return templates.TemplateResponse(
+        request=request,
+        name="components/settings/security/api_token_input.html",
+        context={"api_write_token": token},
     )
 
 

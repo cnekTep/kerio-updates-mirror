@@ -40,7 +40,12 @@ def create_app():
     """
     Factory function to create and configure FastAPI application instance.
     """
-    app = FastAPI(title="Kerio Updates Mirror", lifespan=lifespan)
+    app = FastAPI(
+        title="Kerio Updates Mirror",
+        lifespan=lifespan,
+        docs_url="/docs",
+        openapi_url="/docs/openapi.json",
+    )
 
     # Serve static files (CSS, JS, images)
     app.mount(

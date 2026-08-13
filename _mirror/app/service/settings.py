@@ -183,14 +183,20 @@ class SettingsService:
         password_re = self._get(form, "password_re")
         reload = False
 
+        data: dict[str, str | bool | None] = {
+            "security.api_write_token": self._get(form, "api_write_token") or None,
+        }
+
         if auth:
             self._validate_credentials(
                 username=username, password=password, password_re=password_re
             )
-            data = {
-                "security.auth": True,
-                "security.username": username,
-            }
+            data.update(
+                {
+                    "security.auth": True,
+                    "security.username": username,
+                }
+            )
             if password:
                 data["security.password_hash"] = self.auth_service.hash_password(
                     password
@@ -199,12 +205,14 @@ class SettingsService:
             if not settings.security.secret_key:
                 data["security.secret_key"] = secrets.token_hex(32)
         else:
-            data = {
-                "security.auth": False,
-                "security.username": None,
-                "security.password_hash": None,
-                "security.secret_key": None,
-            }
+            data.update(
+                {
+                    "security.auth": False,
+                    "security.username": None,
+                    "security.password_hash": None,
+                    "security.secret_key": None,
+                }
+            )
 
         settings.bulk_update(data)
 
