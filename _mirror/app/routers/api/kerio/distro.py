@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile, status
-from fastapi.responses import PlainTextResponse, HTMLResponse, FileResponse
+from fastapi.responses import PlainTextResponse, HTMLResponse, FileResponse, Response
 
 from app.config import templates
 from app.dependencies import get_distro_service, get_client_ip
@@ -68,11 +68,11 @@ async def check_update(
     path="/files/{file_name}",
     summary="Download a Kerio Control distribution file",
     description=(
-        "Serves a Kerio Control distribution (.img) or signature (.sig) file "
-        "by its name from local disk. "
+        "Serves a Kerio Control distribution (.img) or signature (.sig) file by its name. "
         "Returns 400 if the file name is invalid, 404 if the file is not found."
     ),
     status_code=status.HTTP_200_OK,
+    response_model=None,
     responses={
         200: {"description": "Distribution file content"},
         400: {"description": "Invalid file name"},
@@ -83,18 +83,16 @@ async def get_update_file(
     file_name: str,
     distro_service: Annotated[DistroService, Depends(get_distro_service)],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
-) -> FileResponse:
+) -> Response | FileResponse:
     write_log(
         log_type=["system", "connections"],
         message="Distro | Update file request received",
         ip=client_ip,
     )
 
-    file_path = distro_service.validate_and_get_file_path(file_name=file_name)
-    return FileResponse(
-        path=file_path,
-        media_type="application/octet-stream",
-        filename=file_path.name,
+    return distro_service.get_distro_file(
+        file_name=file_name,
+        client_ip=client_ip,
     )
 
 

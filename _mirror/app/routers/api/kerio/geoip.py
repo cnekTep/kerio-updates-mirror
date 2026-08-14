@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, Request, status
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse, Response
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
@@ -60,11 +60,12 @@ async def get_update_link(
     path="/files/{file_name}",
     summary="Download GeoIP update file",
     description=(
-        "Serves a GeoIP update file by its name from local disk. "
+        "Serves a GeoIP update file by its name. "
         "Returns 400 if the file name is invalid, "
         "404 if the file is not found."
     ),
     status_code=status.HTTP_200_OK,
+    response_model=None,
     responses={
         200: {"description": "GeoIP update file content"},
         400: {"description": "Invalid file name"},
@@ -78,15 +79,14 @@ async def get_update_file(
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
-) -> FileResponse:
+) -> Response | FileResponse:
     write_log(
         log_type=["system"],
         message=f"GeoIP | Update file request received: {request.url}",
         ip=client_ip,
     )
 
-    file_path = kerio_update_service.validate_and_get_file_path(
+    return kerio_update_service.get_update_file(
         file_name=file_name,
         client_ip=client_ip,
     )
-    return FileResponse(file_path)

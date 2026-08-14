@@ -6,10 +6,11 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, utils
 from fastapi import HTTPException, UploadFile, status
+from fastapi.responses import FileResponse, Response
 
 from app.config import settings
 from app.utils.app_logging import write_log
-from app.utils.file_utils import ensure_dir
+from app.utils.file_utils import ensure_dir, build_file_response
 
 # Expected filename format: kerio-control-upgrade-{version}.img
 _FILENAME_PATTERN = re.compile(r"^kerio-control-upgrade-(\d+\.\d+\.\d+-\d+).*\.img$")
@@ -218,21 +219,31 @@ class DistroService:
         )
 
     @staticmethod
-    def validate_and_get_file_path(file_name: str) -> Path:
+    def get_distro_file(
+        file_name: str,
+        client_ip: str | None,
+    ) -> Response | FileResponse:
         """
-        Validate a requested distro file name and resolve its path on disk.
+        Validate a requested distro file name and serve it from disk.
 
         Args:
-            file_name: Requested file name (``*.img`` or ``*.sig``).
+                file_name: Requested file name (``*.img`` or ``*.sig``).
+                client_ip: Client IP address, used for logging if enabled in settings.
 
         Returns:
-            Absolute path to the file on disk.
+                FileResponse with the requested file content.
 
         Raises:
-            HTTPException: 400 if the file name has an unexpected format or
-                resolves outside the distro directory, 404 if it doesn't exist.
+                HTTPException: 400 if the file name has an unexpected format or
+                        resolves outside the distro directory, 404 if it doesn't exist.
         """
+
         if not re.fullmatch(r"[A-Za-z0-9_.\-]+\.(img|sig)", file_name):
+            write_log(
+                log_type=["system", "errors"],
+                message=f"Invalid distro file_name format: '{file_name}'",
+                ip=client_ip,
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file name"
             )
@@ -244,16 +255,26 @@ class DistroService:
         # resolving both paths also guards against symlinks pointing outside
         # distro_dir.
         if not file_path.is_relative_to(distro_dir):
+            write_log(
+                log_type=["system", "errors"],
+                message=f"Resolved path escapes distro dir for file_name '{file_name}'",
+                ip=client_ip,
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file name"
             )
 
         if not file_path.is_file():
+            write_log(
+                log_type=["system", "errors"],
+                message=f"Distro update file not found: '{file_path}'",
+                ip=client_ip,
+            )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Update file not found"
             )
 
-        return file_path
+        return build_file_response(file_path=file_path)
 
     # ------------------------------------------------------------------
     # Private helpers

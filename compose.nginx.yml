@@ -16,6 +16,8 @@ services:
       - ./_nginx/ssl_params.conf:/etc/nginx/ssl_params.conf:ro
       - ./_nginx/acl:/etc/nginx/watch
       - ./_mirror/certs:/etc/nginx/ssl:ro
+      - ./_mirror/app/static:/etc/nginx/static:ro
+      - ./_mirror/update_files:/etc/nginx/update_files:ro
     deploy:
       resources:
         limits:

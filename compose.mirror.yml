@@ -1,7 +1,7 @@
 services:
 
   mirror:
-    image: "kum_mirror:v3.2.2"
+    image: "kum_mirror:v3.3.0"
     build:
       context: ./_mirror
       dockerfile: Dockerfile

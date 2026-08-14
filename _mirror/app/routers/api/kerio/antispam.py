@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import FileResponse, Response
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
@@ -24,6 +25,7 @@ router = APIRouter(prefix="/updates/antispam", tags=["antispam"])
         "503 if stale versions.* files could not be evicted (retry later)."
     ),
     status_code=status.HTTP_200_OK,
+    response_model=None,
     responses={
         200: {"description": "Antispam update file content"},
         404: {"description": "Antispam updates are disabled or file not found"},
@@ -38,7 +40,7 @@ async def get_update_file(
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
-):
+) -> Response | FileResponse:
     write_log(
         log_type=["system"],
         message=f"Antispam | Update file request received: {request.url}",

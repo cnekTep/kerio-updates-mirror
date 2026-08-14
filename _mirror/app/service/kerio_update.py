@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse
 
 from app.config import settings
 from app.utils.app_logging import write_log
-from app.utils.file_utils import clean_directory, ensure_dir
+from app.utils.file_utils import clean_directory, ensure_dir, build_file_response
 from app.utils.internet_utils import (
     download_file_with_retries,
     make_request_with_retries,
@@ -195,32 +195,36 @@ class KerioUpdateService:
     # File serving (IDS / GeoIP shared)
     # ------------------------------------------------------------------
 
-    def validate_and_get_file_path(self, file_name: str, client_ip: str | None) -> Path:
+    def get_update_file(
+        self,
+        file_name: str,
+        client_ip: str | None,
+    ) -> Response | FileResponse:
         """
-        Validate a file name from the request and return a safe local path.
+        Validate a file name from the request and serve the corresponding IDS/GeoIP update file.
 
         Performs path-traversal checks, extension allowlist validation, type
-        allowlist validation, and an enabled-updates check before resolving
-        the final path.
+        allowlist validation, and an enabled-updates check before serving the file.
 
         Args:
-            file_name: Raw file name from the client request (URL path segment).
-            client_ip: Client IP address, used for logging if enabled in settings.
+                file_name: Raw file name from the client request (URL path segment).
+                client_ip: Client IP address, used for logging if enabled in settings.
 
         Returns:
-            Resolved Path object pointing to the validated file.
+                FileResponse with the requested file content.
 
         Raises:
                 HTTPException: 400 if the update type parsed from the file name is
-                                   not recognized,
-                               400 if the file name contains illegal characters,
-                               400 if the resolved path escapes the update directory,
-                               400 if the file extension is not allowed,
-                               400 if the path is not a regular file,
-                               404 if the type/version is unsupported,
-                               404 if updates for the parsed type/version are disabled,
-                               404 if the file does not exist.
+                                           not recognized,
+                                           400 if the file name contains illegal characters,
+                                           400 if the resolved path escapes the update directory,
+                                           400 if the file extension is not allowed,
+                                           400 if the path is not a regular file,
+                                           404 if the type/version is unsupported,
+                                           404 if updates for the parsed type/version are disabled,
+                                           404 if the file does not exist.
         """
+
         parsed = self._parse_type_and_version_from_filename(file_name, client_ip)
         update_type = parsed["type"]
         major_version = parsed["version"]
@@ -248,34 +252,12 @@ class KerioUpdateService:
         )
         self._check_update_enabled(enabled=enabled, service=label, client_ip=client_ip)
 
-        # Security: reject path separators and traversal sequences
-        if "/" in file_name or "\\" in file_name or ".." in file_name:
-            write_log(
-                log_type=["system", "errors"],
-                message=f"Path traversal attempt in file_name '{file_name}'",
-                ip=client_ip,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid file name",
-            )
-
-        file_path = settings.updates.update_dir / file_name
-
-        # Security: ensure resolved path stays within the allowed directory
-        try:
-            file_path = file_path.resolve()
-            file_path.relative_to(settings.updates.update_dir.resolve())
-        except (ValueError, RuntimeError):
-            write_log(
-                log_type=["system", "errors"],
-                message=f"Resolved path escapes update directory for file_name '{file_name}'",
-                ip=client_ip,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid file path",
-            )
+        file_path = self._validate_and_resolve_safe_path(
+            file_name=file_name,
+            base_dir=settings.updates.update_dir,
+            client_ip=client_ip,
+            log_context=label,
+        )
 
         allowed_extensions = {".gz", ".md5", ".sig", ".tpl"}
         if file_path.suffix.lower() not in allowed_extensions:
@@ -311,7 +293,7 @@ class KerioUpdateService:
                 detail="Invalid file",
             )
 
-        return file_path
+        return build_file_response(file_path=file_path)
 
     # ------------------------------------------------------------------
     # ShieldMatrix
@@ -448,7 +430,7 @@ class KerioUpdateService:
         self,
         client_ip: str | None,
         full_path: str,
-    ) -> FileResponse:
+    ) -> Response | FileResponse:
         """
         Serve a ShieldMatrix update file from cache, downloading it if absent.
 
@@ -494,10 +476,15 @@ class KerioUpdateService:
             )
 
         cache_dir = ensure_dir(settings.updates.update_dir / "matrix_cache" / proto)
-        file_path = cache_dir / file_name
+        file_path = self._validate_and_resolve_safe_path(
+            file_name=file_name,
+            base_dir=cache_dir,
+            client_ip=client_ip,
+            log_context="ShieldMatrix",
+        )
 
         if file_path.exists():
-            return FileResponse(file_path)
+            return build_file_response(file_path=file_path)
 
         # File not cached - download from upstream
         upstream_url = f"{settings.updates.shieldmatrix_url.rstrip('/')}/{full_path}"
@@ -523,7 +510,7 @@ class KerioUpdateService:
                 detail=f"Failed to download ShieldMatrix file: {full_path}",
             )
 
-        return FileResponse(file_path)
+        return build_file_response(file_path=file_path)
 
     # ------------------------------------------------------------------
     # Registration
@@ -857,6 +844,7 @@ class KerioUpdateService:
             use_cache=settings.updates.antivirus_cache,
             cache_subdir="antivirus_cache",
             version_ttl=settings.updates.antivirus_version_ttl,
+            client_ip=client_ip,
         )
 
     # ------------------------------------------------------------------
@@ -908,6 +896,7 @@ class KerioUpdateService:
             use_cache=settings.updates.antispam_cache,
             cache_subdir="antispam_cache",
             version_ttl=settings.updates.antispam_version_ttl,
+            client_ip=client_ip,
         )
 
     # ------------------------------------------------------------------
@@ -923,6 +912,7 @@ class KerioUpdateService:
         use_cache: bool,
         cache_subdir: str,
         version_ttl: int,
+        client_ip: str | None,
     ) -> FileResponse | Response:
         """
         Serve an update file from local cache or proxy it from upstream.
@@ -947,12 +937,15 @@ class KerioUpdateService:
             version_ttl: Cache TTL in seconds for ``versions.id``. Use
                          ``settings.updates.antivirus_version_ttl`` for antivirus or
                          ``settings.updates.antispam_version_ttl`` for antispam.
+            client_ip: Client IP address, used for logging if enabled in settings.
 
         Returns:
             ``FileResponse`` (cache mode) or ``Response`` (proxy mode) with file content.
 
         Raises:
-            HTTPException: 404 if the file is not found,
+            HTTPException: 400 if the file name contains illegal characters or
+                                                   resolves outside the cache directory,
+                           404 if the file is not found,
                            502 if the upstream request fails,
                            503 if stale ``versions.*`` files could not be evicted.
         """
@@ -968,7 +961,12 @@ class KerioUpdateService:
         # Cache mode: serve files from local disk
         if use_cache:
             cache_dir = ensure_dir(settings.updates.update_dir / cache_subdir)
-            file_path = cache_dir / file_name
+            file_path = self._validate_and_resolve_safe_path(
+                file_name=file_name,
+                base_dir=cache_dir,
+                client_ip=client_ip,
+                log_context="Antivirus/Antispam",
+            )
 
             if file_name == "versions.id":
                 await self._download_versions_id_if_stale(
@@ -996,7 +994,7 @@ class KerioUpdateService:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="File not found",
                 )
-            return FileResponse(file_path)
+            return build_file_response(file_path=file_path)
 
         # Proxy mode: forward every request directly to update servers
         response = await make_request_with_retries(
@@ -1014,6 +1012,60 @@ class KerioUpdateService:
             status_code=response.status_code,
             headers=dict(response.headers),
         )
+
+    @staticmethod
+    def _validate_and_resolve_safe_path(
+        file_name: str,
+        base_dir: Path,
+        client_ip: str | None,
+        log_context: str,
+    ) -> Path:
+        """
+        Validate a file name against path-traversal and resolve it within base_dir.
+
+        Args:
+                file_name: Raw file name / path segment from the client request.
+                base_dir: Directory the resolved path must stay within.
+                client_ip: Client IP address, used for logging if enabled in settings.
+                log_context: Short label used in log messages (e.g. "ShieldMatrix").
+
+        Returns:
+                Resolved absolute Path, guaranteed to be inside base_dir.
+
+        Raises:
+                HTTPException: 400 if file_name contains illegal characters,
+                                           400 if the resolved path escapes base_dir.
+        """
+        # Security: reject path separators and traversal sequences
+        if "/" in file_name or "\\" in file_name or ".." in file_name:
+            write_log(
+                log_type=["system", "errors"],
+                message=f"Path traversal attempt in {log_context} file_name '{file_name}'",
+                ip=client_ip,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid file name",
+            )
+
+        file_path = base_dir / file_name
+
+        # Security: ensure resolved path stays within base_dir (also catches symlinks)
+        try:
+            resolved_path = file_path.resolve()
+            resolved_path.relative_to(base_dir.resolve())
+        except (ValueError, RuntimeError):
+            write_log(
+                log_type=["system", "errors"],
+                message=f"Resolved path escapes {log_context} dir for file_name '{file_name}'",
+                ip=client_ip,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid file path",
+            )
+
+        return resolved_path
 
     def _resolve_enabled_flag(
         self,

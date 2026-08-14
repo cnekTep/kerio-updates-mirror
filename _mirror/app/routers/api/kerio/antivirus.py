@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, Request, status
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, FileResponse, Response
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
@@ -69,6 +69,7 @@ async def get_update_link(
         "503 if stale versions.* files could not be evicted (retry later)."
     ),
     status_code=status.HTTP_200_OK,
+    response_model=None,
     responses={
         200: {"description": "Antivirus update file content"},
         404: {"description": "Antivirus updates are disabled or file not found"},
@@ -83,7 +84,7 @@ async def get_update_file(
         KerioUpdateService, Depends(get_kerio_update_service)
     ],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
-):
+) -> Response | FileResponse:
     write_log(
         log_type=["system"],
         message=f"Antivirus | Update file request received: {request.url}",
