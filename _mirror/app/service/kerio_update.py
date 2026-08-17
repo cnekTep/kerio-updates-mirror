@@ -172,7 +172,14 @@ class KerioUpdateService:
             HTTPException: 400 if the version string is malformed,
                            404 if updates are disabled or the version is unsupported.
         """
-        major_version = self._parse_major_version(version=version, client_ip=client_ip)
+        # "0.0" indicates version was not provided by the client; default to major version 5
+        if version == "0.0":
+            major_version = 5
+        else:
+            major_version = self._parse_major_version(
+                version=version, client_ip=client_ip
+            )
+
         enabled = self._resolve_enabled_flag(
             update_type="geoip",
             version=version,
