@@ -98,6 +98,10 @@ class UpdatesConfig(BaseModel):
     license_number: str | None = Field(
         description="Kerio Control product license number for updates"
     )
+    license_exp_date: date | None = Field(description="License expiration date")
+    license_expiration_days: int = Field(
+        description="Number of days before expiration to show warning"
+    )
     license_number_last_update: date | None = Field(
         description="Last update date of license number"
     )

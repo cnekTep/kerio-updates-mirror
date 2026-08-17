@@ -108,7 +108,6 @@ class SettingsService:
         data = {
             "updates.update_ids_3": self._bool(form, "update_ids_3"),
             "updates.update_ids_5": self._bool(form, "update_ids_5"),
-            "updates.update_snort_template": self._bool(form, "update_snort_template"),
             "updates.update_geoip_4": self._bool(form, "update_geoip_4"),
             "updates.geoip_custom_url": self._bool(form, "geoip_custom_url"),
             "updates.update_geoip_5": self._bool(form, "update_geoip_5"),
@@ -118,6 +117,7 @@ class SettingsService:
             "updates.update_web_filter_key": self._bool(form, "update_web_filter_key"),
             "updates.update_shieldmatrix": self._bool(form, "update_shieldmatrix"),
             "updates.license_number": self._get(form, "license") or "None",
+            "updates.license_exp_date": self._get(form, "license_exp_date") or "None",
             "updates.license_number_last_update": (
                 date.today()
                 if self._get(form, "license") != settings.updates.license_number

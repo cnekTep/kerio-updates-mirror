@@ -1,4 +1,5 @@
 import secrets
+from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Query, status
@@ -54,6 +55,42 @@ def _security_context(nginx_acl_service: NginxACLService) -> dict:
     }
 
 
+def _get_license_display_data(
+    license_last_update: date | None,
+    license_exp_date: date | None,
+    days_to_expiration: int,
+) -> dict[str, date | None | str | bool]:
+    """Pick the more recent of two license-related dates and prepare display data."""
+    candidates = [
+        ("exp_date", license_exp_date, "License expiration date"),
+        ("last_update", license_last_update, "Last update date of license number"),
+    ]
+    present = [c for c in candidates if c[1] is not None]
+
+    if not present:
+        return {
+            "lic_display_date": None,
+            "lic_number_tooltip": None,
+            "lic_date_is_expiring": False,
+        }
+
+    # Pick entry with the max date
+    field_name, value, tooltip = max(present, key=lambda item: item[1])
+
+    # Highlight in red only if the winning date is the expiration date
+    # and it expires in less than days_to_expiration days
+    is_expiring = False
+    if field_name == "exp_date":
+        days_left = (value - date.today()).days
+        is_expiring = days_left <= days_to_expiration
+
+    return {
+        "lic_display_date": value,
+        "lic_number_tooltip": tooltip,
+        "lic_date_is_expiring": is_expiring,
+    }
+
+
 @router.get(path="/", response_class=HTMLResponse, name="main_page")
 async def index():
     return RedirectResponse(url="/web/general/main")
@@ -80,12 +117,20 @@ async def general(request: Request, name: str):
             context={"active": f"web/general/{name}"},
         )
 
+    license_display_data = _get_license_display_data(
+        license_last_update=settings.updates.license_number_last_update,
+        license_exp_date=settings.updates.license_exp_date,
+        days_to_expiration=settings.updates.license_expiration_days,
+    )
+
     return templates.TemplateResponse(
         request=request,
         name=f"components/general/{name}.html",
         context={
             "license_number": settings.updates.license_number,
-            "license_number_last_update": settings.updates.license_number_last_update,
+            "license_display_date": license_display_data["lic_display_date"],
+            "license_number_tooltip": license_display_data["lic_number_tooltip"],
+            "license_date_is_expiring": license_display_data["lic_date_is_expiring"],
             "update_web_filter_key": settings.updates.update_web_filter_key,
             "web_filter_key": settings.updates.web_filter_key,
             "web_filter_key_last_update": settings.updates.web_filter_key_last_update,
@@ -157,6 +202,7 @@ async def get_settings(
     settings_data = {
         # Update settings
         "license_number": settings.updates.license_number,
+        "license_exp_date": settings.updates.license_exp_date,
         "update_ids_3": settings.updates.update_ids_3,
         "update_ids_5": settings.updates.update_ids_5,
         "update_geoip_4": settings.updates.update_geoip_4,

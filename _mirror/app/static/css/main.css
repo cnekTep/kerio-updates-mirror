@@ -146,6 +146,14 @@ article details ul li a {
     font-weight: 500;
 }
 
+.bb-table {
+    border-bottom: var(--pico-border-width) solid var(--pico-table-border-color) !important;
+}
+
+.ta-center {
+    text-align: center;
+}
+
 #refresh-btn, #clear-log-btn {
     width: 100%;
 }
@@ -161,6 +169,10 @@ article details ul li a {
 
 .settings-grid.size-4_4 {
     grid-template-columns: 4.4rem 1fr;
+}
+.settings-grid.size-4_4-with-action {
+    grid-template-columns: 3.5rem 1fr 9rem;
+    grid-column-gap: 0.5rem;
 }
 
 .settings-grid.size-5_5-with-action {

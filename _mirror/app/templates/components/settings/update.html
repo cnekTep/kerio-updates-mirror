@@ -3,10 +3,12 @@
           hx-post="{{ request.url.path }}"
           hx-target="#article"
           hx-swap="none">
-        <div class="settings-grid size-4_4">
+        <div class="settings-grid size-4_4-with-action">
             <p class="pb-1r">License:</p>
             <input type="text" name="license" placeholder="Enter your license number" aria-label="License number"
                    value="{{ license_number or '' }}">
+            <input type="date" name="license_exp_date" aria-label="License expiration date"
+                   value="{{ license_exp_date or '' }}">
         </div>
 
         <article>
