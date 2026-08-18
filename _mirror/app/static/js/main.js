@@ -247,18 +247,25 @@ document.addEventListener("htmx:afterRequest", (e) => {
 
     const ok = e.detail.successful;
     const isDistroUpload = e.detail.elt.id === "distro-upload-form";
-
+    const isLicenseExpDate = e.detail.elt.id === "get-lic-exp-date-btn";
     if (ok) {
-        saveDialogMessage.textContent = isDistroUpload
-            ? "✓ File successfully uploaded and signed"
-            : "✓ Settings saved";
+        if (isDistroUpload) {
+            saveDialogMessage.textContent = "✓ File successfully uploaded and signed";
+        } else if (isLicenseExpDate) {
+            saveDialogMessage.textContent = "✓ License expiration date fetched";
+        } else {
+            saveDialogMessage.textContent = "✓ Settings saved";
+        }
     } else {
         // Try to extract detail message from JSON response (e.g. 422 validation error)
         try {
             const body = JSON.parse(e.detail.xhr.responseText);
             saveDialogMessage.textContent = `✗ ${body.detail ?? "Failed to save settings"}`;
         } catch {
-            saveDialogMessage.textContent = "✗ Failed to save settings";
+            const fallback = isLicenseExpDate
+                ? "Failed to fetch license expiration date"
+                : "Failed to save settings";
+            saveDialogMessage.textContent = `✗ ${fallback}`;
         }
     }
 

@@ -553,7 +553,8 @@ class KerioUpdateService:
     async def get_registration_connect_info(
         self,
         client_ip: str | None,
-        content_type: str,
+        host_id: str,
+        force_update: bool = False,
     ) -> Response:
         """
         Handle 'connect' command: serve captcha from file or download from kerio.com.
@@ -561,9 +562,13 @@ class KerioUpdateService:
         Attempts to load captcha data from the local cache file. If the file is
         missing or corrupted, fetches fresh captcha from kerio.com and caches it.
 
+        If force_update is True, the update-enabled check and client_ip logging are skipped,
+        and a fresh captcha is always downloaded regardless of the local cache state.
+
         Args:
             client_ip: Client IP address, used for logging if enabled in settings.
-            content_type: Content-Type header value forwarded to the upstream request.
+            host_id: Host ID to use in the request.
+            force_update: If True, forces a new captcha download from kerio.com.
 
         Returns:
             Response with captcha content and Kerio headers on success,
@@ -573,28 +578,37 @@ class KerioUpdateService:
             HTTPException: 404 if registration updates are disabled,
                            502 if all upstream connection attempts failed.
         """
-        self._check_update_enabled(
-            enabled=settings.updates.update_registration,
-            service="Registration",
-            client_ip=client_ip,
-        )
+        kerio_token = None
+        captcha_data = ""
 
-        try:
-            captcha_data = (settings.updates.update_dir / "security_image").read_text(
-                encoding="utf-8"
+        if not force_update:
+            self._check_update_enabled(
+                enabled=settings.updates.update_registration,
+                service="Registration",
+                client_ip=client_ip,
             )
-        except OSError:
-            captcha_data = ""
 
-        if not all(
+            try:
+                captcha_data = (
+                    settings.updates.update_dir / "security_image"
+                ).read_text(encoding="utf-8")
+            except OSError:
+                captcha_data = ""
+
+        needs_fetch = force_update or not all(
             key in captcha_data
             for key in ("security_image", "image_signature", "show_image")
-        ):
-            captcha_data = await self._fetch_captcha(content_type=content_type)
+        )
 
-        return self._make_registration_connect_response(captcha_data)
+        if needs_fetch:
+            captcha_data, kerio_token = await self._fetch_captcha(host_id=host_id)
 
-    async def get_registration_lookup_info(
+        return self._make_registration_connect_response(
+            captcha_data=captcha_data,
+            kerio_token=kerio_token,
+        )
+
+    async def get_static_registration_lookup_info(
         self,
         client_ip: str | None,
         base_id: str,
@@ -650,6 +664,66 @@ class KerioUpdateService:
         return Response(
             content=response_content, status_code=200, headers=response_headers
         )
+
+    async def get_registration_lookup_info(
+        self,
+        token: str,
+        base_id: str,
+        host_id: str,
+    ) -> dict[str, str]:
+        """
+        Handle 'lookup' command by returning registration and license information.
+
+        Returns a real registration response containing license details.
+
+        Args:
+            token: Kerio token obtained from a previous 'connect' request.
+            base_id: Registration base identifier included in the response body.
+            host_id: Host ID to use in the request.
+
+        Returns:
+            Parsed key-value pairs from the response body
+            (e.g. 'expires', 'total_users', 'reg_type', etc.).
+            Empty dict if the lookup failed or response is too short.
+
+        Raises:
+            HTTPException: 502 if all connection attempts failed.
+        """
+        write_log(
+            log_type=["system"],
+            message="Registration | Trying to look up license info on kerio.com",
+        )
+        response = await make_request_with_retries(
+            url="https://register.kerio.com/registration/LD.php",
+            method="POST",
+            files={
+                "command": (None, "lookup"),
+                "token": (None, token),
+                "base_id": (None, base_id),
+                "host_id": (None, host_id),
+                "trial_id": (None, ""),
+                "promo_id": (None, ""),
+                "product_code": (None, "KWF"),
+                "security_code": (None, ""),
+                "protocol_version": (None, "21"),
+                "license_version": (None, "0"),
+                "os": (None, "2"),
+            },
+            headers={
+                "User-Agent": "Kerio License Downloader (LicenseManager)",
+                "Accept": "*/*",
+            },
+        )
+        if response is None:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="All connection attempts failed",
+            )
+
+        if response.status_code != 200 or len(response.text) < 10:
+            return {}
+
+        return self._parse_kerio_body(response.text)
 
     async def get_registration_readinfo_info(
         self,
@@ -1541,31 +1615,32 @@ class KerioUpdateService:
         )
 
     @staticmethod
-    async def _fetch_captcha(content_type: str) -> str:
+    async def _fetch_captcha(host_id: str) -> tuple[str, str | None]:
         """
         Download captcha from kerio.com and cache it locally.
 
         Args:
-            content_type: Content-Type header value forwarded from the original request.
+            host_id: Host ID to use in the request.
 
         Returns:
-            Captcha file content as string, or empty string if download failed
-            or response is too short.
+            Tuple of:
+            - Captcha file content as string, or empty string if download failed
+              or response is too short.
+            - Kerio token from response headers, or None if not present.
 
         Raises:
             HTTPException: 502 if all connection attempts failed.
         """
         write_log(
             log_type=["system"],
-            message="Registration | Captcha file is missing or "
-            "corrupted, trying to download from kerio.com",
+            message="Registration | Trying to download captcha file from kerio.com",
         )
         response = await make_request_with_retries(
             url="https://register.kerio.com/registration/LD.php",
             method="POST",
             files={
                 "command": (None, "connect"),
-                "host_id": (None, ":".join(f"{randint(0, 255):02X}" for _ in range(6))),
+                "host_id": (None, host_id),
                 "product_code": (None, "KWF"),
                 "type": (None, "image/png"),
                 "protocol_version": (None, "21"),
@@ -1576,7 +1651,6 @@ class KerioUpdateService:
             headers={
                 "User-Agent": "Kerio License Downloader (LicenseManager)",
                 "Accept": "*/*",
-                "Content-Type": content_type,
             },
         )
         if response is None:
@@ -1585,6 +1659,7 @@ class KerioUpdateService:
                 detail="All connection attempts failed",
             )
 
+        kerio_token = response.headers.get("X-Kerio-Token")
         captcha_data = (
             response.text
             if response.status_code == 200 and len(response.text) > 1000
@@ -1602,25 +1677,30 @@ class KerioUpdateService:
                     message=f"Registration | Failed to save captcha: {e}",
                 )
 
-        return captcha_data
+        return captcha_data, kerio_token
 
     @staticmethod
-    def _make_registration_connect_response(captcha_data: str) -> Response:
+    def _make_registration_connect_response(
+        captcha_data: str,
+        kerio_token: str | None,
+    ) -> Response:
         """Build HTTP response with captcha data or internal error response.
 
         Args:
             captcha_data: Captcha file content. Empty string if unavailable.
+            kerio_token: Kerio token from response headers, or None if not present.
 
         Returns:
             Response with captcha content and Kerio headers on success,
             or empty response with error headers if captcha is unavailable.
         """
+        kerio_token = kerio_token if kerio_token else "ac561fb1a7c3627c62f561db9bdebba8"
         if captcha_data:
             return Response(
                 content=captcha_data,
                 status_code=200,
                 headers={
-                    "X-Kerio-Token": "ac561fb1a7c3627c62f561db9bdebba8",
+                    "X-Kerio-Token": kerio_token,
                     "X-Kerio-Reply-Code": "200",
                     "X-Kerio-Reply-Message": "OK",
                     "Content-Type": "application/x-kerio-signed-png",
@@ -1640,6 +1720,16 @@ class KerioUpdateService:
                 "X-Kerio-Reply-Message": "Internal Server Error",
             },
         )
+
+    @staticmethod
+    def _parse_kerio_body(text: str) -> dict[str, str]:
+        """Parse 'key: value' lines from a Kerio plain-text response body."""
+        result: dict[str, str] = {}
+        for line in text.splitlines():
+            key, sep, value = line.partition(": ")
+            if sep:
+                result[key.strip()] = value.strip()
+        return result
 
     @staticmethod
     def _get_expiry_date() -> str:

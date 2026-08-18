@@ -170,8 +170,9 @@ article details ul li a {
 .settings-grid.size-4_4 {
     grid-template-columns: 4.4rem 1fr;
 }
+
 .settings-grid.size-4_4-with-action {
-    grid-template-columns: 3.5rem 1fr 9rem;
+    grid-template-columns: 3.5rem 1fr 9rem 9rem;
     grid-column-gap: 0.5rem;
 }
 
@@ -206,6 +207,19 @@ article details ul li a {
     max-height: 0;
     opacity: 0;
     pointer-events: none;
+}
+
+
+/* Tooltip */
+@media (hover: hover) and (pointer: fine) {
+    [data-tooltip]:hover::before,
+    [data-tooltip]:hover::after {
+        animation-delay: var(--tooltip-delay, 400ms) !important;
+    }
+
+    .tooltip-0 {
+        --tooltip-delay: 0ms;
+    }
 }
 
 /* Upload indicator */

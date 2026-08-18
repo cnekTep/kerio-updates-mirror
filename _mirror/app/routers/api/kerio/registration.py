@@ -1,6 +1,7 @@
+from random import randint
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, Header
+from fastapi import APIRouter, Depends, Form
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
@@ -36,7 +37,6 @@ async def get_registration_info(
     ],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
     command: str = Form(...),
-    content_type: str = Header(...),
     base_id: str = Form(default=""),
     token: str = Form(default=""),
 ):
@@ -49,10 +49,10 @@ async def get_registration_info(
     if command.lower() == "connect":
         return await kerio_update_service.get_registration_connect_info(
             client_ip=client_ip,
-            content_type=content_type,
+            host_id=":".join(f"{randint(0, 255):02X}" for _ in range(6)),
         )
     elif command.lower() == "lookup":
-        return await kerio_update_service.get_registration_lookup_info(
+        return await kerio_update_service.get_static_registration_lookup_info(
             client_ip=client_ip,
             base_id=base_id,
             token=token,

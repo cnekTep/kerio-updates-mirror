@@ -1,8 +1,10 @@
+import re
 import secrets
 from datetime import date
+from random import randint
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, Query, status
+from fastapi import APIRouter, Depends, Request, Query, status, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
 from app.config import templates, settings
@@ -11,8 +13,10 @@ from app.dependencies import (
     get_nginx_acl_service,
     require_auth,
     get_distro_service,
+    get_kerio_update_service,
 )
 from app.service.distro import DistroService
+from app.service.kerio_update import KerioUpdateService
 from app.service.nginx_acl import NginxACLService
 from app.service.settings import SettingsService
 from app.utils.app_logging import read_last_lines
@@ -23,6 +27,8 @@ router = APIRouter(dependencies=[Depends(require_auth)])
 GENERAL_SECTIONS = {"main", "information"}
 LOG_SECTIONS = {"system", "updates", "connections", "errors"}
 SETTINGS_SECTIONS = {"update", "connection", "security"}
+
+LICENSE_KEY_PATTERN = re.compile(r"^\d{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$", re.IGNORECASE)
 
 
 def _active_priority() -> list[str]:
@@ -89,6 +95,24 @@ def _get_license_display_data(
         "lic_number_tooltip": tooltip,
         "lic_date_is_expiring": is_expiring,
     }
+
+
+def _validate_license_key(license_key: str) -> None:
+    """
+    Validate license key format: NNNNN-XXXXX-XXXXX
+    (first block digits, other blocks alphanumeric, case-insensitive).
+
+    Args:
+            license_key: License key to validate.
+
+    Raises:
+            HTTPException: 422 if the license key format is invalid.
+    """
+    if not LICENSE_KEY_PATTERN.match(license_key):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid license key format. Expected format: NNNNN-XXXXX-XXXXX",
+        )
 
 
 @router.get(path="/", response_class=HTMLResponse, name="main_page")
@@ -255,6 +279,56 @@ async def get_settings(
         request=request,
         name=f"components/settings/{name}.html",
         context={**settings_data},
+    )
+
+
+@router.post(
+    path="/settings/update/get-lic-exp-date",
+    response_class=HTMLResponse,
+    status_code=status.HTTP_200_OK,
+    name="get_lic_exp_date",
+)
+async def get_lic_exp_date(
+    request: Request,
+    kerio_update_service: Annotated[
+        KerioUpdateService, Depends(get_kerio_update_service)
+    ],
+    license_number: str = Form(...),
+) -> HTMLResponse:
+    """Fetch license expiration date from Kerio and return updated input HTML."""
+    _validate_license_key(license_number)
+
+    host_id = ":".join(f"{randint(0, 255):02X}" for _ in range(6))
+
+    connect_info = await kerio_update_service.get_registration_connect_info(
+        client_ip=None,
+        host_id=host_id,
+        force_update=True,
+    )
+    kerio_token = connect_info.headers.get("x-kerio-token")
+
+    if not kerio_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No Kerio token received",
+        )
+
+    lookup_info = await kerio_update_service.get_registration_lookup_info(
+        token=kerio_token,
+        base_id=license_number,
+        host_id=host_id,
+    )
+    expires = lookup_info.get("expires")
+    if not expires:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No expiration date received",
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="components/settings/update/license_exp_date_input.html",
+        context={"license_exp_date": expires},
     )
 
 
