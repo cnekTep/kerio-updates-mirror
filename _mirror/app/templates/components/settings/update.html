@@ -8,16 +8,18 @@
             <input type="text" name="license_number" id="license_number" placeholder="Enter your license number"
                    aria-label="License number" value="{{ license_number or '' }}">
             {% include "components/settings/update/license_exp_date_input.html" %}
-            <button type="button" id="get-lic-exp-date-btn" data-tooltip="Get license expiration date"
-                    hx-post="{{ url_for('get_lic_exp_date') }}"
-                    hx-include="#license"
-                    hx-target="#license_exp_date"
-                    hx-swap="outerHTML"
-                    hx-disabled-elt="this"
-                    hx-on::before-request="this.setAttribute('aria-busy', 'true')"
-                    hx-on::after-request="this.removeAttribute('aria-busy')">
-                Check
-            </button>
+            <span class="btn-tooltip-wrap" data-tooltip="Get license expiration date">
+                <button type="button" id="get-lic-exp-date-btn" class="mb-0 w-100"
+                        hx-post="{{ url_for('get_lic_exp_date') }}"
+                        hx-include="#license"
+                        hx-target="#license_exp_date"
+                        hx-swap="outerHTML"
+                        hx-disabled-elt="this"
+                        hx-on::before-request="this.setAttribute('aria-busy', 'true')"
+                        hx-on::after-request="this.removeAttribute('aria-busy')">
+                    Check
+                </button>
+            </span>
         </div>
 
         <article>

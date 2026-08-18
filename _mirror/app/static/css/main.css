@@ -146,8 +146,17 @@ article details ul li a {
     font-weight: 500;
 }
 
+.w-100 {
+    width: 100%;
+}
+
 .bb-table {
     border-bottom: var(--pico-border-width) solid var(--pico-table-border-color) !important;
+}
+
+.btn-tooltip-wrap {
+    height: fit-content;
+    border-bottom: 0 !important;
 }
 
 .ta-center {
