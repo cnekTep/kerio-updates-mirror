@@ -116,11 +116,11 @@ class SettingsService:
             ),
             "updates.update_web_filter_key": self._bool(form, "update_web_filter_key"),
             "updates.update_shieldmatrix": self._bool(form, "update_shieldmatrix"),
-            "updates.license_number": self._get(form, "license") or "None",
+            "updates.license_number": self._get(form, "license_number") or "None",
             "updates.license_exp_date": self._get(form, "license_exp_date") or "None",
             "updates.license_number_last_update": (
                 date.today()
-                if self._get(form, "license") != settings.updates.license_number
+                if self._get(form, "license_number") != settings.updates.license_number
                 else settings.updates.license_number_last_update
             ),
             "updates.antivirus_url": self._get(form, "antivirus_url"),
