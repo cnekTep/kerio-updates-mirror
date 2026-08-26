@@ -22,6 +22,8 @@ _mirror/update_files/antivirus_cache/*.dat
 _mirror/update_files/antivirus_cache/*.gzip
 _mirror/update_files/antivirus_cache/*.id
 _mirror/update_files/antivirus_cache/*.sig
+_mirror/update_files/distros/*.deb
+_mirror/update_files/distros/*.exe
 _mirror/update_files/distros/*.img
 _mirror/update_files/distros/*.sig
 _mirror/update_files/matrix_cache/ipv4/*.dat

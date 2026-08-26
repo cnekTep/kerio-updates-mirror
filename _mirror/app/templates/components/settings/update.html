@@ -1,3 +1,4 @@
+{% from "components/settings/update/_distro_select.html" import distro_select %}
 <article>
     <form id="article"
           hx-post="{{ request.url.path }}"
@@ -216,25 +217,57 @@
                        {% if update_kerio_control_distro %} checked {% endif %}>
                 Update Kerio Control distributive
             </label>
-            <div class="form-group settings-grid size-12">
-                <label for="kerio_control_update_file" class="settings-margin-left">Select the update file:</label>
-                {% include "components/settings/update/_distro_select.html" %}
-                </select>
+            <div data-controlled-by="kerio_control_distro" data-effect="hidden"
+                 {% if not update_kerio_control_distro %} data-hidden {% endif %}>
+                <div class="form-group settings-grid size-12">
+                    <label for="kerio_control_update_file" class="settings-margin-left">Select the update file:</label>
+                    {{ distro_select("kerio_control_update_file", "kerio_control_update_file",
+                    kerio_control_distro_list, kerio_control_update_file) }}
+                </div>
+                <div class="form-group settings-grid size-12">
+                    <label for="distro-control-upload" class="settings-margin-left">Upload new file:</label>
+                    <input id="distro-control-upload" class="mb-0" name="distro_file"
+                           type="file" accept=".img"
+                           hx-post="{{ request.url_for('upload_distro') }}"
+                           hx-encoding="multipart/form-data"
+                           hx-trigger="change"
+                           hx-indicator="#distro-control-upload-indicator">
+                </div>
+                <div id="distro-control-upload-indicator" class="htmx-indicator settings-margin-left" aria-busy="true">
+                    Uploading and signing file...
+                </div>
             </div>
-            <div class="form-group settings-grid size-12">
-                <label for="distro-upload-form" class="settings-margin-left">Upload new file:</label>
-                <form id="distro-upload-form"
-                      hx-post="{{ request.url_for('upload_distro') }}"
-                      hx-encoding="multipart/form-data"
-                      hx-trigger="change from:find input[type=file]"
-                      hx-indicator="#distro-upload-indicator">
-                    <input class="mb-0" data-controlled-by="kerio_control_distro" data-effect="disabled"
-                           {% if not update_kerio_control_distro %} disabled {% endif %}
-                           type="file" name="distro_file" accept=".img">
-                </form>
-            </div>
-            <div id="distro-upload-indicator" class="htmx-indicator settings-margin-left" aria-busy="true">
-                Uploading and signing file...
+
+            <label>
+                <input id="update_kerio_connect_distro" name="update_kerio_connect_distro" type="checkbox"
+                       data-controls="kerio_connect_distro"
+                       {% if update_kerio_connect_distro %} checked {% endif %}>
+                Update Kerio Connect distributive
+            </label>
+            <div data-controlled-by="kerio_connect_distro" data-effect="hidden"
+                 {% if not update_kerio_connect_distro %} data-hidden {% endif %}>
+                <div class="form-group settings-grid size-12">
+                    <label for="kerio_connect_update_file_win" class="settings-margin-left">Windows version:</label>
+                    {{ distro_select("kerio_connect_update_file_win", "kerio_connect_update_file_win",
+                    kerio_connect_distro_list_win, kerio_connect_update_file_win) }}
+                </div>
+                <div class="form-group settings-grid size-12 pt-0375r">
+                    <label for="kerio_connect_update_file_deb" class="settings-margin-left">Debian version:</label>
+                    {{ distro_select("kerio_connect_update_file_deb", "kerio_connect_update_file_deb",
+                    kerio_connect_distro_list_deb, kerio_connect_update_file_deb) }}
+                </div>
+                <div class="form-group settings-grid size-12">
+                    <label for="distro-connect-upload" class="settings-margin-left">Upload new file:</label>
+                    <input id="distro-connect-upload" class="mb-0" name="distro_file"
+                           type="file" accept=".exe,.deb"
+                           hx-post="{{ request.url_for('upload_distro') }}"
+                           hx-encoding="multipart/form-data"
+                           hx-trigger="change"
+                           hx-indicator="#distro-connect-upload-indicator">
+                </div>
+                <div id="distro-connect-upload-indicator" class="htmx-indicator settings-margin-left" aria-busy="true">
+                    Uploading and signing file...
+                </div>
             </div>
         </article>
 

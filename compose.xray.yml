@@ -27,6 +27,7 @@ services:
       - "kerio-updates-mirror.local:172.200.0.20"
       - "bda-update.kerio.com:172.200.0.20"
       - "bdupdate.kerio.com:172.200.0.20"
+      - "update.kerio.com:172.200.0.20"
     logging:
       driver: "json-file"
       options:

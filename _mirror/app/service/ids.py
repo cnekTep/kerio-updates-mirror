@@ -112,7 +112,7 @@ class IDSService:
 
         write_log(
             log_type=["system", "updates"],
-            message="Snort Template Update | Successfully downloaded new version",
+            message="Snort Template Update | Downloaded latest version",
         )
 
     # ------------------------------------------------------------------

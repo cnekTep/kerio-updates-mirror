@@ -245,7 +245,16 @@ async def get_settings(
         "antispam_cache": settings.updates.antispam_cache,
         "update_kerio_control_distro": settings.updates.update_kerio_control_distro,
         "kerio_control_update_file": settings.updates.kerio_control_update_file,
-        "distro_list": distro_service.list_distros(),
+        "kerio_control_distro_list": distro_service.list_distros(distro_type="control"),
+        "update_kerio_connect_distro": settings.updates.update_kerio_connect_distro,
+        "kerio_connect_update_file_win": settings.updates.kerio_connect_update_file_win,
+        "kerio_connect_distro_list_win": distro_service.list_distros(
+            distro_type="connect_win"
+        ),
+        "kerio_connect_update_file_deb": settings.updates.kerio_connect_update_file_deb,
+        "kerio_connect_distro_list_deb": distro_service.list_distros(
+            distro_type="connect_deb"
+        ),
         # Connection settings
         "direct": settings.network.direct,
         "xray": settings.network.xray if settings.has_xray else False,

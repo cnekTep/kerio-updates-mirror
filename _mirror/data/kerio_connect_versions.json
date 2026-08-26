@@ -1,0 +1,90 @@
+{
+  "10.0.9-10320": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "9",
+    "prod_build_number_deb": "1510",
+    "prod_build_number_win": "67597",
+    "description": "Kerio Connect 10.0.9 Patch 2 build 10320"
+  },
+  "10.0.9-10051": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "9",
+    "prod_build_number_deb": "1347",
+    "prod_build_number_win": "67337",
+    "description": "Kerio Connect 10.0.9 Patch 1 build 10051"
+  },
+  "10.0.9-9754": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "9",
+    "prod_build_number_deb": "1139",
+    "prod_build_number_win": "66976",
+    "description": "Kerio Connect 10.0.9 build 9754"
+  },
+  "10.0.8-9507": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "8",
+    "prod_build_number_deb": "1009",
+    "prod_build_number_win": "66729",
+    "description": "Kerio Connect 10.0.8 Patch 2 build 9507"
+  },
+  "10.0.8-9228": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "8",
+    "prod_build_number_deb": "835",
+    "prod_build_number_win": "66382",
+    "description": "Kerio Connect 10.0.8 Patch 1 build 9228"
+  },
+  "10.0.8-9214": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "8",
+    "prod_build_number_deb": "824",
+    "prod_build_number_win": "66360",
+    "description": "Kerio Connect 10.0.8 build 9214"
+  },
+  "10.0.7-8784": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "7",
+    "prod_build_number_deb": "617",
+    "prod_build_number_win": "65981",
+    "description": "Kerio Connect 10.0.7 Patch 1 build 8784"
+  },
+  "10.0.6-8504": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "6",
+    "prod_build_number_deb": "535",
+    "prod_build_number_win": "65772",
+    "description": "Kerio Connect 10.0.6 build 8504"
+  },
+  "10.0.6-8410": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "6",
+    "prod_build_number_deb": "489",
+    "prod_build_number_win": "65662",
+    "description": "Kerio Connect 10.0.6 Beta 1 build 8410"
+  },
+  "10.0.6-8396": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "6",
+    "prod_build_number_deb": "484",
+    "prod_build_number_win": "65652",
+    "description": "Kerio Connect 10.0.6 Beta 1 build 8396"
+  },
+  "10.0.6-8244": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "6",
+    "prod_build_number_deb": "389",
+    "prod_build_number_win": "65464",
+    "description": "Kerio Connect 10.0.6 build 8244"
+  }
+}

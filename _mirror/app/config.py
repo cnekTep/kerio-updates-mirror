@@ -175,6 +175,26 @@ class UpdatesConfig(BaseModel):
         description="Kerio Control update version"
     )
 
+    # Kerio Connect distributive
+    update_kerio_connect_distro: bool = Field(
+        description="Update Kerio Connect distributive"
+    )
+    kerio_connect_distro_versions_file: Path = Field(
+        description="Kerio Connect distributive versions mapping file"
+    )
+    kerio_connect_update_file_win: str | None = Field(
+        description="Kerio Connect windows update filename"
+    )
+    kerio_connect_update_version_win: str | None = Field(
+        description="Kerio Connect windows update version"
+    )
+    kerio_connect_update_file_deb: str | None = Field(
+        description="Kerio Connect deb update filename"
+    )
+    kerio_connect_update_version_deb: str | None = Field(
+        description="Kerio Connect deb update version"
+    )
+
     # Antivirus
     update_antivirus: bool = Field(description="Update antivirus")
     antivirus_url: str = Field(description="Kerio antivirus update check URL")

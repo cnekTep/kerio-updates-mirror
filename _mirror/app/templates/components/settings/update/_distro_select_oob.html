@@ -1,0 +1,7 @@
+{# Adapter for FastAPI's TemplateResponse, which renders by name + context dict #}
+{# and cannot call a Jinja macro directly. This file bridges that dict into a #}
+{# proper macro call. Not meant to be {% include %}'d from other templates - #}
+{# for that, import and call distro_select() directly (see update.html). #}
+
+{% from "components/settings/update/_distro_select.html" import distro_select %}
+{{ distro_select(select_id, select_name, distro_list, selected_distro, oob) }}

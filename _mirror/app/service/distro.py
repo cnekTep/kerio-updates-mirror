@@ -12,9 +12,20 @@ from app.config import settings
 from app.utils.app_logging import write_log
 from app.utils.file_utils import ensure_dir, build_file_response
 
-# Expected filename format: kerio-control-upgrade-{version}.img
-_FILENAME_PATTERN = re.compile(r"^kerio-control-upgrade-(\d+\.\d+\.\d+-\d+).*\.img$")
+_FILENAME_PATTERN = re.compile(
+    r"^kerio-(?:control-upgrade|connect)"  # product name (add more if needed)
+    r"-(\d+\.\d+\.\d+-\d+)"  # version-build, e.g. 10.0.9-10320
+    r"(?:-[a-zA-Z0-9]+)*"  # optional suffixes like linux, win64, etc.
+    r"\.(?:deb|img|exe)$"  # allowed extensions
+)
 _SAFE_FILENAME_PATTERN = re.compile(r"[^A-Za-z0-9_.\-]+")
+
+# Map file extensions to distro types
+_DISTRO_TYPE_BY_EXTENSION: dict[str, str] = {
+    ".img": "control",
+    ".exe": "connect_win",
+    ".deb": "connect_deb",
+}
 
 # Read/hash the upload in fixed-size chunks instead of loading it fully into
 # memory - distro images can be several hundred MB.
@@ -37,22 +48,24 @@ class DistroService:
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
-    async def upload_distro_file(self, file: UploadFile) -> str:
+    async def upload_distro_file(self, file: UploadFile) -> tuple[str, str]:
         """
-        Validate, store and sign an uploaded Kerio Control distribution file.
+        Validate, store and sign an uploaded Kerio Control/Connect distribution file.
 
         Args:
-            file: Uploaded distribution image (``kerio-control-upgrade-{version}.img``).
+            file: Uploaded distribution image: ``kerio-control-upgrade-{version}.img``,
+                ``kerio-connect-{version}.exe`` or ``kerio-connect-{version}.deb``
 
         Returns:
-            str: The filename of the uploaded and signed distribution file.
+            tuple[str, str]: The filename of the uploaded and signed
+                distribution file, and the distro type it was recognized as.
 
         Raises:
             HTTPException: 400 if the filename format is invalid, 500 on any
                 other failure (disk error, signing-key issue, etc.).
         """
         try:
-            filename = await self._store_and_sign_file(file=file)
+            filename, distro_type = await self._store_and_sign_file(file=file)
         except ValueError as exc:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
@@ -71,31 +84,48 @@ class DistroService:
             log_type=["system"],
             message=f"Distro Update | File uploaded and signed: {filename}",
         )
-        return filename
+        return filename, distro_type
 
     @staticmethod
-    def list_distros() -> list[str]:
+    def list_distros(distro_type: str) -> list[str]:
         """
-        List uploaded distribution files that have a matching ``.sig`` file.
+        List uploaded distribution files that have a matching ``.sig`` file,
+        filtered by distribution type.
+
+        Args:
+            distro_type: One of "control", "connect_win", "connect_deb".
 
         Returns:
             Sorted list of distribution filenames.
         """
-        distro_dir = settings.updates.update_dir / "distros"
+        # Map distro type to (prefix, suffix) filter rules
+        type_rules = {
+            "control": ("kerio-control-upgrade", ".img"),
+            "connect_win": ("kerio-connect", ".exe"),
+            "connect_deb": ("kerio-connect", ".deb"),
+        }
 
+        if distro_type not in type_rules:
+            return []
+
+        prefix, suffix = type_rules[distro_type]
+
+        distro_dir = settings.updates.update_dir / "distros"
         try:
             entries = [p for p in distro_dir.iterdir() if p.is_file()]
         except FileNotFoundError:
             return []
 
         names = {p.name for p in entries}
-        img_files = [name for name in names if name.endswith(".img")]
-        return sorted(name for name in img_files if f"{name}.sig" in names)
+        matched_files = [
+            name for name in names if name.startswith(prefix) and name.endswith(suffix)
+        ]
+        return sorted(name for name in matched_files if f"{name}.sig" in names)
 
     @staticmethod
     def extract_version(filename: str) -> str | None:
         """
-        Extract the Kerio Control version from a distribution filename.
+        Extract the Kerio Control/Connect version from a distribution filename.
 
         Args:
             filename: Sanitized distribution filename.
@@ -113,40 +143,84 @@ class DistroService:
         prod_minor: int | None,
         prod_build: int | None,
         prod_build_number: int | None,
+        os_platform: str | None,
+        installation_type: str | None,
         client_ip: str | None,
     ) -> str:
         """
-        Handle a Kerio Control version-check callback end to end.
+        Handle a Kerio Control/Connect version-check callback end to end.
 
-        Applies the update kill switch and the ``prod_code == "KWF"`` gate,
-        validates that version fields are present, logs the check, and
-        returns a Kerio Control reminder-protocol response comparing the
-        client's version against the configured target version.
+        Applies the update kill switch for the product identified by
+        ``prod_code``, resolves the target platform variant (Kerio Connect
+        only - Windows or Linux/deb), validates that version fields are
+        present, logs the check, and returns a reminder-protocol response
+        comparing the client's version against the configured target version.
 
         Args:
-            prod_code: Client-reported product code; only ``"KWF"`` (Kerio
-                Control) is handled, everything else gets a "no update" reply.
+            prod_code: Client-reported product code (``"KWF"`` for Kerio
+                Control, ``"KMS"`` for Kerio Connect); anything else gets a
+                "no update" reply.
             prod_major: Client-reported major version.
             prod_minor: Client-reported minor version.
             prod_build: Client-reported build/patch number.
             prod_build_number: Client-reported internal build number.
+            os_platform: Client-reported platform (only relevant for Kerio
+                Connect, e.g. ``"WIN64.64"``, ``"LINUX.X64"``).
+            installation_type: Client-reported installation type (only relevant
+                for Kerio Connect on Linux, expected to be ``"deb"``).
             client_ip: Client IP address, used for logging only.
 
         Returns:
-            Plain-text response in the Kerio Control reminder protocol format.
+            Plain-text response in the Kerio reminder-protocol format.
         """
-        if not settings.updates.update_kerio_control_distro:
+        if prod_code == "KWF":
+            enabled = settings.updates.update_kerio_control_distro
+            update_file = settings.updates.kerio_control_update_file
+            versions_file = settings.updates.kerio_control_distro_versions_file
+            build_number_variant = None
+            update_version = settings.updates.kerio_control_update_version
+            product_label = "Kerio Control"
+            info_url = "https://support.keriocontrol.gfi.com"
+        elif prod_code == "KMS":
+            # Kerio Connect ships for multiple platforms, but only two are
+            # actually supported here: Windows, and Linux via a .deb package.
+            # Anything else (macOS, other Linux packaging, unrecognized
+            # platform strings) is treated as unsupported.
+            if os_platform == "WIN64.64":
+                update_file = settings.updates.kerio_connect_update_file_win
+                update_version = settings.updates.kerio_connect_update_version_win
+                build_number_variant = "win"
+            elif os_platform == "LINUX.X64" and installation_type == "deb":
+                update_file = settings.updates.kerio_connect_update_file_deb
+                update_version = settings.updates.kerio_connect_update_version_deb
+                build_number_variant = "deb"
+            else:
+                write_log(
+                    log_type=["system", "connections"],
+                    message=(
+                        f"Distro | Update check received (KMS): unsupported platform "
+                        f"os_platform={os_platform!r} installation_type={installation_type!r}"
+                    ),
+                    ip=client_ip,
+                )
+                return NO_UPDATE_RESPONSE
+
+            enabled = settings.updates.update_kerio_connect_distro
+            versions_file = settings.updates.kerio_connect_distro_versions_file
+            product_label = "Kerio Connect"
+            info_url = "https://support.kerioconnect.gfi.com"
+        else:
             write_log(
                 log_type=["system", "connections"],
-                message="Distro | Update disabled",
+                message=f"Distro | Update check received: unknown product code {prod_code!r}",
                 ip=client_ip,
             )
             return NO_UPDATE_RESPONSE
 
-        if prod_code != "KWF":
+        if not enabled:
             write_log(
                 log_type=["system", "connections"],
-                message="Distro | Update check received: non-Kerio Control product",
+                message=f"Distro | Update disabled ({prod_code})",
                 ip=client_ip,
             )
             return NO_UPDATE_RESPONSE
@@ -154,7 +228,7 @@ class DistroService:
         if None in (prod_major, prod_minor, prod_build, prod_build_number):
             write_log(
                 log_type=["system", "connections"],
-                message="Distro | Update check received: missing version fields - "
+                message=f"Distro | Update check received ({prod_code}): missing version fields - "
                 f"{prod_major}.{prod_minor}.{prod_build} (build number: {prod_build_number})",
                 ip=client_ip,
             )
@@ -163,18 +237,23 @@ class DistroService:
         write_log(
             log_type=["system", "connections"],
             message=(
-                f"Distro | Update check received: v{prod_major}.{prod_minor}.{prod_build} "
-                f"(build number: {prod_build_number})"
+                f"Distro | Update check received ({prod_code}): "
+                f"v{prod_major}.{prod_minor}.{prod_build} (build number: {prod_build_number})"
             ),
             ip=client_ip,
         )
 
         try:
-            update_info = self._get_target_update_info()
+            update_info = self._get_target_update_info(
+                versions_file=versions_file,
+                update_version=update_version,
+                product_label=product_label,
+                build_number_variant=build_number_variant,
+            )
         except RuntimeError as exc:
             write_log(
                 log_type=["system", "errors"],
-                message=f"Distro Update | Error: Failed to parse version from config: {exc}",
+                message=f"Distro Update | Error: Failed to parse version from config ({prod_code}): {exc}",
                 ip=client_ip,
             )
             raise HTTPException(
@@ -189,17 +268,16 @@ class DistroService:
             int(update_info["prod_build"]),
             int(update_info["prod_build_number"]),
         )
-
         if current_version >= available_version:
             return NO_UPDATE_RESPONSE
 
         package_code = (
-            f"KWF:{update_info['prod_major'].zfill(3)}."
+            f"{prod_code}:{update_info['prod_major'].zfill(3)}."
             f"{update_info['prod_minor'].zfill(3)}."
             f"{update_info['prod_build'].zfill(5)}.T.000.000"
         )
         base_url = "http://kerio-updates-mirror.local/api/kerio/updates/distro/files"
-        download_url = f"{base_url}/{settings.updates.kerio_control_update_file}"
+        download_url = f"{base_url}/{update_file}"
 
         return (
             "--INFO--\n"
@@ -213,7 +291,7 @@ class DistroService:
             f"Comment='{update_info['description']}'\n"
             f"DownloadURL='{download_url}'\n"
             "DownloadURLtext='Download from here!'\n"
-            "InfoURL='https://support.keriocontrol.gfi.com'\n"
+            f"InfoURL='{info_url}'\n"
             "InfoURLtext='View more information!'\n"
             "--VERSION_END--"
         )
@@ -227,7 +305,7 @@ class DistroService:
         Validate a requested distro file name and serve it from disk.
 
         Args:
-                file_name: Requested file name (``*.img`` or ``*.sig``).
+                file_name: Requested file name (``*.deb, *.exe, *.img`` or ``*.sig``).
                 client_ip: Client IP address, used for logging if enabled in settings.
 
         Returns:
@@ -238,7 +316,11 @@ class DistroService:
                         resolves outside the distro directory, 404 if it doesn't exist.
         """
 
-        if not re.fullmatch(r"[A-Za-z0-9_.\-]+\.(img|sig)", file_name):
+        if not re.fullmatch(
+            pattern=r"[A-Za-z0-9.\-]+\.(deb|exe|img|sig)",
+            string=file_name,
+            flags=re.IGNORECASE,
+        ):
             write_log(
                 log_type=["system", "errors"],
                 message=f"Invalid distro file_name format: '{file_name}'",
@@ -279,7 +361,7 @@ class DistroService:
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
-    async def _store_and_sign_file(self, file: UploadFile) -> str:
+    async def _store_and_sign_file(self, file: UploadFile) -> tuple[str, str]:
         """
         Stream an uploaded distro file to disk and sign it.
 
@@ -288,14 +370,13 @@ class DistroService:
         once. The temp file is only published under its final name (and the
         detached signature only written) once signing succeeds, so a failed
         or interrupted upload never leaves a servable-but-unsigned image
-        behind (``list_distros`` only returns ``.img`` files with a matching
-        ``.sig``).
+        behind.
 
         Args:
             file: Uploaded distribution image.
 
         Returns:
-            The stored (sanitized) filename.
+            The stored (sanitized) filename, and the distro type it belongs to.
 
         Raises:
             ValueError: If the filename does not match the expected format.
@@ -305,6 +386,7 @@ class DistroService:
         if version is None:
             raise ValueError("Invalid filename format")
 
+        distro_type = _DISTRO_TYPE_BY_EXTENSION[Path(filename).suffix]
         distro_dir = ensure_dir(settings.updates.update_dir / "distros")
         file_path = distro_dir / filename
         temp_path = file_path.with_name(file_path.name + ".tmp")
@@ -324,7 +406,7 @@ class DistroService:
             if temp_path.exists():
                 temp_path.unlink()
 
-        return filename
+        return filename, distro_type
 
     @staticmethod
     def _secure_filename(filename: str) -> str:
@@ -364,33 +446,61 @@ class DistroService:
         )
 
     @staticmethod
-    def _get_target_update_info() -> dict[str, str]:
+    def _get_target_update_info(
+        versions_file: str,
+        update_version: str,
+        product_label: str,
+        build_number_variant: str | None = None,
+    ) -> dict[str, str]:
         """
         Resolve the configured target distro version into a version-info dict.
 
-        Looks up ``settings.updates.distro_update_version`` in the version
-        mapping file. Falls back to parsing the version string directly
-        (e.g. ``"9.5.0-8778"``) when it is not present in the mapping.
+        Looks up ``update_version`` in the version mapping file. Falls back
+        to parsing the version string directly (e.g. ``"9.5.0-8778"``) when
+        it is not present in the mapping.
+
+        Args:
+            versions_file: Path to the product's version mapping JSON file.
+            update_version: The configured target version string.
+            product_label: Product name used in the description when
+                falling back to parsing (e.g. "Kerio Control").
+            build_number_variant: Platform variant whose build number to
+                use - ``"win"`` or ``"deb"`` for Kerio Connect (mapping
+                entries always carry both ``prod_build_number_win`` and
+                ``prod_build_number_deb``), or ``None`` for products
+                without a platform split (Kerio Control, which uses a
+                plain ``prod_build_number``).
 
         Returns:
             Dict with ``prod_major``, ``prod_minor``, ``prod_build``,
             ``prod_build_number`` and ``description`` keys.
 
         Raises:
-            RuntimeError: If the version string cannot be parsed and there is
-                no mapping data available for it.
+            RuntimeError: If the version string cannot be parsed and there
+                is no mapping data available for it.
+            KeyError: If the mapping entry is missing the expected
+                ``prod_build_number`` key for the given variant.
         """
 
         # Load version mapping
-        with open(
-            settings.updates.kerio_control_distro_versions_file, encoding="utf-8"
-        ) as f:
+        with open(versions_file, encoding="utf-8") as f:
             mapping = json.load(f)
 
         # Get update info from mapping or parse from version string
-        update_version = settings.updates.kerio_control_update_version
         if update_version in mapping:
-            return mapping[update_version]
+            entry = mapping[update_version]
+            build_number_key = (
+                f"prod_build_number_{build_number_variant}"
+                if build_number_variant is not None
+                else "prod_build_number"
+            )
+            return {
+                "prod_major": entry["prod_major"],
+                "prod_minor": entry["prod_minor"],
+                "prod_build": entry["prod_build"],
+                "prod_build_number": entry[build_number_key],
+                "description": entry["description"],
+            }
 
         try:
             version_part, build_part = update_version.split("-")
@@ -405,5 +515,5 @@ class DistroService:
             "prod_minor": minor,
             "prod_build": build,
             "prod_build_number": "99999",  # Default when parsing from string
-            "description": f"Kerio Control {version_part} ({build_part})",
+            "description": f"{product_label} {version_part} ({build_part})",
         }

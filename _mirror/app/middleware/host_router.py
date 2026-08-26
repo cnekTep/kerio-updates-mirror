@@ -15,6 +15,7 @@ class HostRoutingMiddleware:
       - shieldmatrix-updates.gfikeriocontrol.com -> /api/kerio/updates/shieldmatrix/link
       - register.kerio.com                       -> /api/kerio/updates/registration
       - prod-update.kerio.com/checknew.php       -> /api/kerio/updates/distributive/check
+      - update.kerio.com/checknew.php            -> /api/kerio/updates/distributive/check
       - kc-mirror.domain.net/checknew.php        -> /api/kerio/updates/distributive/check
     """
 
@@ -60,8 +61,9 @@ class HostRoutingMiddleware:
         #
         #   web filter:     wf-activation.kerio.com/getkey.php?id=78688-GTIKA
         #
-        #   distributive:   prod-update.kerio.com/checknew.php {form-data}
-        #   distributive:   kc-mirror.domain.net/checknew.php {form-data} | unofficial build
+        #   distributive:   prod-update.kerio.com/checknew.php {form-data} | Kerio Control
+        #   distributive:   update.kerio.com/checknew.php {form-data}      | Kerio Connect
+        #   distributive:   kc-mirror.domain.net/checknew.php {form-data}  | Kerio Control (unofficial build)
         #
         #   registration:   register.kerio.com/registration/LD.php
 
@@ -102,10 +104,13 @@ class HostRoutingMiddleware:
             case "wf-activation.kerio.com":  # Web filter
                 scope["path"] = f"{self.WEBFILTER_API_BASE}/key"
 
-            case "prod-update.kerio.com":  # Distributive
+            case "prod-update.kerio.com":  # Kerio Control Distributive
                 scope["path"] = f"{self.DISTRIBUTIVE_API_BASE}/check"
 
-            case "kc-mirror.domain.net":  # Distributive (unofficial build)
+            case "update.kerio.com":  # Kerio Connect Distributive
+                scope["path"] = f"{self.DISTRIBUTIVE_API_BASE}/check"
+
+            case "kc-mirror.domain.net":  # Kerio Control Distributive (unofficial)
                 scope["path"] = f"{self.DISTRIBUTIVE_API_BASE}/check"
 
             case "register.kerio.com":  # Registration

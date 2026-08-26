@@ -104,6 +104,22 @@ class SettingsService:
             if kerio_control_update_file != "None"
             else "None"
         )
+        kerio_connect_update_file_win = (
+            self._get(form, "kerio_connect_update_file_win") or "None"
+        )
+        kerio_connect_update_version_win = (
+            self.distro_service.extract_version(kerio_connect_update_file_win)
+            if kerio_connect_update_file_win != "None"
+            else "None"
+        )
+        kerio_connect_update_file_deb = (
+            self._get(form, "kerio_connect_update_file_deb") or "None"
+        )
+        kerio_connect_update_version_deb = (
+            self.distro_service.extract_version(kerio_connect_update_file_deb)
+            if kerio_connect_update_file_deb != "None"
+            else "None"
+        )
 
         data = {
             "updates.update_ids_3": self._bool(form, "update_ids_3"),
@@ -141,6 +157,13 @@ class SettingsService:
             ),
             "updates.kerio_control_update_file": kerio_control_update_file,
             "updates.kerio_control_update_version": kerio_control_update_version,
+            "updates.update_kerio_connect_distro": self._bool(
+                form, "update_kerio_connect_distro"
+            ),
+            "updates.kerio_connect_update_file_win": kerio_connect_update_file_win,
+            "updates.kerio_connect_update_version_win": kerio_connect_update_version_win,
+            "updates.kerio_connect_update_file_deb": kerio_connect_update_file_deb,
+            "updates.kerio_connect_update_version_deb": kerio_connect_update_version_deb,
         }
 
         # Delete version files when antivirus or antispam url changed

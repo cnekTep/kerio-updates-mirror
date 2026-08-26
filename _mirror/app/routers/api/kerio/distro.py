@@ -10,19 +10,28 @@ from app.utils.app_logging import write_log
 
 router = APIRouter(prefix="/updates/distro", tags=["distro"])
 
+SELECT_IDS: dict[str, str] = {
+    "control": "kerio_control_update_file",
+    "connect_win": "kerio_connect_update_file_win",
+    "connect_deb": "kerio_connect_update_file_deb",
+}
+
 
 @router.post(
     path="/check",
     response_class=PlainTextResponse,
-    summary="Kerio Control distribution version-check callback",
+    summary="Kerio Control/Connect distribution version-check callback",
     description=(
         "Handles the form-encoded version-check request sent by Kerio Control "
-        "appliances themselves. Returns a 'no update' response if distro updates "
-        "are disabled in settings or the caller doesn't identify as Kerio Control "
-        "(prod_code != 'KWF'); otherwise compares versions and returns the "
-        "reminder-protocol response. Returns 400 if prod_code is 'KWF' but version "
-        "fields are missing, 422 if they're present but not valid integers, and 500 "
-        "if the configured target version can't be resolved."
+        "and Kerio Connect appliances themselves. Returns a 'no update' response "
+        "if distro updates are disabled in settings, the caller doesn't identify "
+        "as a supported product (prod_code not in {'KWF', 'KMS'}), or - for "
+        "Kerio Connect - the reported os_platform/InstallationType combination "
+        "isn't one of the supported platforms (Windows x64, or Linux x64 with "
+        "InstallationType='deb'); otherwise compares versions and returns the "
+        "reminder-protocol response. Returns 400 if version fields are missing, "
+        "422 if they're present but not valid integers, and 500 if the "
+        "configured target version can't be resolved."
     ),
     status_code=status.HTTP_200_OK,
     responses={
@@ -34,7 +43,7 @@ router = APIRouter(prefix="/updates/distro", tags=["distro"])
                 }
             },
         },
-        400: {"description": "prod_code is 'KWF' but version fields are missing"},
+        400: {"description": "Version fields are missing"},
         422: {"description": "Version fields present but not valid integers"},
         500: {"description": "Target update version misconfigured"},
     },
@@ -47,6 +56,8 @@ async def check_update(
     prod_minor: int | None = Form(default=None),
     prod_build: int | None = Form(default=None),
     prod_build_number: int | None = Form(default=None),
+    os_platform: str | None = Form(default=None),
+    installation_type: str | None = Form(default=None, alias="InstallationType"),
 ) -> str:
     write_log(
         log_type=["system", "connections"],
@@ -60,15 +71,18 @@ async def check_update(
         prod_minor=prod_minor,
         prod_build=prod_build,
         prod_build_number=prod_build_number,
+        os_platform=os_platform,
+        installation_type=installation_type,
         client_ip=client_ip,
     )
 
 
 @router.get(
     path="/files/{file_name}",
-    summary="Download a Kerio Control distribution file",
+    summary="Download a Kerio Control/Connect distribution file",
     description=(
-        "Serves a Kerio Control distribution (.img) or signature (.sig) file by its name. "
+        "Serves a Kerio Control/Connect distribution (.deb, .exe or .img) or "
+        "signature (.sig) file by its name."
         "Returns 400 if the file name is invalid, 404 if the file is not found."
     ),
     status_code=status.HTTP_200_OK,
@@ -99,10 +113,10 @@ async def get_update_file(
 @router.post(
     path="/upload",
     name="upload_distro",
-    summary="Upload a Kerio Control distributive file",
+    summary="Upload a Kerio Control/Connect distributive file",
     description=(
-        "Uploads and digitally signs a Kerio Control upgrade image. "
-        "Expected filename format: kerio-control-upgrade-{version}.img"
+        "Uploads and digitally signs a Kerio Control/Connect upgrade image. "
+        "Expected filename format: kerio-control-upgrade-{version}.img or kerio-connect-{version}.{deb|exe}"
     ),
     status_code=status.HTTP_200_OK,
     responses={
@@ -116,16 +130,19 @@ async def upload_distro(
     distro_file: Annotated[UploadFile, File(description="Distributive image")],
     distro_service: Annotated[DistroService, Depends(get_distro_service)],
 ) -> HTMLResponse:
-    filename = await distro_service.upload_distro_file(file=distro_file)
+    filename, distro_type = await distro_service.upload_distro_file(file=distro_file)
 
-    distro_list = distro_service.list_distros()
+    select_id = select_name = SELECT_IDS[distro_type]
+    distro_list = distro_service.list_distros(distro_type=distro_type)
+
     return templates.TemplateResponse(
         request=request,
-        name="components/settings/update/_distro_select.html",
+        name="components/settings/update/_distro_select_oob.html",
         context={
             "distro_list": distro_list,
-            "update_kerio_control_distro": True,
-            "kerio_control_update_file": filename,
+            "select_id": select_id,
+            "select_name": select_name,
+            "selected_distro": filename,
             "oob": True,
         },
     )

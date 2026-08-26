@@ -246,7 +246,9 @@ document.addEventListener("htmx:afterRequest", (e) => {
     if (!saveDialog || !saveDialogMessage) return;
 
     const ok = e.detail.successful;
-    const isDistroUpload = e.detail.elt.id === "distro-upload-form";
+    const isDistroUpload =
+        e.detail.elt.id === "distro-control-upload" ||
+        e.detail.elt.id === "distro-connect-upload";
     const isLicenseExpDate = e.detail.elt.id === "get-lic-exp-date-btn";
     if (ok) {
         if (isDistroUpload) {

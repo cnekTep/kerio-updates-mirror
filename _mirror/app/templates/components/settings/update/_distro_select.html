@@ -1,6 +1,19 @@
-<select id="kerio_control_update_file" name="kerio_control_update_file" class="mb-0 form-control"
-        data-controlled-by="kerio_control_distro" data-effect="disabled"
-        {% if oob %}hx-swap-oob="true" {% endif %}
-        {% if not update_kerio_control_distro %}disabled{% endif %}>
-    {% include "components/settings/update/_distro_options.html" %}
+{# Reusable component: renders a <select> populated with distro filenames. #}
+{# Called directly with explicit arguments from other templates, e.g.: #}
+{# {{ distro_select("my_id", "my_name", distro_list, selected_value) }} #}
+
+{% macro distro_select(select_id, select_name, distro_list, selected_distro=none, oob=false) %}
+<select id="{{ select_id }}" name="{{ select_name }}" class="mb-0 form-control"
+        {% if oob %} hx-swap-oob="true" {% endif %}>
+    <option value="" disabled selected>
+        — Select a file —
+    </option>
+    {% for distro in distro_list or [] %}
+    {% set distro_clean = distro.strip() %}
+    <option value="{{ distro_clean }}"
+            {% if selected_distro== distro_clean %} selected {% endif %}>
+        {{ distro_clean }}
+    </option>
+    {% endfor %}
 </select>
+{% endmacro %}
