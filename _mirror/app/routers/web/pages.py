@@ -4,7 +4,17 @@ from datetime import date
 from random import randint
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, Query, status, Form, HTTPException
+from fastapi import (
+    APIRouter,
+    Depends,
+    Request,
+    Query,
+    status,
+    Form,
+    HTTPException,
+    UploadFile,
+    File,
+)
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
 from app.config import templates, settings
@@ -27,6 +37,12 @@ router = APIRouter(dependencies=[Depends(require_auth)])
 GENERAL_SECTIONS = {"main", "information"}
 LOG_SECTIONS = {"system", "updates", "connections", "errors"}
 SETTINGS_SECTIONS = {"update", "connection", "security"}
+
+SELECT_IDS: dict[str, str] = {
+    "control": "kerio_control_update_file",
+    "connect_win": "kerio_connect_update_file_win",
+    "connect_deb": "kerio_connect_update_file_deb",
+}
 
 LICENSE_KEY_PATTERN = re.compile(r"^\d{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$", re.IGNORECASE)
 
@@ -354,6 +370,44 @@ async def generate_api_token(request: Request) -> HTMLResponse:
         request=request,
         name="components/settings/security/api_token_input.html",
         context={"api_write_token": token},
+    )
+
+
+@router.post(
+    path="/settings/update/distro/upload",
+    name="upload_distro",
+    summary="Upload a Kerio Control/Connect distributive file",
+    description=(
+        "Uploads and digitally signs a Kerio Control/Connect upgrade image. "
+        "Expected filename format: kerio-control-upgrade-{version}.img or kerio-connect-{version}.{deb|exe}"
+    ),
+    status_code=status.HTTP_200_OK,
+    responses={
+        200: {"description": "File uploaded and signed successfully"},
+        400: {"description": "Invalid filename format"},
+        500: {"description": "Internal server error"},
+    },
+)
+async def upload_distro(
+    request: Request,
+    distro_file: Annotated[UploadFile, File(description="Distributive image")],
+    distro_service: Annotated[DistroService, Depends(get_distro_service)],
+) -> HTMLResponse:
+    filename, distro_type = await distro_service.upload_distro_file(file=distro_file)
+
+    select_id = select_name = SELECT_IDS[distro_type]
+    distro_list = distro_service.list_distros(distro_type=distro_type)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="components/settings/update/_distro_select_oob.html",
+        context={
+            "distro_list": distro_list,
+            "select_id": select_id,
+            "select_name": select_name,
+            "selected_distro": filename,
+            "oob": True,
+        },
     )
 
 

@@ -1,9 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, Request, UploadFile, status
-from fastapi.responses import PlainTextResponse, HTMLResponse, FileResponse, Response
+from fastapi import APIRouter, Depends, Form, status
+from fastapi.responses import PlainTextResponse, FileResponse, Response
 
-from app.config import templates
 from app.dependencies import get_distro_service, get_client_ip
 from app.service.distro import DistroService
 from app.utils.app_logging import write_log
@@ -107,42 +106,4 @@ async def get_update_file(
     return distro_service.get_distro_file(
         file_name=file_name,
         client_ip=client_ip,
-    )
-
-
-@router.post(
-    path="/upload",
-    name="upload_distro",
-    summary="Upload a Kerio Control/Connect distributive file",
-    description=(
-        "Uploads and digitally signs a Kerio Control/Connect upgrade image. "
-        "Expected filename format: kerio-control-upgrade-{version}.img or kerio-connect-{version}.{deb|exe}"
-    ),
-    status_code=status.HTTP_200_OK,
-    responses={
-        200: {"description": "File uploaded and signed successfully"},
-        400: {"description": "Invalid filename format"},
-        500: {"description": "Internal server error"},
-    },
-)
-async def upload_distro(
-    request: Request,
-    distro_file: Annotated[UploadFile, File(description="Distributive image")],
-    distro_service: Annotated[DistroService, Depends(get_distro_service)],
-) -> HTMLResponse:
-    filename, distro_type = await distro_service.upload_distro_file(file=distro_file)
-
-    select_id = select_name = SELECT_IDS[distro_type]
-    distro_list = distro_service.list_distros(distro_type=distro_type)
-
-    return templates.TemplateResponse(
-        request=request,
-        name="components/settings/update/_distro_select_oob.html",
-        context={
-            "distro_list": distro_list,
-            "select_id": select_id,
-            "select_name": select_name,
-            "selected_distro": filename,
-            "oob": True,
-        },
     )
