@@ -8,9 +8,10 @@ from pathlib import Path
 
 from app.config import settings
 from app.service.ids import _check_kerio_update
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 from app.utils.file_utils import delete_file, ensure_dir
 from app.utils.internet_utils import download_file_with_retries
+from app.utils.service_types import UpdateResult, VersionCheckResult
 
 
 class GeoIPService:
@@ -26,8 +27,11 @@ class GeoIPService:
     # ------------------------------------------------------------------
 
     async def download_geoip_update_files(
-        self, version: str, via_custom_url: bool = False
-    ) -> None:
+        self,
+        version: str,
+        via_custom_url: bool = False,
+        notify: bool = True,
+    ) -> UpdateResult:
         """
         Entry point for GeoIP update. Dispatches to the appropriate
         handler based on the ``via_custom_url`` flag.
@@ -35,17 +39,25 @@ class GeoIPService:
         Args:
             version: GeoIP major version string (e.g. ``"5"``).
             via_custom_url: ``True`` to download from custom URL, ``False`` for Kerio server.
+            notify (bool, optional): Whether to notify on failure. Defaults to True.
+
+        Returns:
+            UpdateResult: success flag and a message describing the GeoIP
+            update result (e.g. "GeoIP v4 Update | Already up to date: 4.20260901").
         """
         if via_custom_url:
-            await self._download_geoip_via_custom_url()
-        else:
-            await self._download_geoip_via_kerio(version=version)
+            return await self._download_geoip_via_custom_url(notify=notify)
+        return await self._download_geoip_via_kerio(version=version, notify=notify)
 
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
 
-    async def _download_geoip_via_kerio(self, version: str) -> None:
+    async def _download_geoip_via_kerio(
+        self,
+        version: str,
+        notify: bool = True,
+    ) -> UpdateResult:
         """
         Download GeoIP update files from the Kerio server.
 
@@ -54,15 +66,25 @@ class GeoIPService:
 
         Args:
             version: GeoIP major version string (e.g. ``"5"``).
+
+        Returns:
+            UpdateResult: success flag and a message describing the GeoIP
+            update result (e.g. "GeoIP v5 Update | Already up to date: 5.20260901").
         """
         if not settings.updates.license_number:
-            write_log(
-                log_type=["system", "updates"],
-                message=f"GeoIP v{version} Update | Skipping: license key is not configured",
+            message = (
+                f"GeoIP v{version} Update | Error: "
+                f"Skipping: license key is not configured"
             )
-            return
+            log_event(
+                log_type=["system", "updates", "errors"],
+                message=message,
+                notify=notify,
+                action_name="GeoIP Update",
+            )
+            return UpdateResult(success=False, message=message)
 
-        write_log(
+        log_event(
             log_type=["system"],
             message=f"GeoIP v{version} Update | Downloading update files from Kerio server",
         )
@@ -71,32 +93,49 @@ class GeoIPService:
         current_version = getattr(settings.updates, f"geoip_{version}_version") or 0
 
         # Check for a newer version upstream
-        update_info = await self._check_geoip_update(
-            version=version, current_version=current_version
+        check = await self._check_geoip_update(
+            version=version,
+            current_version=current_version,
+            notify=notify,
         )
-        if not update_info:
-            return
 
-        new_version, download_link = update_info
+        if not check.ok or check.up_to_date:
+            # message already contains the specific reason (unreachable, invalid
+            # license, expired, unexpected response, or "already up to date")
+            return UpdateResult(success=check.ok, message=check.message)
+
+        # At this point check_ok is True and up_to_date is False, so both fields
+        # are guaranteed to be populated by _check_kerio_update - narrow the types
+        # explicitly since the dict itself can't express that guarantee.
+        new_version = check.version
+        download_link = check.download_link
+        assert isinstance(new_version, int)
+        assert isinstance(download_link, str)
 
         update_dir = ensure_dir(path=settings.updates.update_dir)
         ext = ".tar.gz" if download_link.endswith(".tar.gz") else ".gz"
         filename = f"geoip_{version}_{new_version}{ext}"
 
         if not await self._download_geoip_file(
-            url=download_link, save_path=update_dir / filename, version=version
+            url=download_link,
+            save_path=update_dir / filename,
+            version=version,
+            notify=notify,
         ):
-            return
+            message = f"GeoIP v{version} Update | Failed to download file"
+            return UpdateResult(success=False, message=message)
 
         # Process the archive if modification is enabled in config
         if version == "5" and settings.updates.geoip_5_copy_geoname_id:
-            # This does blocking tar/CSV I/O over potentially large files,
+            # This does block tar/CSV I/O over potentially large files,
             # so run it in a worker thread to avoid blocking the event loop.
-            if not await asyncio.to_thread(
+            copy_result: UpdateResult = await asyncio.to_thread(
                 self._copy_geoname_id_in_v5_archive,
                 archive_path=update_dir / filename,
-            ):
-                return
+                notify=notify,
+            )
+            if not copy_result.success:
+                return UpdateResult(success=False, message=copy_result.message)
 
         settings.bulk_update(
             {
@@ -104,30 +143,36 @@ class GeoIPService:
                 f"updates.geoip_{version}_last_update": date.today(),
             }
         )
-        write_log(
-            log_type=["system", "updates"],
-            message=f"GeoIP v{version} Update | Downloaded new version: {version}.{new_version}",
+        message = (
+            f"GeoIP v{version} Update | Downloaded new version: {version}.{new_version}"
         )
+        log_event(log_type=["system", "updates"], message=message)
+        return UpdateResult(success=True, message=message)
 
-    async def _download_geoip_via_custom_url(self) -> None:
+    async def _download_geoip_via_custom_url(self, notify: bool = True) -> UpdateResult:
         """
         Download GeoIP database files from custom URL and package them for Kerio.
 
         Downloads IPv4, IPv6, and geolocation CSV files, processes them,
         combines and compresses them into a single gzipped file.
+
+        Args:
+            notify (bool, optional): Whether to notify on failure. Defaults to True.
+
+        Returns:
+            UpdateResult: success flag and a message describing the GeoIP
+            update result (e.g. "GeoIP v4 Update | Already up to date: 4.20260901").
         """
         # Get current GeoIP version from settings
         current_version = settings.updates.geoip_4_version or 0
         current_dt = datetime.now().strftime("%Y%m%d")
 
         if current_version >= int(current_dt):
-            write_log(
-                log_type=["system", "updates"],
-                message=f"GeoIP v4 Update | Already up to date: 4.{current_version}",
-            )
-            return
+            message = f"GeoIP v4 Update | Already up to date: 4.{current_version}"
+            log_event(log_type=["system", "updates"], message=message)
+            return UpdateResult(success=True, message=message)
 
-        write_log(
+        log_event(
             log_type=["system"],
             message=f"GeoIP v4 Update | Downloading update files: 4.{current_dt}",
         )
@@ -142,25 +187,36 @@ class GeoIPService:
         ]
 
         for url, filename, process in geo_files:
-            if not await self._download_and_process_geo(
-                url=url, output_path=update_dir / filename, process=process
-            ):
-                return
+            result = await self._download_and_process_geo(
+                url=url,
+                output_path=update_dir / filename,
+                process=process,
+                notify=notify,
+            )
+            if not result.success:
+                # message already contains the specific reason (which URL/file
+                # failed to download, or the processing exception)
+                return UpdateResult(success=False, message=result.message)
 
         # This reads/writes/compresses potentially large CSV files, so run it
         # in a worker thread to avoid blocking the event loop.
-        if not await asyncio.to_thread(
+        combine_result: UpdateResult = await asyncio.to_thread(
             self._combine_and_compress_geo_files,
             v4_path=update_dir / "v4.csv",
             v6_path=update_dir / "v6.csv",
             version=current_dt,
-        ):
-            write_log(
-                log_type=["system", "updates"],
-                message="GeoIP v4 Update | Failed to create archive",
-            )
+            notify=notify,
+        )
+        return UpdateResult(
+            success=combine_result.success,
+            message=combine_result.message,
+        )
 
-    def _copy_geoname_id_in_v5_archive(self, archive_path: Path) -> bool:
+    def _copy_geoname_id_in_v5_archive(
+        self,
+        archive_path: Path,
+        notify: bool = True,
+    ) -> UpdateResult:
         """
         Repack a GeoIP v5 .tar.gz archive, copying ``geoname_id`` into
         ``registered_country_geoname_id`` for each IPv4/IPv6 block CSV.
@@ -174,9 +230,11 @@ class GeoIPService:
 
         Args:
             archive_path: Path to the downloaded .tar.gz archive (modified in place).
+            notify (bool, optional): Whether to notify on failure. Defaults to True.
 
         Returns:
-            ``True`` on success, ``False`` otherwise.
+            UpdateResult: success flag and a message describing the
+            outcome (only set on failure).
         """
         targets = {
             "GeoIP2-Country-Blocks-IPv4.csv",
@@ -196,7 +254,7 @@ class GeoIPService:
                             tar_out.addfile(member, tar_in.extractfile(member))
                             continue
 
-                        write_log(
+                        log_event(
                             log_type=["system"],
                             message=f"GeoIP v5 Update | Processing {filename}",
                         )
@@ -230,7 +288,7 @@ class GeoIPService:
                         info.mtime = member.mtime
                         tar_out.addfile(info, BytesIO(encoded))
 
-                        write_log(
+                        log_event(
                             log_type=["system"],
                             message=f"GeoIP v5 Update | Packed {filename} into archive",
                         )
@@ -241,21 +299,22 @@ class GeoIPService:
                 )
 
             temp_path.replace(archive_path)  # Atomic replace only after full success
-            write_log(
-                log_type=["system"],
-                message=(
-                    f"GeoIP v5 Update | Archive processed: "
-                    f"{archive_path.name} ({archive_path.stat().st_size} bytes)"
-                ),
+            message = (
+                f"GeoIP v5 Update | Archive processed: "
+                f"{archive_path.name} ({archive_path.stat().st_size} bytes)"
             )
-            return True
+            log_event(log_type=["system"], message=message)
+            return UpdateResult(success=True, message="")
 
         except Exception as e:
-            write_log(
+            message = f"GeoIP v5 Update | Error processing archive: {e}"
+            log_event(
                 log_type=["system", "errors"],
-                message=f"GeoIP v5 Update | Error processing archive: {e}",
+                message=message,
+                notify=notify,
+                action_name="GeoIP Update",
             )
-            return False
+            return UpdateResult(success=False, message=message)
 
         finally:
             # Always clean up the temp file
@@ -287,17 +346,18 @@ class GeoIPService:
 
     @staticmethod
     async def _check_geoip_update(
-        version: str, current_version: int
-    ) -> tuple[int, str] | None:
+        version: str, current_version: int, notify: bool = True
+    ) -> VersionCheckResult:
         """
         Check whether a new GeoIP version is available upstream.
 
         Args:
             version: GeoIP major version string (e.g. ``"5"``).
             current_version: Minor version number currently stored in the database.
+            notify: ``True`` to send notifications, ``False`` otherwise.
 
         Returns:
-            ``(new_version, download_link)`` if a newer version exists, ``None`` otherwise.
+            VersionCheckResult: Outcome of the check.
         """
         base = "geoip/update.php" if version == "5" else "update.php"
         return await _check_kerio_update(
@@ -305,10 +365,16 @@ class GeoIPService:
             version=version,
             current_version=current_version,
             label=f"GeoIP v{version}",
+            notify=notify,
         )
 
     @staticmethod
-    async def _download_geoip_file(url: str, save_path: Path, version: str) -> bool:
+    async def _download_geoip_file(
+        url: str,
+        save_path: Path,
+        version: str,
+        notify: bool = True,
+    ) -> bool:
         """
         Download a GeoIP file and return success status.
 
@@ -316,6 +382,7 @@ class GeoIPService:
             url: Download URL.
             save_path: Local path to save the file.
             version: GeoIP major version string, used in log messages.
+            notify: Whether to trigger a notification on failure. Defaults to True.
 
         Returns:
             ``True`` if the download succeeded, ``False`` otherwise.
@@ -325,15 +392,21 @@ class GeoIPService:
         ):
             return True
 
-        write_log(
-            log_type=["system"],
+        log_event(
+            log_type=["system", "errors"],
             message=f"GeoIP v{version} Update | Failed to download file",
+            notify=notify,
+            action_name="GeoIP Update",
         )
         return False
 
     async def _download_and_process_geo(
-        self, url: str, output_path: Path, process: bool
-    ) -> bool:
+        self,
+        url: str,
+        output_path: Path,
+        process: bool,
+        notify: bool = True,
+    ) -> UpdateResult:
         """
         Download and optionally process a GeoIP CSV file.
 
@@ -344,11 +417,13 @@ class GeoIPService:
             url: Download URL.
             output_path: Final path to save the processed file.
             process: Whether to normalize columns 2 and 3.
+            notify (bool, optional): Whether to notify on failure. Defaults to True.
 
         Returns:
-            ``True`` if the operation succeeded, ``False`` otherwise.
+            UpdateResult: success flag and a message describing the
+            outcome (only set on failure).
         """
-        write_log(
+        log_event(
             log_type=["system"],
             message=f"GeoIP v4 Update | Downloading file: {url}",
         )
@@ -363,16 +438,19 @@ class GeoIPService:
                 context=f"GeoIP download: {url}",
                 headers={"Accept-Encoding": "gzip"},
             ):
-                write_log(
-                    log_type=["system"],
-                    message=f"GeoIP v4 Update | Failed to download file: {url}",
+                message = f"GeoIP v4 Update | Error: Failed to download file: {url}"
+                log_event(
+                    log_type=["system", "errors"],
+                    message=message,
+                    notify=notify,
+                    action_name="GeoIP Update",
                 )
-                return False
+                return UpdateResult(success=False, message=message)
 
             # No processing needed - just move temp file into place
             if not process:
                 temp_path.replace(output_path)
-                return True
+                return UpdateResult(success=True, message="")
 
             # Normalize columns 2 and 3: copy non-empty value to the other column.
             # This reads/writes potentially large CSV files, so run it in a
@@ -381,18 +459,21 @@ class GeoIPService:
                 self._normalize_csv_file, temp_path=temp_path, output_path=output_path
             )
 
-            write_log(
+            log_event(
                 log_type=["system"],
                 message=f"GeoIP v4 Update | File processed successfully: {output_path}",
             )
-            return True
+            return UpdateResult(success=True, message="")
 
         except Exception as e:
-            write_log(
+            message = f"GeoIP v4 Update | Error processing file: {e}"
+            log_event(
                 log_type=["system", "errors"],
-                message=f"GeoIP v4 Update | Error processing file: {e}",
+                message=message,
+                notify=notify,
+                action_name="GeoIP Update",
             )
-            return False
+            return UpdateResult(success=False, message=message)
 
         finally:
             # Always clean up the temp file
@@ -423,8 +504,12 @@ class GeoIPService:
                         writer.writerow(row)
 
     def _combine_and_compress_geo_files(
-        self, v4_path: Path, v6_path: Path, version: str
-    ) -> bool:
+        self,
+        v4_path: Path,
+        v6_path: Path,
+        version: str,
+        notify: bool = True,
+    ) -> UpdateResult:
         """
         Combine IPv4 and IPv6 data into a single gzipped file.
 
@@ -435,9 +520,11 @@ class GeoIPService:
             v4_path: Path to the processed IPv4 CSV file.
             v6_path: Path to the processed IPv6 CSV file.
             version: Date string used in the output file name (e.g. ``"20260101"``).
+            notify (bool, optional): Whether to notify on failure. Defaults to True.
 
         Returns:
-            ``True`` on success, ``False`` otherwise.
+            UpdateResult: success flag and a message describing the
+            outcome (only set on failure).
         """
         output_path = settings.updates.update_dir / f"geoip_4_{version}.gz"
         temp_path = output_path.with_suffix(output_path.suffix + ".tmp")
@@ -448,7 +535,13 @@ class GeoIPService:
             ) as gz_file:
                 writer = csv.writer(gz_file)
                 for path in (v4_path, v6_path):
-                    self._write_first_two_columns(input_path=path, writer=writer)
+                    write_result = self._write_first_two_columns(
+                        input_path=path,
+                        writer=writer,
+                        notify=notify,
+                    )
+                    if not write_result.success:
+                        return UpdateResult(success=False, message=write_result.message)
 
             if not temp_path.exists() or temp_path.stat().st_size == 0:
                 raise FileNotFoundError(
@@ -457,7 +550,7 @@ class GeoIPService:
 
             temp_path.replace(output_path)  # Atomic replace only after full success
 
-            write_log(
+            log_event(
                 log_type=["system"],
                 message=(
                     f"GeoIP v4 Update | Archive created: "
@@ -471,18 +564,19 @@ class GeoIPService:
                     "updates.geoip_4_last_update": date.today(),
                 }
             )
-            write_log(
-                log_type=["system", "updates"],
-                message=f"GeoIP v4 Update | Downloaded new version: 4.{version}",
-            )
-            return True
+            message = f"GeoIP v4 Update | Downloaded new version: 4.{version}"
+            log_event(log_type=["system", "updates"], message=message)
+            return UpdateResult(success=True, message=message)
 
         except Exception as e:
-            write_log(
-                log_type=["system", "updates"],
-                message=f"GeoIP v4 Update | Error during compression: {e}",
+            message = f"GeoIP v4 Update | Error during compression: {e}"
+            log_event(
+                log_type=["system", "updates", "errors"],
+                message=message,
+                notify=notify,
+                action_name="GeoIP Update",
             )
-            return False
+            return UpdateResult(success=False, message=message)
 
         finally:
             # Always clean up the temp file
@@ -490,20 +584,32 @@ class GeoIPService:
                 delete_file(temp_path)
 
     @staticmethod
-    def _write_first_two_columns(input_path: Path, writer: "csv.writer") -> None:
+    def _write_first_two_columns(
+        input_path: Path,
+        writer: "csv.writer",
+        notify: bool = True,
+    ) -> UpdateResult:
         """
         Read a CSV file and write its first two columns, skipping the header.
 
         Args:
             input_path: Path to the input CSV file.
             writer: CSV writer to receive the output rows.
+            notify (bool, optional): Whether to notify on failure. Defaults to True.
+
+        Returns:
+            UpdateResult: success flag and a message describing the
+            outcome (only set on failure).
         """
         if not input_path.exists():
-            write_log(
-                log_type=["system"],
-                message=f"GeoIP v4 Update | File not found: {input_path}",
+            message = f"GeoIP v4 Update | File not found: {input_path}"
+            log_event(
+                log_type=["system", "errors"],
+                message=message,
+                notify=notify,
+                action_name="GeoIP Update",
             )
-            return
+            return UpdateResult(success=False, message=message)
 
         with open(input_path, "r", newline="", encoding="utf-8") as file:
             reader = csv.reader(file)
@@ -511,3 +617,5 @@ class GeoIPService:
             for row in reader:
                 if len(row) >= 2:
                     writer.writerow(row[:2])
+
+        return UpdateResult(success=True, message="")

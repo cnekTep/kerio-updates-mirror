@@ -7,7 +7,7 @@ import httpx
 from socksio.exceptions import ProtocolError as SocksProtocolError
 
 from app.config import settings
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 from app.utils.logging_utils import safe_body_str
 
 # Context variable to store request start time
@@ -39,7 +39,7 @@ async def log_outgoing_request(request: httpx.Request):
 
     headers = dict(request.headers) if request.headers else {}
 
-    write_log(
+    log_event(
         log_type="debug",
         message=f"|outgoing_request| {request.method} {request.url} "
         f"content_type={content_type or 'none'} body_size={len(body_bytes)} "
@@ -76,7 +76,7 @@ async def log_outgoing_response(response: httpx.Response):
 
     headers = dict(response.headers) if response.headers else {}
 
-    write_log(
+    log_event(
         log_type="debug",
         message=f"|outgoing_response| {response.request.method} {response.request.url} "
         f"status={response.status_code} time_ms={process_ms:.2f} "
@@ -161,9 +161,11 @@ def _get_proxy_url(proxy_type: str) -> str | None:
 
         # Validate proxy_type
         if protocol not in ("http", "socks5"):
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Invalid proxy_type: {protocol}.",
+                notify=True,
+                action_name="Get proxy URL",
             )
             raise ValueError(f"Invalid proxy_type: {protocol}")
 
@@ -207,45 +209,59 @@ def _log_error(context: str, attempt_desc: str, error: Exception):
         body_preview = (
             error.response.text[:1000] if error.response.content else "<no body>"
         )
-        write_log(
+        log_event(
             log_type=["system", "errors"],
             message=f"{context} | HTTPStatusError [{attempt_desc}] | "
             f"status={error.response.status_code} | body_preview={body_preview}",
+            notify=True,
+            action_name=f"{context} | HTTPStatusError",
         )
     elif isinstance(error, httpx.ProtocolError):
-        write_log(
+        log_event(
             log_type=["system", "errors"],
             message=f"{context} | ProtocolError [{attempt_desc}] | err={repr(error)}",
+            notify=True,
+            action_name=f"{context} | ProtocolError",
         )
     elif isinstance(error, httpx.RequestError):
-        write_log(
+        log_event(
             log_type=["system", "errors"],
             message=f"{context} | RequestError [{attempt_desc}] | err={repr(error)}",
+            notify=True,
+            action_name=f"{context} | RequestError",
         )
     elif isinstance(error, SocksProtocolError):
-        write_log(
+        log_event(
             log_type=["system", "errors"],
             message=f"{context} | SocksProtocolError [{attempt_desc}] | err={repr(error)}",
+            notify=True,
+            action_name=f"{context} | SocksProtocolError",
         )
     elif isinstance(error, OSError):
-        write_log(
+        log_event(
             log_type=["system", "errors"],
             message=f"{context} | OSError [{attempt_desc}] | err={repr(error)}",
+            notify=True,
+            action_name=f"{context} | OSError",
         )
     else:
         tb = traceback.format_exc()
-        write_log(
+        log_event(
             log_type=["system", "errors"],
             message=f"{context} | UnexpectedError [{attempt_desc}] | "
             f"err={repr(error)}\n{tb}",
+            notify=True,
+            action_name=f"{context} | UnexpectedError",
         )
 
 
 def _log_all_attempts_failed(context: str):
     """Log that all connection attempts have failed."""
-    write_log(
+    log_event(
         log_type=["system", "errors"],
         message=f"{context} | All connection attempts failed.",
+        notify=True,
+        action_name=f"{context} | All connection attempts failed",
     )
 
 

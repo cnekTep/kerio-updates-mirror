@@ -9,8 +9,9 @@ from app.service.geoip import GeoIPService
 from app.service.ids import IDSService
 from app.service.kerio_update import KerioUpdateService
 from app.service.web_filter import WebFilterService
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 from app.utils.file_utils import clean_directory
+from app.utils.service_types import NotificationLine, UpdateResult
 
 
 @dataclass
@@ -25,18 +26,19 @@ class MirrorUpdateService:
     web_filter_service: WebFilterService
 
     async def full_mirror_update(self, scheduled: bool = False) -> None:
+        overall_success = True
+        notification_message: list[NotificationLine] = []
+        divider = "----------------------------------------------------------------"
+
         # Reload config before update
         settings.reload()
 
         # Archive oversized log files before starting the update
         self._archive_logs()
 
-        write_log(log_type="updates", message="", date=False)
-        write_log(
-            log_type=["updates"],
-            message="----------------------------------------------------------------",
-        )
-        write_log(
+        log_event(log_type="updates", message="", date=False)
+        log_event(log_type="updates", message=divider)
+        log_event(
             log_type=["system", "updates"],
             message=(
                 "Scheduled Mirror update process started"
@@ -44,51 +46,67 @@ class MirrorUpdateService:
                 else "Manual Mirror update process started"
             ),
         )
-        write_log(
-            log_type=["updates"],
-            message=f"Using license key: {settings.updates.license_number}",
-        )
-        write_log(
-            log_type=["updates"],
-            message="----------------------------------------------------------------",
-        )
+        message = f"Using license key: {settings.updates.license_number}"
+        log_event(log_type=["updates"], message=message)
+        log_event(log_type=["updates"], message=divider)
+        message = f"License key | {settings.updates.license_number}"
+        notification_message.append(message)
 
         if settings.updates.update_web_filter_key:  # Update Web Filter key
-            await self.web_filter_service.update_web_filter_key()
+            result = await self.web_filter_service.update_web_filter_key(notify=False)
+            overall_success &= self._append_result(notification_message, result)
 
         if settings.updates.update_ids_3:  # IPS/IDS Snort (Kerio Control < 9.5)
-            await self.ids_service.download_ids_update_files(version="3")
+            result = await self.ids_service.download_ids_update_files(
+                version="3",
+                notify=False,
+            )
+            overall_success &= self._append_result(notification_message, result)
 
         if settings.updates.update_ids_5:  # IPS/IDS Snort (Kerio Control >= 9.5)
-            await self.ids_service.download_ids_update_files(version="5")
+            result = await self.ids_service.download_ids_update_files(
+                version="5",
+                notify=False,
+            )
+            overall_success &= self._append_result(notification_message, result)
             if settings.updates.update_snort_template:
-                await self.ids_service.download_snort_template()
+                result = await self.ids_service.download_snort_template(notify=False)
+                overall_success &= self._append_result(notification_message, result)
 
         if (
             settings.updates.update_ids_3 or settings.updates.update_ids_5
         ):  # Lists of compromised addresses for blocking
-            await self.ids_service.download_ids_update_files(version="2")
+            result = await self.ids_service.download_ids_update_files(
+                version="2",
+                notify=False,
+            )
+            overall_success &= self._append_result(notification_message, result)
 
         if settings.updates.update_geoip_4:  # GeoIP v4 database files
-            if settings.updates.geoip_custom_url:
-                await self.geoip_service.download_geoip_update_files(
-                    version="4", via_custom_url=True
-                )
-            else:
-                await self.geoip_service.download_geoip_update_files(
-                    version="4", via_custom_url=False
-                )
-        if settings.updates.update_geoip_5:  # GeoIP v5 database files
-            await self.geoip_service.download_geoip_update_files(
-                version="5", via_custom_url=False
+            result = await self.geoip_service.download_geoip_update_files(
+                version="4",
+                via_custom_url=settings.updates.geoip_custom_url,
+                notify=False,
             )
+            overall_success &= self._append_result(notification_message, result)
+        if settings.updates.update_geoip_5:  # GeoIP v5 database files
+            result = await self.geoip_service.download_geoip_update_files(
+                version="5",
+                via_custom_url=False,
+                notify=False,
+            )
+            overall_success &= self._append_result(notification_message, result)
 
         if settings.updates.update_shieldmatrix:  # ShieldMatrix updates URL
-            await self.kerio_update_service.get_shieldmatrix_update_url()
+            result = await self.kerio_update_service.get_shieldmatrix_update_url(
+                notify=False
+            )
+            overall_success &= self._append_result(notification_message, result)
 
         await self._clean_update_files()  # Clean update files directory
 
-        write_log(
+        log_event(log_type=["updates"], message=divider)
+        log_event(
             log_type=["system", "updates"],
             message=(
                 "Scheduled mirror update process completed"
@@ -96,10 +114,35 @@ class MirrorUpdateService:
                 else "Manual mirror update process completed"
             ),
         )
-        write_log(
-            log_type=["updates"],
-            message="----------------------------------------------------------------",
+        log_event(log_type=["updates"], message=divider)
+
+        log_event(
+            log_type=None,
+            message=notification_message,
+            write=False,
+            notify=True,
+            subject="Mirror Update | Kerio Updates Mirror",
+            action_name="Mirror Update",
+            status="success" if overall_success else "error",
         )
+
+    @staticmethod
+    def _append_result(
+        notification_message: list[NotificationLine],
+        result: UpdateResult,
+    ) -> bool:
+        """
+        Append a service result to notification_message, return its success flag.
+
+        Args:
+            notification_message: Accumulator list this line is appended to.
+            result: Result returned by a service update method.
+
+        Returns:
+            bool: The success flag of `result`, for chaining into overall_success.
+        """
+        notification_message.append({"text": result.message, "success": result.success})
+        return result.success
 
     @staticmethod
     def _archive_logs() -> None:
@@ -144,7 +187,7 @@ class MirrorUpdateService:
                 # Step 3: remove the intermediate renamed file
                 renamed.unlink()
 
-                write_log(
+                log_event(
                     log_type=["system"],
                     message=(
                         f"Log archived: {log_file.name} "
@@ -154,18 +197,22 @@ class MirrorUpdateService:
 
             except PermissionError:
                 # Windows: file is held open by another process, will retry next time
-                write_log(
+                log_event(
                     log_type=["system", "errors"],
                     message=(
                         f"Log archiving skipped for {log_file.name}: "
                         f"file is locked by another process"
                     ),
+                    notify=True,
+                    action_name="Log Archiving",
                 )
             except OSError as exc:
                 # Do not interrupt the update process on rotation failure
-                write_log(
+                log_event(
                     log_type=["system", "errors"],
                     message=f"Log rotation failed for {log_file.name}: {exc}",
+                    notify=True,
+                    action_name="Log Archiving",
                 )
 
     async def _clean_update_files(self) -> None:
@@ -174,7 +221,7 @@ class MirrorUpdateService:
         clean_directory(
             dir_path=settings.updates.update_dir, files_to_keep=files_to_keep
         )
-        write_log(
+        log_event(
             log_type=["system", "updates"],
             message="IDS/IPS/GeoIP update files directory cleaned",
         )
@@ -185,7 +232,7 @@ class MirrorUpdateService:
                 dat_path=antivirus_cache_dir / "versions.dat"
             )
             clean_directory(dir_path=antivirus_cache_dir, files_to_keep=files_to_keep)
-            write_log(
+            log_event(
                 log_type=["system", "updates"],
                 message="Antivirus update files directory cleaned",
             )

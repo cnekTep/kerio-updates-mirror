@@ -250,11 +250,14 @@ document.addEventListener("htmx:afterRequest", (e) => {
         e.detail.elt.id === "distro-control-upload" ||
         e.detail.elt.id === "distro-connect-upload";
     const isLicenseExpDate = e.detail.elt.id === "get-lic-exp-date-btn";
+    const isTestEmail = e.detail.elt.id === "test-email-btn";
     if (ok) {
         if (isDistroUpload) {
             saveDialogMessage.textContent = "✓ File successfully uploaded and signed";
         } else if (isLicenseExpDate) {
             saveDialogMessage.textContent = "✓ License expiration date fetched";
+        } else if (isTestEmail) {
+            saveDialogMessage.textContent = "✓ Test email sent";
         } else {
             saveDialogMessage.textContent = "✓ Settings saved";
         }

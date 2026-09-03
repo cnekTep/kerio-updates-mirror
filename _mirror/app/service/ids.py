@@ -2,12 +2,13 @@ from datetime import date
 from pathlib import Path
 
 from app.config import settings
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 from app.utils.file_utils import ensure_dir
 from app.utils.internet_utils import (
     make_request_with_retries,
     download_file_with_retries,
 )
+from app.utils.service_types import UpdateResult, VersionCheckResult
 
 
 class IDSService:
@@ -22,7 +23,11 @@ class IDSService:
     # Public API
     # ------------------------------------------------------------------
 
-    async def download_ids_update_files(self, version: str) -> None:
+    async def download_ids_update_files(
+        self,
+        version: str,
+        notify: bool = True,
+    ) -> UpdateResult:
         """
         Download IDS update files from Kerio server.
 
@@ -31,15 +36,26 @@ class IDSService:
 
         Args:
             version: IDS major version to download (e.g. ``"5"``).
+            notify (bool, optional): Whether to notify on failure.
+
+        Returns:
+            UpdateResult: success flag and a message describing the IDS
+            update result (e.g. "IDS v3 Update | Already up to date: 3.456").
         """
         if not settings.updates.license_number:
-            write_log(
-                log_type=["system", "updates"],
-                message=f"IDS v{version} Update | Skipping: license key is not configured",
+            message = (
+                f"IDS v{version} Update | Error: "
+                f"Skipping: license key is not configured"
             )
-            return
+            log_event(
+                log_type=["system", "updates", "errors"],
+                message=message,
+                notify=notify,
+                action_name="IDS Update",
+            )
+            return UpdateResult(success=False, message=message)
 
-        write_log(
+        log_event(
             log_type=["system"],
             message=f"IDS v{version} Update | Downloading update files from Kerio server",
         )
@@ -48,22 +64,37 @@ class IDSService:
         current_version = getattr(settings.updates, f"ids_{version}_version") or 0
 
         # Check for a newer version upstream
-        update_info = await self._check_ids_update(
-            version=version, current_version=current_version
+        check = await self._check_ids_update(
+            version=version,
+            current_version=current_version,
+            notify=notify,
         )
-        if not update_info:
-            return
 
-        new_version, download_link = update_info
+        if not check.ok or check.up_to_date:
+            # message already contains the specific reason (unreachable, invalid
+            # license, expired, unexpected response, or "already up to date")
+            return UpdateResult(success=check.ok, message=check.message)
+
+        # At this point check_ok is True and up_to_date is False, so both fields
+        # are guaranteed to be populated by _check_kerio_update - narrow the types
+        # explicitly since the dict itself can't express that guarantee.
+        new_version = check.version
+        download_link = check.download_link
+        assert isinstance(new_version, int)
+        assert isinstance(download_link, str)
 
         update_dir = ensure_dir(path=settings.updates.update_dir)
         filename = f"ids_{version}_{new_version}.gz"
 
         # Download main file
         if not await self._download_ids_file(
-            url=download_link, save_path=update_dir / filename, version=version
+            url=download_link,
+            save_path=update_dir / filename,
+            version=version,
+            notify=notify,
         ):
-            return
+            message = f"IDS v{version} Update | Failed to download main archive"
+            return UpdateResult(success=False, message=message)
 
         # Download signature file
         if not await self._download_ids_file(
@@ -71,8 +102,10 @@ class IDSService:
             save_path=update_dir / f"{filename}.sig",
             version=version,
             is_signature=True,
+            notify=notify,
         ):
-            return
+            message = f"IDS v{version} Update | Failed to download signature"
+            return UpdateResult(success=False, message=message)
 
         settings.bulk_update(
             {
@@ -80,15 +113,26 @@ class IDSService:
                 f"updates.ids_{version}_last_update": date.today(),
             }
         )
-        write_log(
-            log_type=["system", "updates"],
-            message=f"IDS v{version} Update | Downloaded new version: {version}.{new_version}",
+
+        message = (
+            f"IDS v{version} Update | Downloaded new version: {version}.{new_version}"
         )
+        log_event(log_type=["system", "updates"], message=message)
+        return UpdateResult(success=True, message=message)
 
     @staticmethod
-    async def download_snort_template() -> None:
-        """Download Snort template files from the Kerio server."""
-        write_log(
+    async def download_snort_template(notify: bool = True) -> UpdateResult:
+        """
+        Download Snort template files from the Kerio server.
+
+        Args:
+            notify (bool, optional): Whether to notify on failure. Defaults to True.
+
+        Returns:
+            UpdateResult: success flag and a message describing the Snort
+            template update result (e.g. "Snort Template Update | Downloaded latest version").
+        """
+        log_event(
             log_type=["system"],
             message="Snort Template Update | Downloading update files from Kerio server",
         )
@@ -104,16 +148,20 @@ class IDSService:
                 save_path=str(update_dir / filename),
                 context="Snort Template Update",
             ):
-                write_log(
-                    log_type=["system", "updates"],
-                    message=f"Snort Template Update | Failed to download {filename}",
+                message = (
+                    f"Snort Template Update | Error: Failed to download {filename}"
                 )
-                return
+                log_event(
+                    log_type=["system", "updates", "errors"],
+                    message=message,
+                    notify=notify,
+                    action_name="IDS Update",
+                )
+                return UpdateResult(success=False, message=message)
 
-        write_log(
-            log_type=["system", "updates"],
-            message="Snort Template Update | Downloaded latest version",
-        )
+        message = "Snort Template Update | Downloaded latest version"
+        log_event(log_type=["system", "updates"], message=message)
+        return UpdateResult(success=True, message=message)
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -121,28 +169,36 @@ class IDSService:
 
     @staticmethod
     async def _check_ids_update(
-        version: str, current_version: int
-    ) -> tuple[int, str] | None:
+        version: str,
+        current_version: int,
+        notify: bool = True,
+    ) -> VersionCheckResult:
         """
         Check whether a new IDS version is available upstream.
 
         Args:
             version: IDS major version string (e.g. ``"5"``).
             current_version: Minor version number currently stored in the database.
+            notify: Whether to trigger a notification on failure. Defaults to True.
 
         Returns:
-            ``(new_version, download_link)`` if a newer version exists, ``None`` otherwise.
+            VersionCheckResult: Outcome of the check.
         """
         return await _check_kerio_update(
             url="https://ids-update.kerio.com/update.php",
             version=version,
             current_version=current_version,
             label=f"IDS v{version}",
+            notify=notify,
         )
 
     @staticmethod
     async def _download_ids_file(
-        url: str, save_path: Path, version: str, is_signature: bool = False
+        url: str,
+        save_path: Path,
+        version: str,
+        is_signature: bool = False,
+        notify: bool = True,
     ) -> bool:
         """
         Download an IDS file and return success status.
@@ -152,6 +208,7 @@ class IDSService:
             save_path: Local path to save the file.
             version: IDS major version string, used in log messages.
             is_signature: ``True`` for the ``.sig`` file, ``False`` for the main archive.
+            notify: Whether to trigger a notification on failure. Defaults to True.
 
         Returns:
             ``True`` if the download succeeded, ``False`` otherwise.
@@ -163,9 +220,11 @@ class IDSService:
         ):
             return True
 
-        write_log(
-            log_type=["system"],
+        log_event(
+            log_type=["system", "errors"],
             message=f"IDS v{version} Update | Failed to download {file_type}",
+            notify=notify,
+            action_name="IDS Update",
         )
         return False
 
@@ -175,7 +234,8 @@ async def _check_kerio_update(
     version: str,
     current_version: int,
     label: str,
-) -> tuple[int, str] | None:
+    notify: bool = True,
+) -> VersionCheckResult:
     """
     Check whether a new version is available on a Kerio update endpoint.
 
@@ -187,9 +247,10 @@ async def _check_kerio_update(
         version: Major version string to include in the request (e.g. ``"5"``).
         current_version: Minor version number currently stored in the database.
         label: Human-readable label for log messages (e.g. ``"IDS v5"``).
+        notify: Whether to trigger a notification on failure. Defaults to True.
 
     Returns:
-        ``(new_version, download_link)`` if a newer version exists, ``None`` otherwise.
+        VersionCheckResult: Outcome of the check.
     """
     params = {
         "id": settings.updates.license_number,
@@ -206,61 +267,123 @@ async def _check_kerio_update(
     )
 
     if not response:
-        write_log(
-            log_type=["system", "updates"],
-            message=f"{label} Update | Failed to reach Kerio server",
+        message = f"{label} Update | Error: Failed to reach Kerio server"
+        log_event(
+            log_type=["system", "updates", "errors"],
+            message=message,
+            notify=notify,
+            action_name="IDS / GeoIP Update",
         )
-        return None
+        return VersionCheckResult(
+            ok=False,
+            up_to_date=False,
+            version=None,
+            download_link=None,
+            message=message,
+        )
 
     # Handle license errors
     if "Invalid product license" in response.text:
-        write_log(
-            log_type=["system", "updates"],
-            message=f"{label} Update | Invalid product license: {settings.updates.license_number}",
+        message = (
+            f"{label} Update | Error: "
+            f"Invalid product license: {settings.updates.license_number}"
+        )
+        log_event(
+            log_type=["system", "updates", "errors"],
+            message=message,
+            notify=notify,
+            action_name="IDS / GeoIP Update",
         )
         settings.update("updates.license_number", None)
-        return None
+        return VersionCheckResult(
+            ok=False,
+            up_to_date=False,
+            version=None,
+            download_link=None,
+            message=message,
+        )
 
     if "Product Software Maintenance expired" in response.text:
-        write_log(
-            log_type=["system", "updates"],
-            message=f"{label} Update | License key expired: {settings.updates.license_number}",
+        message = (
+            f"{label} Update | Error: "
+            f"License key expired: {settings.updates.license_number}"
+        )
+        log_event(
+            log_type=["system", "updates", "errors"],
+            message=message,
+            notify=notify,
+            action_name="IDS / GeoIP Update",
         )
         settings.update("updates.license_number", None)
-        return None
+        return VersionCheckResult(
+            ok=False,
+            up_to_date=False,
+            version=None,
+            download_link=None,
+            message=message,
+        )
 
     # Parse the response body
     result = _parse_kerio_update_response(response.text)
     if result is None:
-        write_log(
-            log_type=["system", "updates"],
-            message=f"{label} Update | Unexpected response from Kerio server: {response.text.strip()}",
+        message = (
+            f"{label} Update | Error: "
+            f"Unexpected response from Kerio server: {response.text.strip()}"
         )
-        return None
+        log_event(
+            log_type=["system", "updates", "errors"],
+            message=message,
+            notify=notify,
+            action_name="IDS / GeoIP Update",
+        )
+        return VersionCheckResult(
+            ok=False,
+            up_to_date=False,
+            version=None,
+            download_link=None,
+            message=message,
+        )
 
     new_version = result["version"]
     if current_version >= new_version:
-        write_log(
-            log_type=["system", "updates"],
-            message=f"{label} Update | Already up to date: {version}.{current_version}",
+        message = f"{label} Update | Already up to date: {version}.{current_version}"
+        log_event(log_type=["system", "updates"], message=message)
+        return VersionCheckResult(
+            ok=True,
+            up_to_date=True,
+            version=None,
+            download_link=None,
+            message=message,
         )
-        return None
 
     if "download_link" not in result:
-        write_log(
-            log_type=["system", "updates"],
-            message=(
-                f"{label} Update | New version {version}.{new_version} reported "
-                f"but no download link provided"
-            ),
+        message = (
+            f"{label} Update | Error: New version {version}.{new_version} reported "
+            f"but no download link provided"
         )
-        return None
+        log_event(
+            log_type=["system", "updates", "errors"],
+            message=message,
+            notify=notify,
+            action_name="IDS / GeoIP Update",
+        )
+        return VersionCheckResult(
+            ok=False,
+            up_to_date=False,
+            version=None,
+            download_link=None,
+            message=message,
+        )
 
-    write_log(
-        log_type=["system"],
-        message=f"{label} Update | New version available: {version}.{new_version}",
+    message = f"{label} Update | New version available: {version}.{new_version}"
+    log_event(log_type=["system"], message=message)
+    return VersionCheckResult(
+        ok=True,
+        up_to_date=False,
+        version=new_version,
+        download_link=result["download_link"],
+        message=message,
     )
-    return new_version, result["download_link"]
 
 
 def _parse_kerio_update_response(text: str) -> dict | None:

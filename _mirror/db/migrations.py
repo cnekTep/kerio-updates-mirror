@@ -3,7 +3,7 @@ import sys
 from alembic.command import upgrade as alembic_upgrade
 from alembic.config import Config
 
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 
 
 def apply_migrations() -> None:
@@ -13,9 +13,14 @@ def apply_migrations() -> None:
     This ensures database schema is up to date before any requests are handled.
     """
     try:
-        write_log(log_type="system", message="Applying Alembic migrations...")
+        log_event(log_type="system", message="Applying Alembic migrations...")
         alembic_upgrade(config=Config("alembic.ini"), revision="head")
-        write_log(log_type="system", message="Alembic migrations applied successfully")
+        log_event(log_type="system", message="Alembic migrations applied successfully")
     except Exception as err:
-        write_log(log_type="system", message=f"Failed to apply migrations: {str(err)}")
+        log_event(
+            log_type=["system", "errors"],
+            message=f"Failed to apply migrations: {str(err)}",
+            notify=True,
+            action_name="DB Migrations",
+        )
         sys.exit(1)

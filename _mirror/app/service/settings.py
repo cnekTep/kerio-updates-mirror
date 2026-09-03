@@ -61,6 +61,25 @@ class SettingsService:
         return value
 
     @staticmethod
+    def _get_list(form: FormData, key: str) -> list[str] | None:
+        """
+        Returns a list of string values from a comma-separated form field.
+        Whitespace around each item is stripped. Ignores UploadFile entries.
+        Args:
+            form: Parsed form data from the request
+            key: Field name to look up
+        Returns:
+            List of non-empty stripped strings, or None if the field is absent,
+            empty, or not a plain string
+        """
+        value = form.get(key)
+        if isinstance(value, UploadFile) or value is None or value == "":
+            return None
+
+        result = [e.strip() for e in value.split(",") if e.strip()]
+        return result or None
+
+    @staticmethod
     def _bool(form: FormData, key: str) -> bool:
         """Returns True if checkbox field is present in form data."""
         return key in form
@@ -257,3 +276,17 @@ class SettingsService:
             )
 
         return reload
+
+    async def _save_notification(self, form: FormData) -> None:
+        data = {
+            "notification.email_enabled": self._bool(form, "email_enabled"),
+            "email.email_to": self._get_list(form, "email_to"),
+            "email.smtp_host": self._get(form, "smtp_host", "None"),
+            "email.smtp_port": self._get(form, "smtp_port", "None"),
+            "email.smtp_username": self._get(form, "smtp_username", "None"),
+            "email.smtp_password": self._get(form, "smtp_password", "None"),
+            "email.smtp_from": self._get(form, "smtp_from", "None"),
+            "email.smtp_timeout": self._get(form, "smtp_timeout", "None"),
+            "email.smtp_use_tls": self._bool(form, "smtp_use_tls"),
+        }
+        settings.bulk_update(data)

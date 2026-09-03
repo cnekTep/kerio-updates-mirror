@@ -7,6 +7,8 @@ from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from fastapi import Request, Response
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
+from app.utils.app_logging import log_event
+
 
 class AuthService:
     """Handles password verification and signed, stateless auth cookies."""
@@ -68,6 +70,12 @@ class AuthService:
             return False
 
         if username != self._username:
+            log_event(
+                log_type=["system", "errors"],
+                message=f"AuthService | Invalid username: {username}",
+                notify=True,
+                action_name="Authentication",
+            )
             return False
 
         salt_b64, hash_b64 = self._password_hash.split("$")
@@ -80,6 +88,12 @@ class AuthService:
             kdf.verify(password.encode("utf-8"), expected)
             return True
         except InvalidKey:
+            log_event(
+                log_type=["system", "errors"],
+                message=f"AuthService | Invalid password: {password}",
+                notify=True,
+                action_name="Authentication",
+            )
             return False
 
     def create_auth_cookie(self, response: Response, username: str) -> None:

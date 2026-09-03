@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Form
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 
 router = APIRouter(prefix="/updates/registration", tags=["registration"])
 
@@ -19,7 +19,7 @@ async def head_registration_info(
     ],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
 ):
-    write_log(
+    log_event(
         log_type=["system", "connections"],
         message=f"Registration | HEAD request received",
         ip=client_ip,
@@ -40,7 +40,7 @@ async def get_registration_info(
     base_id: str = Form(default=""),
     token: str = Form(default=""),
 ):
-    write_log(
+    log_event(
         log_type=["system", "connections"],
         message=f"Registration | {command.capitalize()} request received",
         ip=client_ip,

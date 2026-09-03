@@ -3,7 +3,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.config import settings
 from app.dependencies import get_mirror_update_service
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 
 
 async def scheduled_full_update():
@@ -11,8 +11,13 @@ async def scheduled_full_update():
     try:
         service = await get_mirror_update_service()
         await service.full_mirror_update(scheduled=True)
-    except Exception as e:
-        write_log(log_type="error", message=f"Scheduled full mirror update failed: {e}")
+    except Exception as exc:
+        log_event(
+            log_type="errors",
+            message=f"Scheduled full mirror update failed: {exc}",
+            notify=True,
+            action_name="Scheduled full mirror update",
+        )
 
 
 def create_scheduler() -> AsyncIOScheduler:
@@ -30,7 +35,7 @@ def create_scheduler() -> AsyncIOScheduler:
         replace_existing=True,
     )
 
-    write_log(
+    log_event(
         log_type="system",
         message=(
             f"Scheduler configured: full update at "

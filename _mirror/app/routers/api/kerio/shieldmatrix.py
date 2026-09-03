@@ -5,7 +5,7 @@ from fastapi.responses import PlainTextResponse, FileResponse, Response
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 
 router = APIRouter(prefix="/updates/shieldmatrix", tags=["shieldmatrix"])
 
@@ -40,7 +40,7 @@ async def get_update_link(
         str, Query(alias="last-update", description="Last update timestamp")
     ] = "0",
 ) -> str:
-    write_log(
+    log_event(
         log_type=["system", "connections"],
         message="ShieldMatrix | Update link request received",
         ip=client_ip,
@@ -74,7 +74,7 @@ async def get_update_version(
     ],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> str:
-    write_log(
+    log_event(
         log_type=["system"],
         message="ShieldMatrix | Update version request received",
         ip=client_ip,
@@ -112,7 +112,7 @@ async def get_update_file(
     ],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> Response | FileResponse:
-    write_log(
+    log_event(
         log_type=["system"],
         message=f"ShieldMatrix | Update file request received: {request.url}",
         ip=client_ip,

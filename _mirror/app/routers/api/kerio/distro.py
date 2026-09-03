@@ -5,7 +5,7 @@ from fastapi.responses import PlainTextResponse, FileResponse, Response
 
 from app.dependencies import get_distro_service, get_client_ip
 from app.service.distro import DistroService
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 
 router = APIRouter(prefix="/updates/distro", tags=["distro"])
 
@@ -58,7 +58,7 @@ async def check_update(
     os_platform: str | None = Form(default=None),
     installation_type: str | None = Form(default=None, alias="InstallationType"),
 ) -> str:
-    write_log(
+    log_event(
         log_type=["system", "connections"],
         message="Distro | Update link request received",
         ip=client_ip,
@@ -97,7 +97,7 @@ async def get_update_file(
     distro_service: Annotated[DistroService, Depends(get_distro_service)],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> Response | FileResponse:
-    write_log(
+    log_event(
         log_type=["system", "connections"],
         message="Distro | Update file request received",
         ip=client_ip,

@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 from datetime import date
@@ -262,6 +263,21 @@ class SecurityConfig(BaseModel):
     )
 
 
+class NotificationConfig(BaseModel):
+    email_enabled: bool = Field(description="Enable email notifications")
+
+
+class EmailConfig(BaseModel):
+    email_to: list[str] | None = Field(description="Recipient email addresses")
+    smtp_host: str | None = Field(description="SMTP host")
+    smtp_port: int | None = Field(description="SMTP port")
+    smtp_username: str | None = Field(description="SMTP username")
+    smtp_password: str | None = Field(description="SMTP password")
+    smtp_from: str | None = Field(description="From address")
+    smtp_use_tls: bool = Field(description="Use STARTTLS")
+    smtp_timeout: int = Field(description="SMTP connection timeout in seconds")
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.default", ".env"),
@@ -290,6 +306,8 @@ class Settings(BaseSettings):
     network: NetworkConfig = Field(default_factory=NetworkConfig)
     user: UserConfig = Field(default_factory=UserConfig)
     security: SecurityConfig = Field(default_factory=SecurityConfig)
+    notification: NotificationConfig = Field(default_factory=NotificationConfig)
+    email: EmailConfig = Field(default_factory=EmailConfig)
 
     # Private attrs are not loaded from env and survive reassignment
     _env_mtime: float = PrivateAttr(default=0.0)
@@ -311,6 +329,18 @@ class Settings(BaseSettings):
             return path.stat().st_mtime
         except FileNotFoundError:
             return 0.0
+
+    @staticmethod
+    def _serialize_value(value: str | int | bool | list | dict) -> str:
+        """
+        Serialize a value for storing in .env file.
+        Complex types (list, dict) are JSON-encoded so pydantic-settings
+        can parse them back correctly; plain str()/repr() would produce
+        Python-style quotes which pydantic-settings can't parse as JSON.
+        """
+        if isinstance(value, (list, dict)):
+            return json.dumps(value)
+        return str(value)
 
     # ------------------------------------------------------------------
     # Public API
@@ -336,7 +366,7 @@ class Settings(BaseSettings):
         if current_mtime != self._env_mtime:
             self.reload()
 
-    def update(self, key_path: str, value: str | int | bool) -> None:
+    def update(self, key_path: str, value: str | int | bool | list | dict) -> None:
         """
         Update value in .env file and reinitialize settings
 
@@ -348,12 +378,12 @@ class Settings(BaseSettings):
         set_key(
             dotenv_path=Path(self.model_config["env_file"][1]),
             key_to_set=env_key,
-            value_to_set=str(value),
+            value_to_set=self._serialize_value(value),
             quote_mode="auto",
         )
         self.reload()
 
-    def bulk_update(self, data: dict[str, str | int | bool]) -> None:
+    def bulk_update(self, data: dict[str, str | int | bool | list | dict]) -> None:
         """
         Update multiple values in .env file and reinitialize settings once.
 
@@ -369,7 +399,7 @@ class Settings(BaseSettings):
             set_key(
                 dotenv_path=env_path,
                 key_to_set=env_key,
-                value_to_set=str(value),
+                value_to_set=self._serialize_value(value),
                 quote_mode="auto",
             )
         self.reload()

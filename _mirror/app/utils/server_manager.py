@@ -7,7 +7,7 @@ from granian import Granian
 from granian.constants import Interfaces
 
 from app.config import settings
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 
 
 def get_ssl_context(cert_dir: str = "certs") -> tuple[Path, Path] | None:
@@ -26,7 +26,12 @@ def get_ssl_context(cert_dir: str = "certs") -> tuple[Path, Path] | None:
     if os.path.exists(cert_path) and os.path.exists(key_path):
         return cert_path, key_path
 
-    write_log(log_type="system", message="No certificates for HTTPS were found")
+    log_event(
+        log_type=["system", "errors"],
+        message="No certificates for HTTPS were found",
+        notify=True,
+        action_name="Starting Server",
+    )
     return None
 
 
@@ -43,9 +48,11 @@ def verify_ssl_or_exit() -> tuple[Path, Path]:
     """
     ssl_context = get_ssl_context()
     if ssl_context is None:
-        write_log(
-            log_type="system",
+        log_event(
+            log_type=["system", "errors"],
             message="Application startup aborted: SSL certificates not found",
+            notify=True,
+            action_name="Starting Server",
         )
         # Exit the application if SSL certificates are not found
         sys.exit(1)
@@ -81,9 +88,11 @@ def run_granian_server(
     if ssl:  # Configure SSL if requested
         ssl_context = get_ssl_context()
         if ssl_context is None:
-            write_log(
-                log_type="system",
+            log_event(
+                log_type=["system", "errors"],
                 message="Cannot start HTTPS server without certificates",
+                notify=True,
+                action_name="Starting Server",
             )
             sys.exit(1)
         config["ssl_cert"] = ssl_context[0]
@@ -91,7 +100,7 @@ def run_granian_server(
         config["ssl_protocol_min"] = "tls1.2"
 
     protocol = "HTTPS" if ssl else "HTTP"
-    write_log(
+    log_event(
         log_type="system",
         message=f"{protocol} Granian server started on port {port}",
     )
@@ -129,9 +138,11 @@ def start_dual_granian_servers() -> (
 
         return http_process, https_process
     except Exception as err:
-        write_log(
-            log_type="system",
+        log_event(
+            log_type=["system", "errors"],
             message=f"Failed to start Granian servers: {str(err)}",
+            notify=True,
+            action_name="Starting Server",
         )
         raise
 

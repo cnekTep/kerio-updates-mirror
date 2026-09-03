@@ -10,7 +10,7 @@ from app.middleware.config_reload import ConfigReloadMiddleware
 from app.middleware.host_router import HostRoutingMiddleware
 from app.middleware.requests_logging import RequestsLoggingMiddleware
 from app.routers import routers
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 from app.utils.scheduler import create_scheduler
 
 
@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for FastAPI startup and shutdown events.
     """
     # Startup
-    write_log(log_type="system", message="Application started")
+    log_event(log_type="system", message="Application started")
 
     # Only the designated process owns the scheduler in dual-server mode
     run_scheduler = os.environ.get("RUN_SCHEDULER", "1") == "1"
@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
 
     # Shutdown
     scheduler.shutdown()
-    write_log(log_type="system", message="Application shutdown")
+    log_event(log_type="system", message="Application shutdown")
 
 
 def create_app():

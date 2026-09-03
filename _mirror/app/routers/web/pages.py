@@ -36,7 +36,7 @@ router = APIRouter(dependencies=[Depends(require_auth)])
 
 GENERAL_SECTIONS = {"main", "information"}
 LOG_SECTIONS = {"system", "updates", "connections", "errors"}
-SETTINGS_SECTIONS = {"update", "connection", "security"}
+SETTINGS_SECTIONS = {"update", "connection", "security", "notification"}
 
 SELECT_IDS: dict[str, str] = {
     "control": "kerio_control_update_file",
@@ -291,6 +291,18 @@ async def get_settings(
         **_security_context(nginx_acl_service),
         "has_nginx": settings.has_nginx,
         "api_write_token": settings.security.api_write_token,
+        # Notification settings
+        "email_enabled": settings.notification.email_enabled,
+        "email_to": (
+            ", ".join(settings.email.email_to) if settings.email.email_to else ""
+        ),
+        "smtp_host": settings.email.smtp_host,
+        "smtp_port": settings.email.smtp_port,
+        "smtp_username": settings.email.smtp_username,
+        "smtp_password": settings.email.smtp_password,
+        "smtp_from": settings.email.smtp_from,
+        "smtp_timeout": settings.email.smtp_timeout,
+        "smtp_use_tls": settings.email.smtp_use_tls,
     }
 
     if not request.headers.get("HX-Request"):

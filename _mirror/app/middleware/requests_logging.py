@@ -5,7 +5,7 @@ from fastapi import Request, Response, status
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from app.config import settings
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 from app.utils.logging_utils import safe_body_str
 
 
@@ -48,7 +48,7 @@ class RequestsLoggingMiddleware:
         if request.method == "CONNECT":
             client_ip = request.client.host if request.client else "unknown"
             headers = dict(request.headers)
-            write_log(
+            log_event(
                 log_type="debug",
                 message=f"|CONNECT| Full URL: {request.url} "
                 f"Path: {request.url.path} "
@@ -143,7 +143,7 @@ class RequestsLoggingMiddleware:
                 _log_if_unmatched(scope, response_status)
         except Exception as e:
             process_ms = (time.perf_counter() - start) * 1000
-            write_log(
+            log_event(
                 log_type="debug",
                 message=f"|response| {request.method} {request.url.path} "
                 f"ERROR time_ms={process_ms:.2f} "
@@ -186,7 +186,7 @@ def _log_if_unmatched(scope: Scope, status_code: int | None) -> None:
     forwarded_for = request.headers.get("x-forwarded-for", "-")
     content_length = request.headers.get("content-length", "0")
 
-    write_log(
+    log_event(
         log_type="unmatched_requests",
         message=f"{request.method} {request.url} status={status_code} "
         f"from {client_ip} x_forwarded_for={forwarded_for} "
@@ -216,7 +216,7 @@ def _log_request(request: Request, body_bytes: bytes, body_too_large: bool):
     path_params = dict(request.path_params) if request.path_params else {}
     headers = dict(request.headers) if request.headers else {}
 
-    write_log(
+    log_event(
         log_type="debug",
         message=f"|request| {request.method} {request.url} from {client_ip} "
         f"user_agent={user_agent} "
@@ -249,7 +249,7 @@ def _log_response(
         else "<not logged>"
     )
 
-    write_log(
+    log_event(
         log_type="debug",
         message=f"|response| {request.method} {request.url} "
         f"status={status_code} time_ms={process_ms:.2f} "

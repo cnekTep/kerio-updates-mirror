@@ -130,6 +130,14 @@ article details ul li a {
     margin-bottom: 0 !important;
 }
 
+.mb-05r {
+    margin-bottom: 0.5rem !important;
+}
+
+.mb-1r {
+    margin-bottom: 1rem !important;
+}
+
 .mt-1r {
     margin-top: 1rem !important;
 }
@@ -211,7 +219,6 @@ article details ul li a {
 /* Smooth show/hide for data-effect="hidden" elements */
 [data-effect="hidden"] {
     overflow: hidden;
-    max-height: 300px;
     opacity: 1;
     transition: max-height 0.3s ease, opacity 0.3s ease;
 }

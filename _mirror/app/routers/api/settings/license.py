@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.dependencies import get_client_ip, require_write_token
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 
 router = APIRouter(prefix="/license", tags=["license"])
 
@@ -36,7 +36,7 @@ async def update_mirror_key(
     license_number: Annotated[str, Body(embed=True)],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> dict[str, Any]:
-    write_log(
+    log_event(
         log_type=["system", "connections"],
         message="API | License | Key updated",
         ip=client_ip,

@@ -2,19 +2,19 @@ import re
 import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from random import randint
 from typing import TypedDict, ClassVar
 
 from fastapi import HTTPException, Response, status
 from fastapi.responses import FileResponse
 
 from app.config import settings
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 from app.utils.file_utils import clean_directory, ensure_dir, build_file_response
 from app.utils.internet_utils import (
     download_file_with_retries,
     make_request_with_retries,
 )
+from app.utils.service_types import UpdateResult
 
 
 class ParsedFileName(TypedDict):
@@ -88,10 +88,12 @@ class KerioUpdateService:
             HTTPException: 404 if Web Filter updates are disabled or key not found.
         """
         if not settings.updates.update_web_filter_key:
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message="Web Filter | Error: Updates for Web Filter are disabled",
                 ip=client_ip,
+                notify=True,
+                action_name="Web Filter Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -103,10 +105,12 @@ class KerioUpdateService:
 
         web_filter_key = settings.updates.web_filter_key
         if not web_filter_key:
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message="Web Filter | Error: Web Filter key not found",
                 ip=client_ip,
+                notify=True,
+                action_name="Web Filter Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -237,10 +241,12 @@ class KerioUpdateService:
         major_version = parsed["version"]
 
         if update_type not in self._VERSION_ENABLE_FLAGS:
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Unknown update type '{update_type}' parsed from file_name '{file_name}'",
                 ip=client_ip,
+                notify=True,
+                action_name="IDS / GeoIP Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -268,10 +274,12 @@ class KerioUpdateService:
 
         allowed_extensions = {".gz", ".md5", ".sig", ".tpl"}
         if file_path.suffix.lower() not in allowed_extensions:
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Disallowed file extension '{file_path.suffix}' for file_name '{file_name}'",
                 ip=client_ip,
+                notify=True,
+                action_name="IDS / GeoIP Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -279,10 +287,12 @@ class KerioUpdateService:
             )
 
         if not file_path.exists():
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"File not found: '{file_path}'",
                 ip=client_ip,
+                notify=True,
+                action_name="IDS / GeoIP Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -290,10 +300,12 @@ class KerioUpdateService:
             )
 
         if not file_path.is_file():
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Path is not a regular file: '{file_path}'",
                 ip=client_ip,
+                notify=True,
+                action_name="IDS / GeoIP Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -306,19 +318,18 @@ class KerioUpdateService:
     # ShieldMatrix
     # ------------------------------------------------------------------
 
-    async def get_shieldmatrix_update_url(self) -> None:
+    @staticmethod
+    async def get_shieldmatrix_update_url(notify: bool = True) -> UpdateResult:
         """
         Fetch the current ShieldMatrix download URL from upstream and store it.
 
-        Raises:
-                HTTPException: 404 if ShieldMatrix updates are disabled.
-        """
-        self._check_update_enabled(
-            enabled=settings.updates.update_shieldmatrix,
-            service="ShieldMatrix",
-            client_ip=None,
-        )
+        Args:
+            notify (bool, optional): Whether to notify on failure. Defaults to True.
 
+        Returns:
+            UpdateResult: success flag and a message describing whether the
+            ShieldMatrix update URL was received (e.g. ShieldMatrix Update | Received URL).
+        """
         params = {
             "client-id": "control",
             "version": "9.5.0",
@@ -337,25 +348,30 @@ class KerioUpdateService:
         )
 
         if not response:
-            write_log(
-                log_type=["system", "updates"],
-                message=f"ShieldMatrix Update | Failed to get update URL",
+            message = "ShieldMatrix Update | Failed to get update URL"
+            log_event(
+                log_type=["system", "updates", "errors"],
+                message=message,
+                notify=notify,
+                action_name="ShieldMatrix Update",
             )
-            return
+            return UpdateResult(success=False, message=message)
 
         data = response.json()  # Response body: {"available": bool, "url": str}
         if not data.get("available") or not data.get("url"):
-            write_log(
-                log_type=["system", "updates"],
-                message="ShieldMatrix Update | No URL available",
+            message = "ShieldMatrix Update | No URL available"
+            log_event(
+                log_type=["system", "updates", "errors"],
+                message=message,
+                notify=notify,
+                action_name="ShieldMatrix Update",
             )
-            return
+            return UpdateResult(success=False, message=message)
 
-        write_log(
-            log_type=["system", "updates"],
-            message=f"ShieldMatrix Update | Received URL",
-        )
+        message = "ShieldMatrix Update | Received URL"
+        log_event(log_type=["system", "updates"], message=message)
         settings.update("updates.shieldmatrix_url", data["url"].rstrip("/"))
+        return UpdateResult(success=True, message=message)
 
     async def get_shieldmatrix_update_info(
         self,
@@ -507,10 +523,12 @@ class KerioUpdateService:
         )
 
         if not file_path.exists():
-            write_log(
-                log_type=["system"],
+            log_event(
+                log_type=["system", "errors"],
                 message=f"ShieldMatrix | Failed to download: {full_path}",
                 ip=client_ip,
+                notify=True,
+                action_name="ShieldMatrix Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
@@ -689,7 +707,7 @@ class KerioUpdateService:
         Raises:
             HTTPException: 502 if all connection attempts failed.
         """
-        write_log(
+        log_event(
             log_type=["system"],
             message="Registration | Trying to look up license info on kerio.com",
         )
@@ -1119,10 +1137,12 @@ class KerioUpdateService:
         """
         # Security: reject path separators and traversal sequences
         if "/" in file_name or "\\" in file_name or ".." in file_name:
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Path traversal attempt in {log_context} file_name '{file_name}'",
                 ip=client_ip,
+                notify=True,
+                action_name=f"{log_context} Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -1136,10 +1156,12 @@ class KerioUpdateService:
             resolved_path = file_path.resolve()
             resolved_path.relative_to(base_dir.resolve())
         except (ValueError, RuntimeError):
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Resolved path escapes {log_context} dir for file_name '{file_name}'",
                 ip=client_ip,
+                notify=True,
+                action_name=f"{log_context} Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -1177,10 +1199,12 @@ class KerioUpdateService:
                 update_type=update_type,
                 version=version if version else major_version,
             )
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"{label} | Error: Updates for {label} are not available",
                 ip=client_ip,
+                notify=True,
+                action_name=f"{label} Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -1205,13 +1229,16 @@ class KerioUpdateService:
         enabled: bool,
         service: str,
         client_ip: str | None,
+        notify: bool = True,
     ) -> None:
         """Raise HTTP 404 if the given service is disabled."""
         if not enabled:
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"{service} | Error: Updates for {service} are disabled",
                 ip=client_ip,
+                notify=notify,
+                action_name=f"{service} Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -1236,10 +1263,12 @@ class KerioUpdateService:
         try:
             return int(version.split(".")[0])
         except (IndexError, ValueError) as err:
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Version parse error for '{version}': {err}",
                 ip=client_ip,
+                notify=True,
+                action_name="IDS / GeoIP Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -1275,10 +1304,12 @@ class KerioUpdateService:
         if match:
             return {"type": match.group(1), "version": int(match.group(2))}
 
-        write_log(
+        log_event(
             log_type=["system", "errors"],
             message=f"Version parse error: could not extract type/version from file_name '{file_name}'",
             ip=client_ip,
+            notify=True,
+            action_name="IDS / GeoIP Update",
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -1320,12 +1351,14 @@ class KerioUpdateService:
         file_name = f"{url_prefix}_{major_version}_{update_version}{ext}"
 
         if update_version is None:
-            write_log(
-                log_type=["system"],
+            log_event(
+                log_type=["system", "errors"],
                 message=(
                     f"{label} | Update version not found in settings. "
                     "Run a manual mirror update or wait for the scheduled update."
                 ),
+                notify=True,
+                action_name=f"{label} Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -1378,10 +1411,12 @@ class KerioUpdateService:
         # kerio_cdn_url to build target_url even when serving files through the mirror.
         if "bdupdate.kerio.com" in settings.updates.antivirus_url:
             if not settings.updates.license_number:
-                write_log(
-                    log_type=["system"],
+                log_event(
+                    log_type=["system", "errors"],
                     message="Antivirus | Error: License number is missing",
                     ip=client_ip,
+                    notify=True,
+                    action_name="Antivirus Update",
                 )
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -1463,18 +1498,22 @@ class KerioUpdateService:
         )
 
         if not response:
-            write_log(
-                log_type=["system"],
+            log_event(
+                log_type=["system", "errors"],
                 message="Antivirus | Error: Failed to get Kerio CDN URL",
+                notify=True,
+                action_name="Antivirus Update",
             )
             return None
 
         license_number = settings.updates.license_number
 
         if "Invalid product license" in response.text:
-            write_log(
-                log_type=["system"],
+            log_event(
+                log_type=["system", "errors"],
                 message=f"Antivirus | Error: Invalid product license: {license_number}, removing from settings",
+                notify=True,
+                action_name="Antivirus Update",
             )
             settings.update("updates.license_number", None)
             raise HTTPException(
@@ -1483,9 +1522,11 @@ class KerioUpdateService:
             )
 
         if "Product Software Maintenance expired" in response.text:
-            write_log(
-                log_type=["system"],
+            log_event(
+                log_type=["system", "errors"],
                 message=f"Antivirus | Error: License key expired: {license_number}, removing from settings",
+                notify=True,
+                action_name="Antivirus Update",
             )
             settings.update("updates.license_number", None)
             raise HTTPException(
@@ -1534,9 +1575,11 @@ class KerioUpdateService:
         )
 
         if not response:
-            write_log(
-                log_type=["system"],
+            log_event(
+                log_type=["system", "errors"],
                 message="ShieldMatrix | Error: Failed to fetch version from upstream",
+                notify=True,
+                action_name="ShieldMatrix Update",
             )
             return None
 
@@ -1631,7 +1674,7 @@ class KerioUpdateService:
         Raises:
             HTTPException: 502 if all connection attempts failed.
         """
-        write_log(
+        log_event(
             log_type=["system"],
             message="Registration | Trying to download captcha file from kerio.com",
         )
@@ -1672,9 +1715,11 @@ class KerioUpdateService:
                     captcha_data, encoding="utf-8"
                 )
             except OSError as e:
-                write_log(
-                    log_type=["system"],
+                log_event(
+                    log_type=["system", "errors"],
                     message=f"Registration | Failed to save captcha: {e}",
+                    notify=True,
+                    action_name="Registration",
                 )
 
         return captcha_data, kerio_token
@@ -1707,9 +1752,11 @@ class KerioUpdateService:
                 },
             )
 
-        write_log(
-            log_type=["system"],
+        log_event(
+            log_type=["system", "errors"],
             message="Registration | Captcha unavailable",
+            notify=True,
+            action_name="Registration",
         )
         return Response(
             content="",

@@ -9,7 +9,7 @@ from fastapi import HTTPException, UploadFile, status
 from fastapi.responses import FileResponse, Response
 
 from app.config import settings
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 from app.utils.file_utils import ensure_dir, build_file_response
 
 _FILENAME_PATTERN = re.compile(
@@ -71,16 +71,18 @@ class DistroService:
                 status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
             ) from exc
         except Exception as exc:
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Distro Update | Error: Upload failed: {exc}",
+                notify=True,
+                action_name="Distributive Upload",
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Internal server error",
             ) from exc
 
-        write_log(
+        log_event(
             log_type=["system"],
             message=f"Distro Update | File uploaded and signed: {filename}",
         )
@@ -195,13 +197,15 @@ class DistroService:
                 update_version = settings.updates.kerio_connect_update_version_deb
                 build_number_variant = "deb"
             else:
-                write_log(
-                    log_type=["system", "connections"],
+                log_event(
+                    log_type=["system", "connections", "errors"],
                     message=(
                         f"Distro | Update check received (KMS): unsupported platform "
                         f"os_platform={os_platform!r} installation_type={installation_type!r}"
                     ),
                     ip=client_ip,
+                    notify=True,
+                    action_name="Distributive Update",
                 )
                 return NO_UPDATE_RESPONSE
 
@@ -210,15 +214,17 @@ class DistroService:
             product_label = "Kerio Connect"
             info_url = "https://support.kerioconnect.gfi.com"
         else:
-            write_log(
-                log_type=["system", "connections"],
+            log_event(
+                log_type=["system", "connections", "errors"],
                 message=f"Distro | Update check received: unknown product code {prod_code!r}",
                 ip=client_ip,
+                notify=True,
+                action_name="Distributive Update",
             )
             return NO_UPDATE_RESPONSE
 
         if not enabled:
-            write_log(
+            log_event(
                 log_type=["system", "connections"],
                 message=f"Distro | Update disabled ({prod_code})",
                 ip=client_ip,
@@ -226,15 +232,17 @@ class DistroService:
             return NO_UPDATE_RESPONSE
 
         if None in (prod_major, prod_minor, prod_build, prod_build_number):
-            write_log(
-                log_type=["system", "connections"],
+            log_event(
+                log_type=["system", "connections", "errors"],
                 message=f"Distro | Update check received ({prod_code}): missing version fields - "
                 f"{prod_major}.{prod_minor}.{prod_build} (build number: {prod_build_number})",
                 ip=client_ip,
+                notify=True,
+                action_name="Distributive Update",
             )
             return NO_UPDATE_RESPONSE
 
-        write_log(
+        log_event(
             log_type=["system", "connections"],
             message=(
                 f"Distro | Update check received ({prod_code}): "
@@ -251,10 +259,12 @@ class DistroService:
                 build_number_variant=build_number_variant,
             )
         except RuntimeError as exc:
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Distro Update | Error: Failed to parse version from config ({prod_code}): {exc}",
                 ip=client_ip,
+                notify=True,
+                action_name="Distributive Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -321,10 +331,12 @@ class DistroService:
             string=file_name,
             flags=re.IGNORECASE,
         ):
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Invalid distro file_name format: '{file_name}'",
                 ip=client_ip,
+                notify=True,
+                action_name="Distributive Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file name"
@@ -337,20 +349,24 @@ class DistroService:
         # resolving both paths also guards against symlinks pointing outside
         # distro_dir.
         if not file_path.is_relative_to(distro_dir):
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Resolved path escapes distro dir for file_name '{file_name}'",
                 ip=client_ip,
+                notify=True,
+                action_name="Distributive Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file name"
             )
 
         if not file_path.is_file():
-            write_log(
+            log_event(
                 log_type=["system", "errors"],
                 message=f"Distro update file not found: '{file_path}'",
                 ip=client_ip,
+                notify=True,
+                action_name="Distributive Update",
             )
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Update file not found"

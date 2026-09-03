@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse, PlainTextResponse, Response
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 
 router = APIRouter(prefix="/updates/geoip", tags=["geoip"])
 
@@ -44,7 +44,7 @@ async def get_update_link(
     ],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> str:
-    write_log(
+    log_event(
         log_type=["system", "connections"],
         message=f"GeoIP v{version} | Update link request received",
         ip=client_ip,
@@ -80,7 +80,7 @@ async def get_update_file(
     ],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> Response | FileResponse:
-    write_log(
+    log_event(
         log_type=["system"],
         message=f"GeoIP | Update file request received: {request.url}",
         ip=client_ip,

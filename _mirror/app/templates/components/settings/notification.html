@@ -1,0 +1,93 @@
+<article>
+    <form id="article"
+          hx-post="{{ request.url.path }}"
+          hx-target="#article"
+          hx-swap="none">
+
+        <article>
+            <header>Email</header>
+            <label class="mb-0">
+                <input id="email_enabled" name="email_enabled" type="checkbox"
+                       data-controls="email_settings_block"
+                       {% if email_enabled %} checked {% endif %}>
+                Enable email notifications
+            </label>
+
+            <div id="email_settings_block" class="mb-0"
+                 data-controlled-by="email_settings_block" data-effect="hidden"
+                 {% if not email_enabled %} data-hidden {% endif %}>
+                <div class="settings-grid size-4_4 mt-1r"
+                     data-controlled-by="email_settings" data-effect="aria-disabled"
+                     aria-disabled="{% if email_enabled %} false {% else %} true {% endif %}">
+                    <p class="pb-1r">Email to:</p>
+                    <input type="text" name="email_to" id="email_to"
+                           placeholder="user1@example.com, user2@example.com"
+                           aria-label="Email to"
+                           value="{{ email_to or '' }}">
+                </div>
+                <details name="email_settings" class="mb-0">
+                    <summary class="mb-05r">SMTP settings</summary>
+                    <hr>
+                    <div class="grid">
+                        <label for="smtp_host">
+                            SMTP host:
+                            <input type="text" name="smtp_host" id="smtp_host" placeholder="smtp.example.com"
+                                   value="{{ smtp_host or '' }}">
+                        </label>
+                        <label for="smtp_port">
+                            SMTP port:
+                            <input type="number" name="smtp_port" id="smtp_port" min="1" max="65535" placeholder="587"
+                                   value="{{ smtp_port or '' }}">
+                        </label>
+                    </div>
+
+                    <div class="grid">
+                        <label for="smtp_username">
+                            Username:
+                            <input type="text" name="smtp_username" id="smtp_username" placeholder="Enter SMTP username"
+                                   autocomplete="off" value="{{ smtp_username or '' }}">
+                        </label>
+                        <label for="smtp_password">
+                            Password:
+                            <input type="password" name="smtp_password" id="smtp_password"
+                                   placeholder="Enter SMTP password"
+                                   autocomplete="new-password" value="{{ smtp_password or '' }}">
+                        </label>
+                    </div>
+
+                    <div class="grid">
+                        <label for="smtp_from">
+                            From address:
+                            <input type="text" name="smtp_from" id="smtp_from" placeholder="noreply@example.com"
+                                   value="{{ smtp_from or '' }}">
+                        </label>
+                        <label for="smtp_timeout">
+                            Connection timeout (s):
+                            <input type="number" name="smtp_timeout" id="smtp_timeout" min="1" placeholder="10"
+                                   value="{{ smtp_timeout or '' }}">
+                        </label>
+                    </div>
+
+                    <label class="mb-1r">
+                        <input id="smtp_use_tls" name="smtp_use_tls" type="checkbox"
+                               {% if smtp_use_tls %} checked {% endif %}>
+                        Use STARTTLS
+                    </label>
+
+                    <button type="button" id="test-email-btn" class="secondary mb-0 w-100"
+                            hx-post="{{ url_for('send_test_email') }}">
+                        Check
+                    </button>
+                </details>
+            </div>
+        </article>
+
+        <dialog id="save-dialog">
+            <article>
+                <h3 id="save-dialog-message"></h3>
+            </article>
+        </dialog>
+
+        <button class="mb-0" type="submit">Save settings</button>
+    </form>
+</article>

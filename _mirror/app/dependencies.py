@@ -8,6 +8,7 @@ from fastapi.security import APIKeyHeader
 from app.config import settings
 from app.service.auth import AuthService
 from app.service.distro import DistroService
+from app.service.email import EmailService
 from app.service.geoip import GeoIPService
 from app.service.ids import IDSService
 from app.service.kerio_update import KerioUpdateService
@@ -74,6 +75,11 @@ def get_auth_service() -> AuthService:
 async def get_distro_service() -> DistroService:
     """Get DistroService instance."""
     return DistroService()
+
+
+def get_email_service() -> EmailService:
+    """Get EmailService instance."""
+    return EmailService()
 
 
 async def get_settings_service(

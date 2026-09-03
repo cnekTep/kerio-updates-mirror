@@ -5,7 +5,7 @@ from fastapi.responses import PlainTextResponse
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
-from app.utils.app_logging import write_log
+from app.utils.app_logging import log_event
 
 router = APIRouter(prefix="/updates/webfilter", tags=["web filter"])
 
@@ -33,7 +33,7 @@ async def get_web_filter_key(
     ],
     client_ip: Annotated[str | None, Depends(get_client_ip)],
 ) -> str:
-    write_log(
+    log_event(
         log_type=["system", "connections"],
         message="Web Filter | Key request received",
         ip=client_ip,
