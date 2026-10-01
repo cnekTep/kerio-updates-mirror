@@ -265,6 +265,7 @@ class SecurityConfig(BaseModel):
 
 class NotificationConfig(BaseModel):
     email_enabled: bool = Field(description="Enable email notifications")
+    email_template: str = Field(description="Email template")
 
 
 class EmailConfig(BaseModel):

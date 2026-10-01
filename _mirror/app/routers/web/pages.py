@@ -24,8 +24,10 @@ from app.dependencies import (
     require_auth,
     get_distro_service,
     get_kerio_update_service,
+    get_email_service,
 )
 from app.service.distro import DistroService
+from app.service.email import EmailService
 from app.service.kerio_update import KerioUpdateService
 from app.service.nginx_acl import NginxACLService
 from app.service.settings import SettingsService
@@ -235,6 +237,7 @@ async def get_settings(
     name: str,
     nginx_acl_service: Annotated[NginxACLService, Depends(get_nginx_acl_service)],
     distro_service: Annotated[DistroService, Depends(get_distro_service)],
+    email_service: Annotated[EmailService, Depends(get_email_service)],
 ):
     if name not in SETTINGS_SECTIONS:
         return RedirectResponse(url="/web/404")
@@ -293,9 +296,11 @@ async def get_settings(
         "api_write_token": settings.security.api_write_token,
         # Notification settings
         "email_enabled": settings.notification.email_enabled,
+        "email_template": settings.notification.email_template,
         "email_to": (
             ", ".join(settings.email.email_to) if settings.email.email_to else ""
         ),
+        "list_email_templates": email_service.list_email_templates(),
         "smtp_host": settings.email.smtp_host,
         "smtp_port": settings.email.smtp_port,
         "smtp_username": settings.email.smtp_username,

@@ -1,0 +1,3 @@
+{% for item in message %}
+{{ item.text }}
+{% endfor %}

@@ -25,6 +25,22 @@
                            aria-label="Email to"
                            value="{{ email_to or '' }}">
                 </div>
+
+                <div class="form-group settings-grid size-4_4">
+                    <label for="email_template" class="pb-1r">Template:</label>
+                    <select id="email_template" name="email_template" class="form-control">
+                        {% for template in list_email_templates or [] %}
+                        {% set template_clean = template.strip() %}
+                        {# Split "default.html" into name and extension for display #}
+		                {% set name, ext = template_clean.rsplit('.', 1) %}
+                        <option value="{{ template_clean }}"
+                                {% if email_template == template_clean %} selected {% endif %}>
+                            {{ name | replace('_', ' ') | title }} {{ ext | upper }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
                 <details name="email_settings" class="mb-0">
                     <summary class="mb-05r">SMTP settings</summary>
                     <hr>

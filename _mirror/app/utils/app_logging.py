@@ -4,6 +4,8 @@ from datetime import datetime
 
 from fastapi import BackgroundTasks, HTTPException
 
+from app.config import settings
+
 # Keeps references to fire-and-forget tasks created outside a request
 # context (no BackgroundTasks available), so they aren't garbage-collected
 # before completion. Tasks remove themselves once done.
@@ -153,6 +155,6 @@ async def _send_email(
     email_service = EmailService()
     await email_service.send_notification(
         subject=subject,
-        template_name="default_html.html",
+        template_name=settings.notification.email_template,
         context={"action_name": action_name, "status": status, "message": message},
     )

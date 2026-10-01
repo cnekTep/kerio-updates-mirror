@@ -4,7 +4,7 @@ from email.message import EmailMessage
 import aiosmtplib
 from fastapi import status, HTTPException
 
-from app.config import settings, templates
+from app.config import settings, templates, BASE_DIR
 from app.utils.app_logging import log_event
 
 
@@ -35,7 +35,7 @@ class EmailService:
         self,
         subject: str,
         context: dict,
-        template_name: str = "default_html.html",
+        template_name: str = "default.html",
         to: list[str] | None = None,
         config: SMTPConfig | None = None,
     ) -> None:
@@ -46,7 +46,7 @@ class EmailService:
             subject: Email subject line.
             context: Values to render into the template.
             template_name: Template file name, relative to templates/email/
-                (e.g. "default_html.html").
+                (e.g. "default.html").
             to: Override recipient list; defaults to settings.email.email_to.
             config: SMTP config to use instead of settings.email
                 (e.g. unsaved values currently typed in the settings form).
@@ -80,6 +80,24 @@ class EmailService:
         log_event(
             log_type=["system"],
             message=f"Email | Sent: '{subject}'",
+        )
+
+    @staticmethod
+    def list_email_templates() -> list[str]:
+        """
+        List .html and .txt files in the email templates directory.
+
+        Returns:
+                Sorted list of full email template filenames (with extension).
+        """
+
+        templates_dir = BASE_DIR / "templates" / "email"
+
+        # Keep only regular files with .html or .txt extension
+        return sorted(
+            p.name
+            for p in templates_dir.iterdir()
+            if p.is_file() and p.suffix.lower() in (".html", ".txt")
         )
 
     # ------------------------------------------------------------------
@@ -122,7 +140,7 @@ class EmailService:
         message["To"] = ", ".join(recipients)
         message.add_alternative(
             self._render_template(template_name=template_name, context=context),
-            subtype="html",
+            subtype="html" if template_name.endswith(".html") else "plain",
         )
 
         await aiosmtplib.send(

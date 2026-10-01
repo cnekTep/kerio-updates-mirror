@@ -280,6 +280,7 @@ class SettingsService:
     async def _save_notification(self, form: FormData) -> None:
         data = {
             "notification.email_enabled": self._bool(form, "email_enabled"),
+            "notification.email_template": self._get(form, "email_template"),
             "email.email_to": self._get_list(form, "email_to"),
             "email.smtp_host": self._get(form, "smtp_host", "None"),
             "email.smtp_port": self._get(form, "smtp_port", "None"),

@@ -3,6 +3,7 @@ from typing import Annotated, Any
 from fastapi import status, APIRouter, Depends, Form
 from fastapi.responses import JSONResponse
 
+from app.config import settings
 from app.dependencies import get_email_service
 from app.service.email import EmailService, SMTPConfig
 
@@ -55,6 +56,7 @@ async def send_test_email(
             "status": "success",
             "message": "If you received this email, your SMTP settings are working correctly.",
         },
+        template_name=settings.notification.email_template,
         config=config,
     )
     return {"detail": "Test email sent"}
