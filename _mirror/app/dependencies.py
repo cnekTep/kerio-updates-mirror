@@ -94,12 +94,14 @@ async def get_settings_service(
     nginx_acl_service: Annotated[NginxACLService, Depends(get_nginx_acl_service)],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
     distro_service: Annotated[DistroService, Depends(get_distro_service)],
+    license_service: Annotated[LicenseService, Depends(get_license_service)],
 ) -> SettingsService:
     """Get SettingsService instance."""
     return SettingsService(
         nginx_acl_service=nginx_acl_service,
         auth_service=auth_service,
         distro_service=distro_service,
+        license_service=license_service,
     )
 
 
