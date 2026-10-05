@@ -573,6 +573,7 @@ class KerioUpdateService:
         client_ip: str | None,
         host_id: str,
         force_update: bool = False,
+        service_name: str = "Registration",
     ) -> Response:
         """
         Handle 'connect' command: serve captcha from file or download from kerio.com.
@@ -587,6 +588,7 @@ class KerioUpdateService:
             client_ip: Client IP address, used for logging if enabled in settings.
             host_id: Host ID to use in the request.
             force_update: If True, forces a new captcha download from kerio.com.
+            service_name: Service name to use in logging.
 
         Returns:
             Response with captcha content and Kerio headers on success,
@@ -602,7 +604,7 @@ class KerioUpdateService:
         if not force_update:
             self._check_update_enabled(
                 enabled=settings.updates.update_registration,
-                service="Registration",
+                service=service_name,
                 client_ip=client_ip,
             )
 
@@ -619,11 +621,15 @@ class KerioUpdateService:
         )
 
         if needs_fetch:
-            captcha_data, kerio_token = await self._fetch_captcha(host_id=host_id)
+            captcha_data, kerio_token = await self._fetch_captcha(
+                host_id=host_id,
+                service_name=service_name,
+            )
 
         return self._make_registration_connect_response(
             captcha_data=captcha_data,
             kerio_token=kerio_token,
+            service_name=service_name,
         )
 
     async def get_static_registration_lookup_info(
@@ -709,7 +715,7 @@ class KerioUpdateService:
         """
         log_event(
             log_type=["system"],
-            message="Registration | Trying to look up license info on kerio.com",
+            message="License Key | Trying to look up license info on kerio.com",
         )
         response = await make_request_with_retries(
             url="https://register.kerio.com/registration/LD.php",
@@ -1658,12 +1664,13 @@ class KerioUpdateService:
         )
 
     @staticmethod
-    async def _fetch_captcha(host_id: str) -> tuple[str, str | None]:
+    async def _fetch_captcha(host_id: str, service_name: str) -> tuple[str, str | None]:
         """
         Download captcha from kerio.com and cache it locally.
 
         Args:
             host_id: Host ID to use in the request.
+            service_name: Service name to use in logging.
 
         Returns:
             Tuple of:
@@ -1676,7 +1683,7 @@ class KerioUpdateService:
         """
         log_event(
             log_type=["system"],
-            message="Registration | Trying to download captcha file from kerio.com",
+            message=f"{service_name} | Trying to download captcha file from kerio.com",
         )
         response = await make_request_with_retries(
             url="https://register.kerio.com/registration/LD.php",
@@ -1717,9 +1724,9 @@ class KerioUpdateService:
             except OSError as e:
                 log_event(
                     log_type=["system", "errors"],
-                    message=f"Registration | Failed to save captcha: {e}",
+                    message=f"{service_name} | Failed to save captcha: {e}",
                     notify=True,
-                    action_name="Registration",
+                    action_name=service_name,
                 )
 
         return captcha_data, kerio_token
@@ -1728,12 +1735,14 @@ class KerioUpdateService:
     def _make_registration_connect_response(
         captcha_data: str,
         kerio_token: str | None,
+        service_name: str,
     ) -> Response:
         """Build HTTP response with captcha data or internal error response.
 
         Args:
             captcha_data: Captcha file content. Empty string if unavailable.
             kerio_token: Kerio token from response headers, or None if not present.
+            service_name: Service name to use in logging.
 
         Returns:
             Response with captcha content and Kerio headers on success,
@@ -1754,9 +1763,9 @@ class KerioUpdateService:
 
         log_event(
             log_type=["system", "errors"],
-            message="Registration | Captcha unavailable",
+            message=f"{service_name} | Captcha unavailable",
             notify=True,
-            action_name="Registration",
+            action_name=service_name,
         )
         return Response(
             content="",

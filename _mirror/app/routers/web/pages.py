@@ -85,34 +85,29 @@ def _get_license_display_data(
     license_exp_date: date | None,
     days_to_expiration: int,
 ) -> dict[str, date | None | str | bool]:
-    """Pick the more recent of two license-related dates and prepare display data."""
-    candidates = [
-        ("exp_date", license_exp_date, "License expiration date"),
-        ("last_update", license_last_update, "Last update date of license number"),
-    ]
-    present = [c for c in candidates if c[1] is not None]
-
-    if not present:
+    """Prepare display data: expiration date has priority over last update date."""
+    # Expiration date always wins if present
+    if license_exp_date is not None:
+        days_left = (license_exp_date - date.today()).days
         return {
-            "lic_display_date": None,
-            "lic_number_tooltip": None,
+            "lic_display_date": license_exp_date,
+            "lic_number_tooltip": "License expiration date",
+            "lic_date_is_expiring": days_left <= days_to_expiration,
+        }
+
+    # Fallback to last update date (never highlighted as expiring)
+    if license_last_update is not None:
+        return {
+            "lic_display_date": license_last_update,
+            "lic_number_tooltip": "Last update date of license number",
             "lic_date_is_expiring": False,
         }
 
-    # Pick entry with the max date
-    field_name, value, tooltip = max(present, key=lambda item: item[1])
-
-    # Highlight in red only if the winning date is the expiration date
-    # and it expires in less than days_to_expiration days
-    is_expiring = False
-    if field_name == "exp_date":
-        days_left = (value - date.today()).days
-        is_expiring = days_left <= days_to_expiration
-
+    # No license data available
     return {
-        "lic_display_date": value,
-        "lic_number_tooltip": tooltip,
-        "lic_date_is_expiring": is_expiring,
+        "lic_display_date": None,
+        "lic_number_tooltip": None,
+        "lic_date_is_expiring": False,
     }
 
 

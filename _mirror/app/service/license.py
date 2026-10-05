@@ -89,6 +89,7 @@ class LicenseService:
             client_ip=None,
             host_id=host_id,
             force_update=True,
+            service_name="License Key",
         )
         kerio_token = connect_info.headers.get("x-kerio-token")
         if not kerio_token:
@@ -131,9 +132,9 @@ class LicenseService:
     def _fail(message: str, notify: bool) -> UpdateResult:
         """Log a failure and return it."""
         log_event(
-            log_type=["system", "updates", "errors"],
-            message=message,
+            log_type=["system", "errors"],
+            message=f"License Key | {message}",
             notify=notify,
-            action_name="License",
+            action_name="License Key",
         )
         return UpdateResult(success=False, message=message)
