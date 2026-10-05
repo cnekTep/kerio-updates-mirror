@@ -4,24 +4,35 @@
           hx-post="{{ request.url.path }}"
           hx-target="#article"
           hx-swap="none">
-        <div class="settings-grid size-4_4-with-action">
-            <p class="pb-1r">License:</p>
-            <input type="text" name="license_number" id="license_number" placeholder="Enter your license number"
-                   aria-label="License number" value="{{ license_number or '' }}">
-            {% include "components/settings/update/license_exp_date_input.html" %}
-            <span class="btn-tooltip-wrap" data-tooltip="Get license expiration date">
-                <button type="button" id="get-lic-exp-date-btn" class="mb-0 w-100"
-                        hx-post="{{ url_for('get_lic_exp_date') }}"
-                        hx-include="#license"
-                        hx-target="#license_exp_date"
-                        hx-swap="outerHTML"
-                        hx-disabled-elt="this"
-                        hx-on::before-request="this.setAttribute('aria-busy', 'true')"
-                        hx-on::after-request="this.removeAttribute('aria-busy')">
-                    Check
-                </button>
-            </span>
-        </div>
+        <article>
+            <header>
+                License
+            </header>
+            <div class="settings-grid {{ 'size-fr-9-9' if check_license_exp_button else 'size-fr-9' }} gap-0_5">
+                <input type="text" name="license_number" id="license_number" placeholder="Enter your license number"
+                       aria-label="License number" value="{{ license_number or '' }}">
+                {% include "components/settings/update/license_exp_date_input.html" %}
+                {% if check_license_exp_button %}
+                <span class="btn-tooltip-wrap" data-tooltip="Get license expiration date">
+                    <button type="button" id="get-lic-exp-date-btn" class="mb-0 w-100"
+                            hx-post="{{ url_for('get_lic_exp_date') }}"
+                            hx-include="#license"
+                            hx-target="#license_exp_date"
+                            hx-swap="outerHTML"
+                            hx-disabled-elt="this"
+                            hx-on::before-request="this.setAttribute('aria-busy', 'true')"
+                            hx-on::after-request="this.removeAttribute('aria-busy')">
+                        Check
+                    </button>
+                </span>
+                {% endif %}
+            </div>
+            <label>
+                <input id="license_exp_date_autocheck" name="license_exp_date_autocheck" type="checkbox"
+                       {% if license_exp_date_autocheck %} checked {% endif %}>
+                Auto-check license expiration date
+            </label>
+        </article>
 
         <article>
             <header>
@@ -75,7 +86,7 @@
                        {% if update_web_filter_key %}checked{% endif %}>
                 Update Kerio Control Web Filter Content Filtering Subsystem Key
             </label>
-            <div class="settings-grid size-12">
+            <div class="settings-grid size-12-fr">
                 <label class="settings-margin-left"
                        data-controlled-by="web_filter" data-effect="aria-disabled"
                        aria-disabled="{% if update_web_filter_key %} false {% else %}true{% endif %}">
@@ -128,7 +139,7 @@
                     Mirror Mode (Update antivirus through Mirror with caching)
                 </label>
             </fieldset>
-            <div class="settings-grid size-4_4">
+            <div class="settings-grid size-4_4-fr">
                 <label for="antivirus-urls" class="settings-margin-left">URL:</label>
                 <select id="antivirus-urls" class="mb-0" name="antivirus_url"
                         aria-label="Select Antivirus update source URL" required>
@@ -184,7 +195,7 @@
                     Mirror Mode (Update antispam through Mirror with caching)
                 </label>
             </fieldset>
-            <div class="settings-grid size-4_4">
+            <div class="settings-grid size-4_4-fr">
                 <label for="antispam-urls" class="settings-margin-left">URL:</label>
                 <select id="antispam-urls" class="mb-0" name="antispam_url"
                         aria-label="Select Antispam update source URL" required>
@@ -219,12 +230,12 @@
             </label>
             <div data-controlled-by="kerio_control_distro" data-effect="hidden"
                  {% if not update_kerio_control_distro %} data-hidden {% endif %}>
-                <div class="form-group settings-grid size-12">
+                <div class="form-group settings-grid size-12-fr">
                     <label for="kerio_control_update_file" class="settings-margin-left">Select the update file:</label>
                     {{ distro_select("kerio_control_update_file", "kerio_control_update_file",
                     kerio_control_distro_list, kerio_control_update_file) }}
                 </div>
-                <div class="form-group settings-grid size-12">
+                <div class="form-group settings-grid size-12-fr">
                     <label for="distro-control-upload" class="settings-margin-left">Upload new file:</label>
                     <input id="distro-control-upload" class="mb-0" name="distro_file"
                            type="file" accept=".img"
@@ -246,17 +257,17 @@
             </label>
             <div data-controlled-by="kerio_connect_distro" data-effect="hidden"
                  {% if not update_kerio_connect_distro %} data-hidden {% endif %}>
-                <div class="form-group settings-grid size-12">
+                <div class="form-group settings-grid size-12-fr">
                     <label for="kerio_connect_update_file_win" class="settings-margin-left">Windows version:</label>
                     {{ distro_select("kerio_connect_update_file_win", "kerio_connect_update_file_win",
                     kerio_connect_distro_list_win, kerio_connect_update_file_win) }}
                 </div>
-                <div class="form-group settings-grid size-12 pt-0375r">
+                <div class="form-group settings-grid size-12-fr pt-0375r">
                     <label for="kerio_connect_update_file_deb" class="settings-margin-left">Debian version:</label>
                     {{ distro_select("kerio_connect_update_file_deb", "kerio_connect_update_file_deb",
                     kerio_connect_distro_list_deb, kerio_connect_update_file_deb) }}
                 </div>
-                <div class="form-group settings-grid size-12">
+                <div class="form-group settings-grid size-12-fr">
                     <label for="distro-connect-upload" class="settings-margin-left">Upload new file:</label>
                     <input id="distro-connect-upload" class="mb-0" name="distro_file"
                            type="file" accept=".exe,.deb"

@@ -16,7 +16,7 @@
             <div id="email_settings_block" class="mb-0"
                  data-controlled-by="email_settings_block" data-effect="hidden"
                  {% if not email_enabled %} data-hidden {% endif %}>
-                <div class="settings-grid size-4_4 mt-1r"
+                <div class="settings-grid size-5-fr mt-1r"
                      data-controlled-by="email_settings" data-effect="aria-disabled"
                      aria-disabled="{% if email_enabled %} false {% else %} true {% endif %}">
                     <p class="pb-1r">Email to:</p>
@@ -26,7 +26,7 @@
                            value="{{ email_to or '' }}">
                 </div>
 
-                <div class="form-group settings-grid size-4_4">
+                <div class="form-group settings-grid size-5-fr">
                     <label for="email_template" class="pb-1r">Template:</label>
                     <select id="email_template" name="email_template" class="form-control">
                         {% for template in list_email_templates or [] %}

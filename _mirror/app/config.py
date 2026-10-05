@@ -96,6 +96,8 @@ class DatabaseConfig(BaseModel):
 
 class UpdatesConfig(BaseModel):
     update_dir: Path = Field(description="Directory for updates and cache files")
+
+    # License
     license_number: str | None = Field(
         description="Kerio Control product license number for updates"
     )
@@ -105,6 +107,9 @@ class UpdatesConfig(BaseModel):
     )
     license_number_last_update: date | None = Field(
         description="Last update date of license number"
+    )
+    license_exp_date_autocheck: bool = Field(
+        description="Automatically check for license expiration"
     )
 
     # Web Filter
@@ -248,6 +253,9 @@ class NetworkConfig(BaseModel):
 
 class UserConfig(BaseModel):
     log_lines: int = Field(description="Number of log lines to display")
+    check_license_exp_button: bool = Field(
+        description="Show check license expiration button"
+    )
 
 
 class SecurityConfig(BaseModel):

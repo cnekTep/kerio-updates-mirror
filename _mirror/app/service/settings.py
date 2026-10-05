@@ -2,12 +2,13 @@ import secrets
 from dataclasses import dataclass
 from datetime import date
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, BackgroundTasks
 from starlette.datastructures import FormData, UploadFile
 
 from app.config import settings
 from app.service.auth import AuthService
 from app.service.distro import DistroService
+from app.service.license import LicenseService
 from app.service.nginx_acl import NginxACLService, NginxACLValidationError
 from app.utils.file_utils import delete_file, ensure_dir
 
@@ -24,14 +25,21 @@ class SettingsService:
     nginx_acl_service: NginxACLService
     auth_service: AuthService
     distro_service: DistroService
+    license_service: LicenseService
 
-    async def save(self, name: str, form: FormData) -> bool | None:
+    async def save(
+        self,
+        name: str,
+        form: FormData,
+        background_tasks: BackgroundTasks,
+    ) -> bool | None:
         """
         Dispatches form data to the appropriate save method by page name.
 
         Args:
             name: Settings page name (e.g. "update", "connection")
             form: Parsed form data from the request
+            background_tasks: Background tasks to be executed after the request
 
         Returns:
             bool | None: True if auth settings were changed, and need to be redirected
@@ -42,6 +50,8 @@ class SettingsService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Settings page '{name}' not found",
             )
+        if handler == self._save_update:
+            return await handler(form, background_tasks)
         return await handler(form)
 
     @staticmethod
@@ -111,7 +121,11 @@ class SettingsService:
                 status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwords do not match"
             )
 
-    async def _save_update(self, form: FormData) -> None:
+    async def _save_update(
+        self,
+        form: FormData,
+        background_tasks: BackgroundTasks,
+    ) -> None:
         antivirus = self._get(form, "antivirus", "disabled")
         antispam = self._get(form, "antispam", "disabled")
 
@@ -152,11 +166,18 @@ class SettingsService:
             "updates.update_web_filter_key": self._bool(form, "update_web_filter_key"),
             "updates.update_shieldmatrix": self._bool(form, "update_shieldmatrix"),
             "updates.license_number": self._get(form, "license_number") or "None",
-            "updates.license_exp_date": self._get(form, "license_exp_date") or "None",
+            "updates.license_exp_date": (
+                "None"
+                if self._get(form, "license_number") != settings.updates.license_number
+                else self._get(form, "license_exp_date") or "None"
+            ),
             "updates.license_number_last_update": (
                 date.today()
                 if self._get(form, "license_number") != settings.updates.license_number
                 else settings.updates.license_number_last_update
+            ),
+            "updates.license_exp_date_autocheck": self._bool(
+                form, "license_exp_date_autocheck"
             ),
             "updates.antivirus_url": self._get(form, "antivirus_url"),
             "updates.antispam_url": self._get(form, "antispam_url"),
@@ -198,6 +219,16 @@ class SettingsService:
                 for file in files:
                     delete_file(cache_dir / file)
 
+        # Update license expiration date (in background)
+        if (
+            settings.updates.license_exp_date_autocheck
+            and self._get(form, "license_number") != settings.updates.license_number
+        ):
+            background_tasks.add_task(
+                self.license_service.update_expiration_date,
+                license_number=self._get(form, "license_number"),
+                notify=False,
+            )
         # Update settings
         settings.bulk_update(data)
 

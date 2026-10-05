@@ -12,6 +12,7 @@ from app.service.email import EmailService
 from app.service.geoip import GeoIPService
 from app.service.ids import IDSService
 from app.service.kerio_update import KerioUpdateService
+from app.service.license import LicenseService
 from app.service.mirror_update import MirrorUpdateService
 from app.service.nginx_acl import NginxACLService
 from app.service.settings import SettingsService
@@ -54,6 +55,13 @@ async def get_mirror_update_service() -> MirrorUpdateService:
         ids_service=IDSService(),
         kerio_update_service=KerioUpdateService(),
         web_filter_service=WebFilterService(),
+    )
+
+
+async def get_license_service() -> LicenseService:
+    """Get LicenseService instance."""
+    return LicenseService(
+        kerio_update_service=KerioUpdateService(),
     )
 
 

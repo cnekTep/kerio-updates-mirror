@@ -1,7 +1,5 @@
-import re
 import secrets
 from datetime import date
-from random import randint
 from typing import Annotated
 
 from fastapi import (
@@ -14,6 +12,7 @@ from fastapi import (
     HTTPException,
     UploadFile,
     File,
+    BackgroundTasks,
 )
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
@@ -23,12 +22,16 @@ from app.dependencies import (
     get_nginx_acl_service,
     require_auth,
     get_distro_service,
-    get_kerio_update_service,
     get_email_service,
+    get_license_service,
 )
 from app.service.distro import DistroService
 from app.service.email import EmailService
-from app.service.kerio_update import KerioUpdateService
+from app.service.license import (
+    LicenseService,
+    InvalidLicenseKeyError,
+    LicenseLookupError,
+)
 from app.service.nginx_acl import NginxACLService
 from app.service.settings import SettingsService
 from app.utils.app_logging import read_last_lines
@@ -45,8 +48,6 @@ SELECT_IDS: dict[str, str] = {
     "connect_win": "kerio_connect_update_file_win",
     "connect_deb": "kerio_connect_update_file_deb",
 }
-
-LICENSE_KEY_PATTERN = re.compile(r"^\d{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$", re.IGNORECASE)
 
 
 def _active_priority() -> list[str]:
@@ -113,24 +114,6 @@ def _get_license_display_data(
         "lic_number_tooltip": tooltip,
         "lic_date_is_expiring": is_expiring,
     }
-
-
-def _validate_license_key(license_key: str) -> None:
-    """
-    Validate license key format: NNNNN-XXXXX-XXXXX
-    (first block digits, other blocks alphanumeric, case-insensitive).
-
-    Args:
-            license_key: License key to validate.
-
-    Raises:
-            HTTPException: 422 if the license key format is invalid.
-    """
-    if not LICENSE_KEY_PATTERN.match(license_key):
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Invalid license key format. Expected format: NNNNN-XXXXX-XXXXX",
-        )
 
 
 @router.get(path="/", response_class=HTMLResponse, name="main_page")
@@ -246,6 +229,8 @@ async def get_settings(
         # Update settings
         "license_number": settings.updates.license_number,
         "license_exp_date": settings.updates.license_exp_date,
+        "license_exp_date_autocheck": settings.updates.license_exp_date_autocheck,
+        "check_license_exp_button": settings.user.check_license_exp_button,
         "update_ids_3": settings.updates.update_ids_3,
         "update_ids_5": settings.updates.update_ids_5,
         "update_geoip_4": settings.updates.update_geoip_4,
@@ -332,40 +317,22 @@ async def get_settings(
 )
 async def get_lic_exp_date(
     request: Request,
-    kerio_update_service: Annotated[
-        KerioUpdateService, Depends(get_kerio_update_service)
-    ],
+    license_service: Annotated[LicenseService, Depends(get_license_service)],
     license_number: str = Form(...),
 ) -> HTMLResponse:
     """Fetch license expiration date from Kerio and return updated input HTML."""
-    _validate_license_key(license_number)
-
-    host_id = ":".join(f"{randint(0, 255):02X}" for _ in range(6))
-
-    connect_info = await kerio_update_service.get_registration_connect_info(
-        client_ip=None,
-        host_id=host_id,
-        force_update=True,
-    )
-    kerio_token = connect_info.headers.get("x-kerio-token")
-
-    if not kerio_token:
+    try:
+        expires = await license_service.get_expiration_date(license_number)
+    except InvalidLicenseKeyError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    except LicenseLookupError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No Kerio token received",
-        )
-
-    lookup_info = await kerio_update_service.get_registration_lookup_info(
-        token=kerio_token,
-        base_id=license_number,
-        host_id=host_id,
-    )
-    expires = lookup_info.get("expires")
-    if not expires:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No expiration date received",
-        )
+            detail=str(exc),
+        ) from exc
 
     return templates.TemplateResponse(
         request=request,
@@ -436,13 +403,18 @@ async def upload_distro(
 async def save_settings(
     request: Request,
     name: str,
+    background_tasks: BackgroundTasks,
     settings_service: Annotated[SettingsService, Depends(get_settings_service)],
 ) -> Response:
     if name not in SETTINGS_SECTIONS:
         return RedirectResponse(url="/404")
 
     form = await request.form()
-    result = await settings_service.save(name=name, form=form)
+    result = await settings_service.save(
+        name=name,
+        form=form,
+        background_tasks=background_tasks,
+    )
     if result:
         return Response(
             status_code=status.HTTP_303_SEE_OTHER,
