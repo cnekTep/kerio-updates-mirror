@@ -50,6 +50,8 @@ class MirrorUpdateService:
         log_event(log_type=["updates"], message=message)
         log_event(log_type=["updates"], message=divider)
         message = f"License key | {settings.updates.license_number}"
+        if settings.updates.license_exp_date:
+            message += f" | {settings.updates.license_exp_date}"
         notification_message.append(message)
 
         if settings.updates.update_web_filter_key:  # Update Web Filter key
