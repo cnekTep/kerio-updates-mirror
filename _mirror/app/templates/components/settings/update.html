@@ -30,7 +30,12 @@
             <label>
                 <input id="license_exp_date_autocheck" name="license_exp_date_autocheck" type="checkbox"
                        {% if license_exp_date_autocheck %} checked {% endif %}>
-                Auto-check license expiration date
+                Auto-check license expiration date (on Key change)
+            </label>
+            <label>
+                <input id="license_exp_date_mirror_update" name="license_exp_date_mirror_update" type="checkbox"
+                       {% if license_exp_date_mirror_update %} checked {% endif %}>
+                Auto-check license expiration date (on Mirror update)
             </label>
         </article>
 

@@ -37,13 +37,19 @@ class LicenseService:
 
     kerio_update_service: KerioUpdateService
 
-    async def update_expiration_date(self, license_number: str, notify: bool):
+    async def update_expiration_date(
+        self,
+        license_number: str,
+        notify: bool,
+        scheduled: bool | None = None,
+    ) -> UpdateResult:
         """
         Updates the license expiration date in the settings.
 
         Args:
             license_number: License key in format NNNNN-XXXXX-XXXXX.
             notify: Whether to notify the user of the update.
+            scheduled: Whether the update is from Mirror update.
 
         Returns:
             UpdateResult: Result of the update operation.
@@ -61,9 +67,16 @@ class LicenseService:
         except Exception as exc:
             return self._fail(str(exc), notify=True)
 
+        if scheduled:
+            message = f"License expiration date | Received: {expiration_date}"
+            log_event(
+                log_type=["system", "updates"],
+                message=message,
+            )
+
         settings.update("updates.license_exp_date", expiration_date)
         return UpdateResult(
-            success=True, message=f"License expiration date: {expiration_date}"
+            success=True, message=f"License expiration date | {expiration_date}"
         )
 
     async def get_expiration_date(self, license_number: str) -> str:

@@ -8,6 +8,7 @@ from app.config import settings
 from app.service.geoip import GeoIPService
 from app.service.ids import IDSService
 from app.service.kerio_update import KerioUpdateService
+from app.service.license import LicenseService
 from app.service.web_filter import WebFilterService
 from app.utils.app_logging import log_event, collect_error_notifications
 from app.utils.file_utils import clean_directory
@@ -24,6 +25,7 @@ class MirrorUpdateService:
     ids_service: IDSService
     kerio_update_service: KerioUpdateService
     web_filter_service: WebFilterService
+    license_service: LicenseService
 
     async def full_mirror_update(self, scheduled: bool = False) -> None:
         # Errors raised by log_event(notify=True) inside the block are collected,
@@ -54,11 +56,7 @@ class MirrorUpdateService:
             message=notification_message,
             write=False,
             notify=True,
-            subject=(
-                "Mirror Update | Kerio Updates Mirror"
-                if status == "success"
-                else f"Kerio Updates Mirror | Mirror Update | {label}"
-            ),
+            subject=f"Kerio Updates Mirror | Mirror Update | {label}",
             action_name="Mirror Update",
             status=status,
             details=collected_errors,
@@ -91,9 +89,19 @@ class MirrorUpdateService:
         log_event(log_type=["updates"], message=message)
         log_event(log_type=["updates"], message=divider)
         message = f"License key | {settings.updates.license_number}"
-        if settings.updates.license_exp_date:
-            message += f" | {settings.updates.license_exp_date}"
-        notification_message.append(message)
+
+        if settings.updates.license_exp_date_mirror_update:
+            notification_message.append(message)
+            result = await self.license_service.update_expiration_date(
+                license_number=settings.updates.license_number,
+                notify=False,
+                scheduled=True,
+            )
+            overall_success &= self._append_result(notification_message, result)
+        else:
+            if settings.updates.license_exp_date:
+                message += f" | {settings.updates.license_exp_date}"
+            notification_message.append(message)
 
         if settings.updates.update_web_filter_key:  # Update Web Filter key
             result = await self.web_filter_service.update_web_filter_key(notify=False)

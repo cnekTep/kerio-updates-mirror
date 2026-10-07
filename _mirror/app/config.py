@@ -109,7 +109,10 @@ class UpdatesConfig(BaseModel):
         description="Last update date of license number"
     )
     license_exp_date_autocheck: bool = Field(
-        description="Automatically check for license expiration"
+        description="Automatically check for license expiration on key change"
+    )
+    license_exp_date_mirror_update: bool = Field(
+        description="Automatically check for license expiration on mirror update"
     )
 
     # Web Filter

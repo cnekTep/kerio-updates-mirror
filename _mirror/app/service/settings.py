@@ -179,6 +179,9 @@ class SettingsService:
             "updates.license_exp_date_autocheck": self._bool(
                 form, "license_exp_date_autocheck"
             ),
+            "updates.license_exp_date_mirror_update": self._bool(
+                form, "license_exp_date_mirror_update"
+            ),
             "updates.antivirus_url": self._get(form, "antivirus_url"),
             "updates.antispam_url": self._get(form, "antispam_url"),
             "updates.update_antivirus": antivirus != "disabled",

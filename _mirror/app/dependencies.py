@@ -55,6 +55,7 @@ async def get_mirror_update_service() -> MirrorUpdateService:
         ids_service=IDSService(),
         kerio_update_service=KerioUpdateService(),
         web_filter_service=WebFilterService(),
+        license_service=LicenseService(kerio_update_service=KerioUpdateService()),
     )
 
 

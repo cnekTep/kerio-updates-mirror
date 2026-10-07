@@ -720,6 +720,7 @@ class KerioUpdateService:
         response = await make_request_with_retries(
             url="https://register.kerio.com/registration/LD.php",
             method="POST",
+            context="License Key | Looking up license info on kerio.com",
             files={
                 "command": (None, "lookup"),
                 "token": (None, token),
@@ -1688,6 +1689,7 @@ class KerioUpdateService:
         response = await make_request_with_retries(
             url="https://register.kerio.com/registration/LD.php",
             method="POST",
+            context="License Key | Downloading captcha file from kerio.com",
             files={
                 "command": (None, "connect"),
                 "host_id": (None, host_id),

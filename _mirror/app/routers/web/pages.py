@@ -225,6 +225,7 @@ async def get_settings(
         "license_number": settings.updates.license_number,
         "license_exp_date": settings.updates.license_exp_date,
         "license_exp_date_autocheck": settings.updates.license_exp_date_autocheck,
+        "license_exp_date_mirror_update": settings.updates.license_exp_date_mirror_update,
         "check_license_exp_button": settings.user.check_license_exp_button,
         "update_ids_3": settings.updates.update_ids_3,
         "update_ids_5": settings.updates.update_ids_5,
