@@ -9,7 +9,7 @@ from app.service.geoip import GeoIPService
 from app.service.ids import IDSService
 from app.service.kerio_update import KerioUpdateService
 from app.service.web_filter import WebFilterService
-from app.utils.app_logging import log_event
+from app.utils.app_logging import log_event, collect_error_notifications
 from app.utils.file_utils import clean_directory
 from app.utils.service_types import NotificationLine, UpdateResult
 
@@ -26,6 +26,47 @@ class MirrorUpdateService:
     web_filter_service: WebFilterService
 
     async def full_mirror_update(self, scheduled: bool = False) -> None:
+        # Errors raised by log_event(notify=True) inside the block are collected,
+        # not emailed one by one
+        with collect_error_notifications() as collected_errors:
+            overall_success, notification_message = await self._run_update_steps(
+                scheduled
+            )
+
+        # Error -> a step failed; Warning -> all steps passed, but there were
+        # intermediate errors (e.g. proxy unavailable, direct connection worked)
+        if not overall_success:
+            status, label = "error", "Error"
+        elif collected_errors:
+            status, label = "warning", "Warning"
+        else:
+            status, label = "success", "Success"
+
+        if collected_errors:
+            log_event(
+                log_type=["system", "updates"],
+                message=f"Mirror update finished with {len(collected_errors)} intermediate error(s)",
+                write=True,
+            )
+
+        log_event(
+            log_type=None,
+            message=notification_message,
+            write=False,
+            notify=True,
+            subject=(
+                "Mirror Update | Kerio Updates Mirror"
+                if status == "success"
+                else f"Kerio Updates Mirror | Mirror Update | {label}"
+            ),
+            action_name="Mirror Update",
+            status=status,
+            details=collected_errors,
+        )
+
+    async def _run_update_steps(
+        self, scheduled: bool = False
+    ) -> tuple[bool, list[NotificationLine]]:
         overall_success = True
         notification_message: list[NotificationLine] = []
         divider = "----------------------------------------------------------------"
@@ -118,15 +159,7 @@ class MirrorUpdateService:
         )
         log_event(log_type=["updates"], message=divider)
 
-        log_event(
-            log_type=None,
-            message=notification_message,
-            write=False,
-            notify=True,
-            subject="Mirror Update | Kerio Updates Mirror",
-            action_name="Mirror Update",
-            status="success" if overall_success else "error",
-        )
+        return overall_success, notification_message
 
     @staticmethod
     def _append_result(

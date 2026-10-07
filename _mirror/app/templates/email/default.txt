@@ -1,3 +1,10 @@
 {% for item in message %}
 {{ item.text }}
 {% endfor %}
+
+{% if details %}
+Errors during update ({{ details|length }})
+{% for item in details %}
+{{ item|trim }}
+{% endfor %}
+{% endif %}

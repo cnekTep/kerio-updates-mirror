@@ -1,6 +1,9 @@
 import asyncio
 import logging
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import datetime
+from typing import Iterator
 
 from fastapi import BackgroundTasks, HTTPException
 
@@ -10,6 +13,24 @@ from app.config import settings
 # context (no BackgroundTasks available), so they aren't garbage-collected
 # before completion. Tasks remove themselves once done.
 _background_notification_tasks: set[asyncio.Task] = set()
+
+# When set, error notifications are collected here instead of being sent.
+# The list is mutable and shared, so it also works for tasks created inside
+# the context (asyncio copies the context, but the list object stays the same).
+_error_collector: ContextVar[list[str] | None] = ContextVar(
+    "error_collector", default=None
+)
+
+
+@contextmanager
+def collect_error_notifications() -> Iterator[list[str]]:
+    """Defer error notifications raised inside the block and return them as a list."""
+    collected: list[str] = []
+    token = _error_collector.set(collected)
+    try:
+        yield collected
+    finally:
+        _error_collector.reset(token)
 
 
 def log_event(
@@ -23,6 +44,7 @@ def log_event(
     action_name: str = "",
     status: str = "success",
     background_tasks: BackgroundTasks | None = None,
+    details: list[str] | None = None,
 ) -> None:
     """
     Public API for logging + optional notifications.
@@ -38,6 +60,7 @@ def log_event(
         action_name: Optional action name for notifications
         status: Optional status for notifications (e.g., "success", "error")
         background_tasks: Optional background tasks manager
+        details: Optional list of additional details to include in the log entry
     """
     if write and log_type:
         if isinstance(message, list):
@@ -48,12 +71,21 @@ def log_event(
         if isinstance(message, str):
             message = message.strip().split("\n")
         if log_type and "errors" in log_type:
-            subject = "Error | Kerio Updates Mirror"
+            subject = "Kerio Updates Mirror | Error"
             status = "error"
+
+        # Inside collect_error_notifications(): defer error emails
+        collector = _error_collector.get()
+        if collector is not None and status == "error":
+            text = "\n".join(str(line) for line in message)
+            if text not in collector:  # skip exact duplicates
+                collector.append(text)
+            return
+
         if background_tasks is not None:
             # FastAPI keeps the task alive until the request finishes; no manual tracking needed
             background_tasks.add_task(
-                _send_notifications, subject, action_name, status, message
+                _send_notifications, subject, action_name, status, message, details
             )
         else:
             try:
@@ -66,7 +98,7 @@ def log_event(
                 return
 
             task = loop.create_task(
-                _send_notifications(subject, action_name, status, message)
+                _send_notifications(subject, action_name, status, message, details)
             )
             _background_notification_tasks.add(task)
             task.add_done_callback(_background_notification_tasks.discard)
@@ -119,6 +151,7 @@ async def _send_notifications(
     action_name: str,
     status: str,
     message: list[str],
+    details: list[str] | None = None,
 ) -> None:
     """Send message to all configured notification channels."""
     try:
@@ -127,6 +160,7 @@ async def _send_notifications(
             action_name=action_name,
             status=status,
             message=message,
+            details=details,
         )
     except HTTPException:
         # Already logged inside the underlying notification service before being raised.
@@ -146,6 +180,7 @@ async def _send_email(
     action_name: str,
     status: str,
     message: list[str],
+    details: list[str] | None = None,
 ) -> None:
     """Send an admin notification email. Raises on failure - caller handles that."""
     # Lazy import to avoid a circular import between app_logging and email
@@ -156,5 +191,10 @@ async def _send_email(
     await email_service.send_notification(
         subject=subject,
         template_name=settings.notification.email_template,
-        context={"action_name": action_name, "status": status, "message": message},
+        context={
+            "action_name": action_name,
+            "status": status,
+            "message": message,
+            "details": details or [],
+        },
     )
