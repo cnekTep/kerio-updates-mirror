@@ -237,7 +237,8 @@ document.addEventListener("htmx:afterRequest", (e) => {
     // navigate away, so showing the dialog would just cause a flash
     if (e.detail.xhr.getResponseHeader("HX-Redirect")) return;
     // Guard: skip elements that shouldn't trigger the save dialog
-    if (e.detail.elt.id === "api-token-generate-btn") return;
+    if (e.detail.elt.id === "api-read-token-generate-btn") return;
+    if (e.detail.elt.id === "api-write-token-generate-btn") return;
 
     const saveDialog = document.getElementById("save-dialog");
     const saveDialogMessage = document.getElementById("save-dialog-message");

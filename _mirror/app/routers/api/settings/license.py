@@ -6,11 +6,21 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator
 
 from app.config import settings
-from app.dependencies import get_client_ip, require_write_token, get_license_service
+from app.dependencies import (
+    get_client_ip,
+    get_license_service,
+    require_read_token,
+    require_write_token,
+)
 from app.service.license import LICENSE_KEY_PATTERN, LicenseService
 from app.utils.app_logging import log_event
 
 router = APIRouter(prefix="/license", tags=["license"])
+
+
+class LicenseKeyInfo(BaseModel):
+    license_number: str | None = None
+    expiration_date: date | None = None
 
 
 class LicenseKeyUpdate(BaseModel):
@@ -27,6 +37,29 @@ class LicenseKeyUpdate(BaseModel):
             )
         # Normalize to upper case so stored values are consistent
         return value.upper()
+
+
+@router.get(
+    path="/key",
+    response_model=LicenseKeyInfo,
+    summary="Get Mirror license key",
+    description=(
+        "Returns the stored Kerio Control product license number and its "
+        "expiration date. Either value is null if it has not been set yet. "
+        "Requires a read/write-scoped API token (X-API-Key header)."
+    ),
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_read_token)],
+    responses={
+        401: {"description": "Missing or invalid API key"},
+        503: {"description": "Read/Write API tokens are not configured on the server"},
+    },
+)
+async def get_mirror_key() -> LicenseKeyInfo:
+    return LicenseKeyInfo(
+        license_number=settings.updates.license_number,
+        expiration_date=settings.updates.license_exp_date,
+    )
 
 
 @router.patch(

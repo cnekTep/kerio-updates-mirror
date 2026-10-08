@@ -1,6 +1,6 @@
 import secrets
 from datetime import date
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import (
     APIRouter,
@@ -274,6 +274,7 @@ async def get_settings(
         "password": bool(settings.security.password_hash),
         **_security_context(nginx_acl_service),
         "has_nginx": settings.has_nginx,
+        "api_read_token": settings.security.api_read_token,
         "api_write_token": settings.security.api_write_token,
         # Notification settings
         "email_enabled": settings.notification.email_enabled,
@@ -338,18 +339,21 @@ async def get_lic_exp_date(
 
 
 @router.post(
-    path="/settings/api-token/generate",
+    path="/settings/api-token/{kind}/generate",
     response_class=HTMLResponse,
     status_code=status.HTTP_200_OK,
     name="generate_api_token",
 )
-async def generate_api_token(request: Request) -> HTMLResponse:
+async def generate_api_token(
+    request: Request,
+    kind: Literal["read", "write"],
+) -> HTMLResponse:
     token = secrets.token_urlsafe(32)  # Generate a secure random token
 
     return templates.TemplateResponse(
         request=request,
         name="components/settings/security/api_token_input.html",
-        context={"api_write_token": token},
+        context={"kind": kind, "token": token},
     )
 
 

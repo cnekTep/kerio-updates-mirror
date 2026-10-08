@@ -62,10 +62,22 @@
         <article>
             <header>API tokens</header>
             <div class="settings-grid size-5_5-fr-9 gap-0_5">
+                <p class="pb-1r">Read token:</p>
+                {% with kind="read", token=api_read_token %}
+                    {% include "components/settings/security/api_token_input.html" %}
+                {% endwith %}
+                <input type="button" value="Generate" id="api-read-token-generate-btn"
+                       hx-post="{{ url_for('generate_api_token', kind='read') }}"
+                       hx-target="#api_read_token"
+                       hx-swap="outerHTML"/>
+            </div>
+            <div class="settings-grid size-5_5-fr-9 gap-0_5">
                 <p class="pb-1r">Write token:</p>
-                {% include "components/settings/security/api_token_input.html" %}
-                <input type="button" value="Generate" id="api-token-generate-btn"
-                       hx-post="{{ url_for('generate_api_token') }}"
+                {% with kind="write", token=api_write_token %}
+                    {% include "components/settings/security/api_token_input.html" %}
+                {% endwith %}
+                <input type="button" value="Generate" id="api-write-token-generate-btn"
+                       hx-post="{{ url_for('generate_api_token', kind='write') }}"
                        hx-target="#api_write_token"
                        hx-swap="outerHTML"/>
             </div>

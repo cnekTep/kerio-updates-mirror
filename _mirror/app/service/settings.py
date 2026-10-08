@@ -260,6 +260,7 @@ class SettingsService:
         reload = False
 
         data: dict[str, str | bool | None] = {
+            "security.api_read_token": self._get(form, "api_read_token") or None,
             "security.api_write_token": self._get(form, "api_write_token") or None,
         }
 

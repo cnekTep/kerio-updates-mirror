@@ -27,12 +27,12 @@ from app.service.web_filter import WebFilterService
 
 # Reads the X-API-Key header. auto_error=False so a missing header doesn't
 # trigger FastAPI's default 403 - instead api_key comes through as None and
-# require_write_token below decides how to respond (keeps error handling
+# the require_*_token guards below decide how to respond (keeps error handling
 # consistent: same 401 for "missing" and "invalid" cases).
 api_key_header = APIKeyHeader(
     name="X-API-Key",
     auto_error=False,
-    description="Write-access API token",
+    description="API token (read or write, depending on the endpoint)",
 )
 
 
@@ -146,20 +146,66 @@ def require_write_token(
     api_key: Annotated[str | None, Depends(api_key_header)],
 ) -> None:
     """
-    Dependency that protects write endpoints via a single static API token
+    Dependency that protects write endpoints via the static write token
     (X-API-Key header). Raises 401 if the header is missing or doesn't match,
-    503 if no token has been configured on the server at all.
+    503 if no write token has been configured on the server.
     """
-    if not settings.security.api_write_token:
+    _verify_api_key(
+        api_key=api_key,
+        allowed_tokens=[settings.security.api_write_token],
+        not_configured_detail="Write API token is not configured",
+    )
+
+
+def require_read_token(
+    api_key: Annotated[str | None, Depends(api_key_header)],
+) -> None:
+    """
+    Dependency that protects read endpoints via the static read token
+    (X-API-Key header). The write token is accepted too, since write access
+    implies read access; the reverse is not true. Raises 401 if the header is
+    missing or doesn't match, 503 if neither token has been configured.
+    """
+    _verify_api_key(
+        api_key=api_key,
+        allowed_tokens=[
+            settings.security.api_read_token,
+            settings.security.api_write_token,
+        ],
+        not_configured_detail="API tokens are not configured",
+    )
+
+
+def _verify_api_key(
+    api_key: str | None,
+    allowed_tokens: list[str | None],
+    not_configured_detail: str,
+) -> None:
+    """
+    Shared check behind the require_*_token dependencies. Accepts the key if it
+    matches any of the allowed tokens. Raises 401 if the header is missing or
+    doesn't match, 503 if none of the allowed tokens is configured on the server.
+    """
+    # Unset or empty tokens are skipped, so an empty header can never match them
+    tokens = [t for t in allowed_tokens if t]
+
+    if not tokens:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Write API token is not configured",
+            detail=not_configured_detail,
         )
 
-    # constant-time comparison to avoid leaking the token via timing attacks
-    if not api_key or not secrets.compare_digest(
-        api_key, settings.security.api_write_token
-    ):
+    if not api_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing API key",
+        )
+
+    # Constant-time comparison to avoid leaking the token via timing attacks.
+    # Compared as bytes because compare_digest raises TypeError on non-ASCII str
+    # (would turn a bad header into a 500).
+    key_bytes = api_key.encode()
+    if not any(secrets.compare_digest(key_bytes, t.encode()) for t in tokens):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing API key",

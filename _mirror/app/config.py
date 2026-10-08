@@ -272,6 +272,10 @@ class SecurityConfig(BaseModel):
     api_write_token: str | None = Field(
         description="API token for write access (sent via X-API-Key header)"
     )
+    # Single static token for read-access API endpoints
+    api_read_token: str | None = Field(
+        description="API token for read access (sent via X-API-Key header)"
+    )
 
 
 class NotificationConfig(BaseModel):

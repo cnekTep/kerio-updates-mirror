@@ -1,3 +1,5 @@
-<input type="text" name="api_write_token" id="api_write_token" placeholder="Enter API write token"
-       aria-label="API write token"
-       value="{{ api_write_token or '' }}">
+{# Expects: kind ("read" | "write"), token (current value or None) #}
+<input type="text" name="api_{{ kind }}_token" id="api_{{ kind }}_token"
+       placeholder="Enter API {{ kind }} token"
+       aria-label="API {{ kind }} token"
+       value="{{ token or '' }}">
