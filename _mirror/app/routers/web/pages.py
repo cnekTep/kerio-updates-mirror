@@ -288,6 +288,7 @@ async def get_settings(
         "smtp_username": settings.email.smtp_username,
         "smtp_password": settings.email.smtp_password,
         "smtp_from": settings.email.smtp_from,
+        "smtp_from_name": settings.email.smtp_from_name,
         "smtp_timeout": settings.email.smtp_timeout,
         "smtp_use_tls": settings.email.smtp_use_tls,
     }

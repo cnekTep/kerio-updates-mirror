@@ -155,13 +155,14 @@ async def _send_notifications(
 ) -> None:
     """Send message to all configured notification channels."""
     try:
-        await _send_email(
-            subject=subject,
-            action_name=action_name,
-            status=status,
-            message=message,
-            details=details,
-        )
+        if settings.notification.email_enabled:
+            await _send_email(
+                subject=subject,
+                action_name=action_name,
+                status=status,
+                message=message,
+                details=details,
+            )
     except HTTPException:
         # Already logged inside the underlying notification service before being raised.
         # This is a fire-and-forget notification - there's no client to respond to, so

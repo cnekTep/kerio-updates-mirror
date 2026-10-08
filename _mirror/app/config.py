@@ -290,6 +290,7 @@ class EmailConfig(BaseModel):
     smtp_username: str | None = Field(description="SMTP username")
     smtp_password: str | None = Field(description="SMTP password")
     smtp_from: str | None = Field(description="From address")
+    smtp_from_name: str | None = Field(description="From name")
     smtp_use_tls: bool = Field(description="Use STARTTLS")
     smtp_timeout: int = Field(description="SMTP connection timeout in seconds")
 

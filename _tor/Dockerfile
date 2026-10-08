@@ -1,4 +1,4 @@
-FROM python:3.14.6-alpine3.24
+FROM python:3.14.8-alpine3.24
 
 RUN apk --no-cache --update add tor lyrebird su-exec
 

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from email.headerregistry import Address
 from email.message import EmailMessage
 
 import aiosmtplib
@@ -17,6 +18,7 @@ class SMTPConfig:
     smtp_username: str | None = None
     smtp_password: str | None = None
     smtp_from: str | None = None
+    smtp_from_name: str | None = None
     smtp_timeout: int | None = None
     smtp_use_tls: bool = False
     email_to: list[str] | None = None
@@ -133,10 +135,18 @@ class EmailService:
         email_config = config or settings.email
         self._ensure_configured(email_config)
         recipients = to or email_config.email_to
+        sender = (
+            Address(
+                display_name=email_config.smtp_from_name,
+                addr_spec=email_config.smtp_from,
+            )
+            if email_config.smtp_from_name
+            else email_config.smtp_from
+        )
 
         message = EmailMessage()
         message["Subject"] = subject
-        message["From"] = email_config.smtp_from
+        message["From"] = sender
         message["To"] = ", ".join(recipients)
         message.add_alternative(
             self._render_template(template_name=template_name, context=context),

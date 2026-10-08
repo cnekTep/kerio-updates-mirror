@@ -322,6 +322,7 @@ class SettingsService:
             "email.smtp_username": self._get(form, "smtp_username", "None"),
             "email.smtp_password": self._get(form, "smtp_password", "None"),
             "email.smtp_from": self._get(form, "smtp_from", "None"),
+            "email.smtp_from_name": self._get(form, "smtp_from_name", "None"),
             "email.smtp_timeout": self._get(form, "smtp_timeout", "None"),
             "email.smtp_use_tls": self._bool(form, "smtp_use_tls"),
         }

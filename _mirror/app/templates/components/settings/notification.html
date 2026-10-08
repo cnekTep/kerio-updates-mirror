@@ -77,6 +77,14 @@
                             <input type="text" name="smtp_from" id="smtp_from" placeholder="noreply@example.com"
                                    value="{{ smtp_from or '' }}">
                         </label>
+                        <label for="smtp_from_name">
+                            From name:
+                            <input type="text" name="smtp_from_name" id="smtp_from_name" placeholder="Kerio Updates Mirror"
+                                   value="{{ smtp_from_name or '' }}">
+                        </label>
+                    </div>
+
+                    <div class="grid">
                         <label for="smtp_timeout">
                             Connection timeout (s):
                             <input type="number" name="smtp_timeout" id="smtp_timeout" min="1" placeholder="10"

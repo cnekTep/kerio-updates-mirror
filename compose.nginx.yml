@@ -1,7 +1,7 @@
 services:
 
   nginx:
-    image: "kum_nginx:v1.31.3"
+    image: "kum_nginx:v1.31.6"
     build:
       context: ./_nginx
     stop_signal: SIGTERM

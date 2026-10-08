@@ -32,6 +32,7 @@ async def send_test_email(
     smtp_username: Annotated[str, Form()] = "",
     smtp_password: Annotated[str, Form()] = "",
     smtp_from: Annotated[str, Form()] = "",
+    smtp_from_name: Annotated[str, Form()] = "",
     smtp_timeout: Annotated[int | None, Form()] = None,
     smtp_use_tls: Annotated[bool, Form()] = False,
 ) -> dict[str, Any]:
@@ -43,6 +44,7 @@ async def send_test_email(
         smtp_username=smtp_username or None,
         smtp_password=smtp_password or None,
         smtp_from=smtp_from or None,
+        smtp_from_name=smtp_from_name or None,
         smtp_timeout=smtp_timeout,
         smtp_use_tls=smtp_use_tls,
         email_to=[addr.strip() for addr in email_to.split(",") if addr.strip()],
