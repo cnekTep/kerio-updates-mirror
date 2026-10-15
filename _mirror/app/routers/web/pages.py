@@ -296,6 +296,7 @@ async def get_settings(
         "smtp_use_tls": settings.email.smtp_use_tls,
         # Notification Telegram settings
         "telegram_enabled": settings.notification.telegram_enabled,
+        "bot_api_url": settings.telegram.bot_api_url,
         "bot_token": settings.telegram.bot_token,
         "chat_id": settings.telegram.chat_id,
         "telegram_template": settings.notification.telegram_template,

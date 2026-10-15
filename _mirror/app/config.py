@@ -298,6 +298,7 @@ class EmailConfig(BaseModel):
 
 
 class TelegramConfig(BaseModel):
+    bot_api_url: str | None = Field(description="Telegram bot API URL")
     bot_token: str | None = Field(description="Telegram bot token")
     chat_id: str | None = Field(description="Telegram chat ID")
     thread_enabled: bool = Field(description="Enable Telegram threads")

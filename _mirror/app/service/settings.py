@@ -326,6 +326,7 @@ class SettingsService:
             "email.smtp_timeout": self._get(form, "smtp_timeout", "None"),
             "email.smtp_use_tls": self._bool(form, "smtp_use_tls"),
             "notification.telegram_enabled": self._bool(form, "telegram_enabled"),
+            "telegram.bot_api_url": self._get(form, "bot_api_url", "None"),
             "telegram.bot_token": self._get(form, "bot_token", "None"),
             "telegram.chat_id": self._get(form, "chat_id", "None"),
             "notification.telegram_template": self._get(form, "telegram_template"),

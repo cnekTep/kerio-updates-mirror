@@ -83,6 +83,7 @@ async def send_test_email(
 )
 async def send_test_telegram(
     telegram_service: Annotated[TelegramService, Depends(get_telegram_service)],
+    bot_api_url: Annotated[str, Form()] = "",
     bot_token: Annotated[str, Form()] = "",
     chat_id: Annotated[str, Form()] = "",
     thread_updates_id: Annotated[str, Form()] = "",
@@ -91,7 +92,11 @@ async def send_test_telegram(
 ) -> dict[str, Any]:
     # Build config from the raw (unsaved) values currently sitting in the form,
     # instead of falling back to settings.telegram
-    config = TelegramConfig(bot_token=bot_token or None, chat_id=chat_id or None)
+    config = TelegramConfig(
+        bot_api_url=bot_api_url or None,
+        bot_token=bot_token or None,
+        chat_id=chat_id or None,
+    )
 
     context = {
         "action_name": "Test message from Kerio Updates Mirror",

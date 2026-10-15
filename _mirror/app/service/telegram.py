@@ -27,6 +27,7 @@ _SKIP_STATUS_CODES = [400, 401, 403, 404, 429]
 class TelegramConfig:
     """Ad-hoc Telegram config, used to override settings.telegram (e.g. for test sends)."""
 
+    bot_api_url: str | None = None
     bot_token: str | None = None
     chat_id: str | None = None
 
@@ -141,9 +142,10 @@ class TelegramService:
             template_name=template_name, context={**context, "subject": subject}
         )
         message_thread_id = self._get_message_thread_id(context)
+        bot_api_url = tg_config.bot_api_url or "api.telegram.org"
 
         response = await make_request_with_retries(
-            url=f"https://api.telegram.org/bot{tg_config.bot_token}/sendRichMessage",
+            url=f"https://{bot_api_url}/bot{tg_config.bot_token}/sendRichMessage",
             method="POST",
             json={
                 "chat_id": str(tg_config.chat_id),
