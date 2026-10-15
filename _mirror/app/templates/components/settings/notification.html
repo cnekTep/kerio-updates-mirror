@@ -74,12 +74,14 @@
                     <div class="grid">
                         <label for="smtp_from">
                             From address:
-                            <input type="text" name="smtp_from" id="smtp_from" placeholder="noreply@example.com"
+                            <input type="text" name="smtp_from" id="smtp_from"
+                                   placeholder="noreply@example.com"
                                    value="{{ smtp_from or '' }}">
                         </label>
                         <label for="smtp_from_name">
                             From name:
-                            <input type="text" name="smtp_from_name" id="smtp_from_name" placeholder="Kerio Updates Mirror"
+                            <input type="text" name="smtp_from_name" id="smtp_from_name"
+                                   placeholder="Kerio Updates Mirror"
                                    value="{{ smtp_from_name or '' }}">
                         </label>
                     </div>
@@ -101,6 +103,103 @@
                     <button type="button" id="test-email-btn" class="secondary mb-0 w-100"
                             hx-post="{{ url_for('send_test_email') }}">
                         Check
+                    </button>
+                </details>
+            </div>
+        </article>
+
+        <article>
+            <header>Telegram</header>
+            <label class="mb-0">
+                <input id="telegram_enabled" name="telegram_enabled" type="checkbox"
+                       data-controls="telegram_settings_block"
+                       {% if telegram_enabled %} checked {% endif %}>
+                Enable Telegram notifications
+            </label>
+
+            <div id="telegram_settings_block" class="mb-0"
+                 data-controlled-by="telegram_settings_block" data-effect="hidden"
+                 {% if not telegram_enabled %} data-hidden {% endif %}>
+                <div class="form-group settings-grid size-5-fr mt-1r">
+                    <label for="telegram_template" class="pb-1r">Template:</label>
+                    <select id="telegram_template" name="telegram_template" class="form-control">
+                        {% for template in list_telegram_templates or [] %}
+                        {% set template_clean = template.strip() %}
+                        {# Split "default.txt" into name and extension for display #}
+                        {% set name, ext = template_clean.rsplit('.', 1) %}
+                        <option value="{{ template_clean }}"
+                                {% if telegram_template== template_clean %} selected {% endif %}>
+                            {{ name | replace('_', ' ') | title }} {{ ext | upper }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <details name="telegram_settings" class="mb-0" open>
+                    <summary class="mb-05r">Telegram settings</summary>
+                    <hr>
+                    <div class="settings-grid size-5-fr mt-1r"
+                         data-controlled-by="telegram_settings" data-effect="aria-disabled"
+                         aria-disabled="{% if telegram_enabled %} false {% else %} true {% endif %}">
+                        <p class="pb-1r">Bot token:</p>
+                        <input type="text" name="bot_token" id="bot_token" class="mb-0"
+                               placeholder="123456789:AAExampleTokenFromBotFather"
+                               aria-label="Bot token"
+                               value="{{ bot_token or '' }}">
+                    </div>
+
+                    <div class="settings-grid size-5-fr mt-1r"
+                         data-controlled-by="telegram_settings" data-effect="aria-disabled"
+                         aria-disabled="{% if telegram_enabled %} false {% else %} true {% endif %}">
+                        <p class="pb-1r">Chat ID:</p>
+                        <input type="text" name="chat_id" id="chat_id"
+                               placeholder="-1001234567890 or @chat_name"
+                               aria-label="Chat ID"
+                               value="{{ chat_id or '' }}">
+                    </div>
+
+                    <label>
+                        <input id="telegram_threads_enabled" name="telegram_threads_enabled" type="checkbox"
+                               data-controls="telegram_threads_block"
+                               {% if thread_enabled %} checked {% endif %}>
+                        Enable Telegram threads
+                    </label>
+
+                    <div id="telegram_threads_block" class="mb-0 mt-1r"
+                         data-controlled-by="telegram_threads_block" data-effect="hidden"
+                         {% if not thread_enabled %} data-hidden {% endif %}>
+                        <div class="settings-grid size-4_5-fr-9 gap-0_5">
+                            <p class="pb-1r">Updates:</p>
+                            <input type="number" name="thread_updates_id" id="thread_updates_id"
+                                   placeholder="Enter updates thread ID"
+                                   aria-label="Updates thread ID"
+                                   value="{{ thread_updates_id or '' }}">
+                            <input type="button" value="Check" class = "secondary"
+                                   id="test-telegram-updates-btn"
+                                   hx-post="{{ url_for('send_test_telegram') }}"
+                                   hx-vals='{"target": "updates"}'
+                            />
+                        </div>
+                        <div class="settings-grid size-4_5-fr-9 gap-0_5">
+                            <p class="pb-1r">Errors:</p>
+                            <input type="number" name="thread_errors_id"
+                                   id="thread_errors_id" class="mb-0"
+                                   placeholder="Enter errors thread ID"
+                                   aria-label="Errors thread ID"
+                                   value="{{ thread_errors_id or '' }}">
+                            <input type="button" value="Check" class="secondary mb-0"
+                                   id="test-telegram-errors-btn"
+                                   hx-post="{{ url_for('send_test_telegram') }}"
+                                   hx-vals='{"target": "errors"}'
+                            />
+                        </div>
+                    </div>
+
+                    <button type="button" id="test-telegram-btn" class="secondary mb-0 w-100"
+                            data-controlled-by="telegram_threads_block" data-effect="hidden-on-check"
+                            {% if thread_enabled %} hidden {% endif %}
+                            hx-post="{{ url_for('send_test_telegram') }}">
+                    Check
                     </button>
                 </details>
             </div>

@@ -281,6 +281,8 @@ class SecurityConfig(BaseModel):
 class NotificationConfig(BaseModel):
     email_enabled: bool = Field(description="Enable email notifications")
     email_template: str = Field(description="Email template")
+    telegram_enabled: bool = Field(description="Enable Telegram notifications")
+    telegram_template: str = Field(description="Telegram template")
 
 
 class EmailConfig(BaseModel):
@@ -293,6 +295,14 @@ class EmailConfig(BaseModel):
     smtp_from_name: str | None = Field(description="From name")
     smtp_use_tls: bool = Field(description="Use STARTTLS")
     smtp_timeout: int = Field(description="SMTP connection timeout in seconds")
+
+
+class TelegramConfig(BaseModel):
+    bot_token: str | None = Field(description="Telegram bot token")
+    chat_id: str | None = Field(description="Telegram chat ID")
+    thread_enabled: bool = Field(description="Enable Telegram threads")
+    thread_updates_id: int | None = Field(description="Telegram thread ID for updates")
+    thread_errors_id: int | None = Field(description="Telegram thread ID for errors")
 
 
 class Settings(BaseSettings):
@@ -325,6 +335,7 @@ class Settings(BaseSettings):
     security: SecurityConfig = Field(default_factory=SecurityConfig)
     notification: NotificationConfig = Field(default_factory=NotificationConfig)
     email: EmailConfig = Field(default_factory=EmailConfig)
+    telegram: TelegramConfig = Field(default_factory=TelegramConfig)
 
     # Private attrs are not loaded from env and survive reassignment
     _env_mtime: float = PrivateAttr(default=0.0)

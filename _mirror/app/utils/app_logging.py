@@ -154,26 +154,34 @@ async def _send_notifications(
     details: list[str] | None = None,
 ) -> None:
     """Send message to all configured notification channels."""
-    try:
-        if settings.notification.email_enabled:
-            await _send_email(
+    channels = []
+    if settings.notification.email_enabled:
+        channels.append(("Email", _send_email))
+    if settings.notification.telegram_enabled:
+        channels.append(("Telegram", _send_telegram))
+
+    # Each channel has its own try/except: a failing channel must not
+    # prevent the others from receiving the message
+    for name, sender in channels:
+        try:
+            await sender(
                 subject=subject,
                 action_name=action_name,
                 status=status,
                 message=message,
                 details=details,
             )
-    except HTTPException:
-        # Already logged inside the underlying notification service before being raised.
-        # This is a fire-and-forget notification - there's no client to respond to, so
-        # just swallow it here to avoid an unhandled-exception traceback.
-        pass
-    except Exception as exc:
-        # Safety net for anything a notification channel failed to catch/log itself.
-        _write_log(
-            log_type=["system", "errors"],
-            message=f"Notification | Unexpected error sending notification: {exc}",
-        )
+        except HTTPException:
+            # Already logged inside the underlying notification service before being raised.
+            # This is a fire-and-forget notification - there's no client to respond to, so
+            # just swallow it here to avoid an unhandled-exception traceback.
+            pass
+        except Exception as exc:
+            # Safety net for anything a notification channel failed to catch/log itself.
+            _write_log(
+                log_type=["system", "errors"],
+                message=f"Notification | Unexpected error sending {name}: {exc}",
+            )
 
 
 async def _send_email(
@@ -192,6 +200,29 @@ async def _send_email(
     await email_service.send_notification(
         subject=subject,
         template_name=settings.notification.email_template,
+        context={
+            "action_name": action_name,
+            "status": status,
+            "message": message,
+            "details": details or [],
+        },
+    )
+
+
+async def _send_telegram(
+    subject: str,
+    action_name: str,
+    status: str,
+    message: list[str],
+    details: list[str] | None = None,
+) -> None:
+    """Send an admin notification to Telegram. Raises on failure - caller handles that."""
+    # Lazy import for the same circular-import reason as in _send_email
+    from app.service.telegram import TelegramService
+
+    await TelegramService().send_notification(
+        subject=subject,
+        template_name=settings.notification.telegram_template,
         context={
             "action_name": action_name,
             "status": status,

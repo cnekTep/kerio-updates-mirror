@@ -325,5 +325,12 @@ class SettingsService:
             "email.smtp_from_name": self._get(form, "smtp_from_name", "None"),
             "email.smtp_timeout": self._get(form, "smtp_timeout", "None"),
             "email.smtp_use_tls": self._bool(form, "smtp_use_tls"),
+            "notification.telegram_enabled": self._bool(form, "telegram_enabled"),
+            "telegram.bot_token": self._get(form, "bot_token", "None"),
+            "telegram.chat_id": self._get(form, "chat_id", "None"),
+            "notification.telegram_template": self._get(form, "telegram_template"),
+            "telegram.thread_enabled": self._bool(form, "telegram_threads_enabled"),
+            "telegram.thread_updates_id": self._get(form, "thread_updates_id", "None"),
+            "telegram.thread_errors_id": self._get(form, "thread_errors_id", "None"),
         }
         settings.bulk_update(data)

@@ -1,0 +1,45 @@
+{%- set icon = "⚠️" if status == "warning" else "📛" if status == "error" else "✅" -%}
+{%- set title = action_name or subject -%}
+
+
+{%- macro render_table(table) -%}
+    <table bordered striped compact>
+        {%- for row in table.rows %}
+            <tr>
+                {%- for cell in row.cells %}
+                    <td{% if cell.colspan > 1 %} colspan="{{ cell.colspan }}"{% endif %}{% if cell.rowspan > 1 %} rowspan="{{ cell.rowspan }}"{% endif %}>
+                        {%- if cell.head and not row.success %}❗ {% endif -%}
+                        {%- if cell.head %}
+                            <b>{{ cell.text }}</b>
+                        {% elif cell.code %}
+                            <code>{{ cell.text }}</code>
+                        {% else %}
+                            {{ cell.text }}
+                        {% endif -%}
+                    </td>
+                {%- endfor %}
+            </tr>
+        {%- endfor %}
+    </table>
+{%- endmacro -%}
+
+
+{%- macro render_blocks(blocks) -%}
+    {%- for block in blocks %}
+        {%- if block.kind == "table" %}
+            {{ render_table(block) }}
+        {%- else %}
+            <p>{% if not block.success %}❗ {% endif %}{{ block.text }}</p>
+        {%- endif %}
+    {%- endfor %}
+{%- endmacro -%}
+
+
+<p><b>{{ icon }} {{ title }}</b></p>
+
+{{ render_blocks(blocks) }}
+
+{%- if details_count %}
+    <p><b>Errors during update ({{ details_count }})</b></p>
+    {{ render_blocks(detail_blocks) }}
+{%- endif %}

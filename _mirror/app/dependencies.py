@@ -16,6 +16,7 @@ from app.service.license import LicenseService
 from app.service.mirror_update import MirrorUpdateService
 from app.service.nginx_acl import NginxACLService
 from app.service.settings import SettingsService
+from app.service.telegram import TelegramService
 from app.service.web_filter import WebFilterService
 
 # =============================================================================
@@ -89,6 +90,11 @@ async def get_distro_service() -> DistroService:
 def get_email_service() -> EmailService:
     """Get EmailService instance."""
     return EmailService()
+
+
+def get_telegram_service() -> TelegramService:
+    """Get TelegramService instance."""
+    return TelegramService()
 
 
 async def get_settings_service(

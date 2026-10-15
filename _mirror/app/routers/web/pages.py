@@ -24,6 +24,7 @@ from app.dependencies import (
     get_distro_service,
     get_email_service,
     get_license_service,
+    get_telegram_service,
 )
 from app.service.distro import DistroService
 from app.service.email import EmailService
@@ -34,6 +35,7 @@ from app.service.license import (
 )
 from app.service.nginx_acl import NginxACLService
 from app.service.settings import SettingsService
+from app.service.telegram import TelegramService
 from app.utils.app_logging import read_last_lines
 from app.utils.file_utils import delete_file
 
@@ -216,6 +218,7 @@ async def get_settings(
     nginx_acl_service: Annotated[NginxACLService, Depends(get_nginx_acl_service)],
     distro_service: Annotated[DistroService, Depends(get_distro_service)],
     email_service: Annotated[EmailService, Depends(get_email_service)],
+    telegram_service: Annotated[TelegramService, Depends(get_telegram_service)],
 ):
     if name not in SETTINGS_SECTIONS:
         return RedirectResponse(url="/web/404")
@@ -276,7 +279,7 @@ async def get_settings(
         "has_nginx": settings.has_nginx,
         "api_read_token": settings.security.api_read_token,
         "api_write_token": settings.security.api_write_token,
-        # Notification settings
+        # Notification email settings
         "email_enabled": settings.notification.email_enabled,
         "email_template": settings.notification.email_template,
         "email_to": (
@@ -291,6 +294,15 @@ async def get_settings(
         "smtp_from_name": settings.email.smtp_from_name,
         "smtp_timeout": settings.email.smtp_timeout,
         "smtp_use_tls": settings.email.smtp_use_tls,
+        # Notification Telegram settings
+        "telegram_enabled": settings.notification.telegram_enabled,
+        "bot_token": settings.telegram.bot_token,
+        "chat_id": settings.telegram.chat_id,
+        "telegram_template": settings.notification.telegram_template,
+        "list_telegram_templates": telegram_service.list_telegram_templates(),
+        "thread_enabled": settings.telegram.thread_enabled,
+        "thread_updates_id": settings.telegram.thread_updates_id,
+        "thread_errors_id": settings.telegram.thread_errors_id,
     }
 
     if not request.headers.get("HX-Request"):

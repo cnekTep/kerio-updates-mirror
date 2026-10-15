@@ -33,6 +33,9 @@ def create_scheduler() -> AsyncIOScheduler:
         id="full_mirror_update",
         name="Daily full mirror update",
         replace_existing=True,
+        misfire_grace_time=600,
+        coalesce=True,
+        max_instances=1,
     )
 
     log_event(

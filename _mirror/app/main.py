@@ -22,18 +22,22 @@ async def lifespan(app: FastAPI):
     # Startup
     log_event(log_type="system", message="Application started")
 
-    # Only the designated process owns the scheduler in dual-server mode
-    run_scheduler = os.environ.get("RUN_SCHEDULER", "1") == "1"
     scheduler = None
-    if run_scheduler:
-        scheduler = create_scheduler()
-        scheduler.start()
 
-    yield
+    try:
+        # Only the designated process owns the scheduler in dual-server mode
+        run_scheduler = os.environ.get("RUN_SCHEDULER", "1") == "1"
 
-    # Shutdown
-    scheduler.shutdown()
-    log_event(log_type="system", message="Application shutdown")
+        if run_scheduler:
+            scheduler = create_scheduler()
+            scheduler.start()
+
+        yield
+
+    finally:  # Shutdown
+        if scheduler is not None and scheduler.running:
+            scheduler.shutdown()
+        log_event(log_type="system", message="Application shutdown")
 
 
 def create_app():

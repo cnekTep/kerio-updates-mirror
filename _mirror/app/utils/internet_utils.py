@@ -2,6 +2,7 @@ import asyncio
 import time
 import traceback
 from contextvars import ContextVar
+from typing import Any
 
 import httpx
 from socksio.exceptions import ProtocolError as SocksProtocolError
@@ -164,8 +165,6 @@ def _get_proxy_url(proxy_type: str) -> str | None:
             log_event(
                 log_type=["system", "errors"],
                 message=f"Invalid proxy_type: {protocol}.",
-                notify=True,
-                action_name="Get proxy URL",
             )
             raise ValueError(f"Invalid proxy_type: {protocol}")
 
@@ -203,7 +202,12 @@ def _prepare_client(
     return client_kwargs, transport
 
 
-def _log_error(context: str, attempt_desc: str, error: Exception):
+def _log_error(
+    context: str,
+    attempt_desc: str,
+    error: Exception,
+    notify: bool = True,
+):
     """Log error with appropriate format based on error type."""
     if isinstance(error, httpx.HTTPStatusError):
         body_preview = (
@@ -213,35 +217,35 @@ def _log_error(context: str, attempt_desc: str, error: Exception):
             log_type=["system", "errors"],
             message=f"{context} | HTTPStatusError [{attempt_desc}] | "
             f"status={error.response.status_code} | body_preview={body_preview}",
-            notify=True,
+            notify=notify,
             action_name=f"{context} | HTTPStatusError",
         )
     elif isinstance(error, httpx.ProtocolError):
         log_event(
             log_type=["system", "errors"],
             message=f"{context} | ProtocolError [{attempt_desc}] | err={repr(error)}",
-            notify=True,
+            notify=notify,
             action_name=f"{context} | ProtocolError",
         )
     elif isinstance(error, httpx.RequestError):
         log_event(
             log_type=["system", "errors"],
             message=f"{context} | RequestError [{attempt_desc}] | err={repr(error)}",
-            notify=True,
+            notify=notify,
             action_name=f"{context} | RequestError",
         )
     elif isinstance(error, SocksProtocolError):
         log_event(
             log_type=["system", "errors"],
             message=f"{context} | SocksProtocolError [{attempt_desc}] | err={repr(error)}",
-            notify=True,
+            notify=notify,
             action_name=f"{context} | SocksProtocolError",
         )
     elif isinstance(error, OSError):
         log_event(
             log_type=["system", "errors"],
             message=f"{context} | OSError [{attempt_desc}] | err={repr(error)}",
-            notify=True,
+            notify=notify,
             action_name=f"{context} | OSError",
         )
     else:
@@ -250,17 +254,17 @@ def _log_error(context: str, attempt_desc: str, error: Exception):
             log_type=["system", "errors"],
             message=f"{context} | UnexpectedError [{attempt_desc}] | "
             f"err={repr(error)}\n{tb}",
-            notify=True,
+            notify=notify,
             action_name=f"{context} | UnexpectedError",
         )
 
 
-def _log_all_attempts_failed(context: str):
+def _log_all_attempts_failed(context: str, notify: bool = True):
     """Log that all connection attempts have failed."""
     log_event(
         log_type=["system", "errors"],
         message=f"{context} | All connection attempts failed.",
-        notify=True,
+        notify=notify,
         action_name=f"{context} | All connection attempts failed",
     )
 
@@ -271,9 +275,11 @@ async def make_request_with_retries(
     params: dict[str, str] | None = None,
     headers: dict[str, str] | None = None,
     files: dict[str, tuple[None, str]] | None = None,
+    json: dict[str, Any] | None = None,
     context: str = "request",
     timeout: float = 10.0,
     skip_status_codes: list[int] | None = None,
+    notify: bool = True,
 ) -> httpx.Response | None:
     """
     Makes HTTP request with automatic retries through different connection methods.
@@ -284,9 +290,12 @@ async def make_request_with_retries(
         params: Parameters for the request
         headers: Headers for the request
         files: Files or form data for the request
+        json: JSON body for the request
         context: Context description for logging
         timeout: Request timeout in seconds
         skip_status_codes: List of HTTP status codes to return immediately without retrying (e.g. 404, 429)
+        notify: Whether failures should trigger notifications. Pass False when the
+            request itself is part of the notification pipeline (avoids notification loops)
 
     Returns:
         Response object on success, None on failure after all retries
@@ -314,6 +323,7 @@ async def make_request_with_retries(
                     params=params,
                     headers=headers,
                     files=files,
+                    json=json,
                 )
                 # Return immediately for expected "not found" or similar codes
                 if response.status_code in skip_status_codes:
@@ -322,9 +332,14 @@ async def make_request_with_retries(
                 return response
 
         except Exception as err:
-            _log_error(context=context, attempt_desc=attempt_desc, error=err)
+            _log_error(
+                context=context,
+                attempt_desc=attempt_desc,
+                error=err,
+                notify=notify,
+            )
 
-    _log_all_attempts_failed(context)
+    _log_all_attempts_failed(context, notify=notify)
     return None
 
 

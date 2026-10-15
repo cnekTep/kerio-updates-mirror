@@ -116,10 +116,12 @@ function initLogControls() {
 /**
  * Applies an effect to a target element based on its data-effect value.
  * Supports multiple space-separated effects: e.g. data-effect="disabled aria-disabled"
- *   "disabled"      - sets/removes the disabled property; resets checkboxes when disabling
- *   "aria-disabled" - sets aria-disabled to "true" or "false"
- *   "hidden"        - toggles data-hidden attribute (allows CSS transitions)
- *   "readonly"      - sets/removes the readOnly property (for input/textarea elements)
+ *   "disabled"        - sets/removes the disabled property; resets checkboxes when disabling
+ *   "aria-disabled"   - sets aria-disabled to "true" or "false"
+ *   "hidden"          - toggles data-hidden attribute (allows CSS transitions)
+ *   "hidden-on-check" - sets the native hidden property when the checkbox is checked
+ *                       (inverse of "hidden"; removes the element from layout completely)
+ *   "readonly"        - sets/removes the readOnly property (for input/textarea elements)
  *
  * @param {Element} target
  * @param {boolean} active - true when the parent checkbox is checked
@@ -137,6 +139,10 @@ function applyEffect(target, active) {
     if (effects.includes("hidden")) {
         // Use data-hidden attribute instead of display:none to allow CSS transitions
         target.toggleAttribute("data-hidden", !active);
+    }
+    if (effects.includes("hidden-on-check")) {
+        // Native hidden attribute removes the element from layout completely
+        target.hidden = active;
     }
     if (effects.includes("readonly")) {
         // readOnly is only meaningful on input/textarea; harmless no-op elsewhere
@@ -252,6 +258,10 @@ document.addEventListener("htmx:afterRequest", (e) => {
         e.detail.elt.id === "distro-connect-upload";
     const isLicenseExpDate = e.detail.elt.id === "get-lic-exp-date-btn";
     const isTestEmail = e.detail.elt.id === "test-email-btn";
+    const isTelegramEmail =
+        e.detail.elt.id === "test-telegram-btn" ||
+        e.detail.elt.id === "test-telegram-updates-btn" ||
+        e.detail.elt.id === "test-telegram-errors-btn";
     if (ok) {
         if (isDistroUpload) {
             saveDialogMessage.textContent = "✓ File successfully uploaded and signed";
@@ -259,6 +269,8 @@ document.addEventListener("htmx:afterRequest", (e) => {
             saveDialogMessage.textContent = "✓ License expiration date fetched";
         } else if (isTestEmail) {
             saveDialogMessage.textContent = "✓ Test email sent";
+        } else if (isTelegramEmail) {
+            saveDialogMessage.textContent = "✓ Test Telegram message sent";
         } else {
             saveDialogMessage.textContent = "✓ Settings saved";
         }
