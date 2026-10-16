@@ -1240,9 +1240,11 @@ class KerioUpdateService:
     ) -> None:
         """Raise HTTP 404 if the given service is disabled."""
         if not enabled:
+            message = (f"Error: Client {client_ip} try to update {service}, "
+                       f"but updates for this service are disabled in Mirror Settings")
             log_event(
                 log_type=["system", "errors"],
-                message=f"{service} | Error: Updates for {service} are disabled",
+                message=message,
                 ip=client_ip,
                 notify=notify,
                 action_name=f"{service} Update",
