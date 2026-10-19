@@ -218,7 +218,6 @@ class DistroService:
                 log_type=["system", "connections", "errors"],
                 message=f"Distro | Update check received: unknown product code {prod_code!r}",
                 ip=client_ip,
-                notify=True,
                 action_name="Distributive Update",
             )
             return NO_UPDATE_RESPONSE
