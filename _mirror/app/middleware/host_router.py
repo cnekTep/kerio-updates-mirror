@@ -14,9 +14,9 @@ class HostRoutingMiddleware:
       - download.kerio.com                       -> /api/kerio/updates/ids/files/*
       - shieldmatrix-updates.gfikeriocontrol.com -> /api/kerio/updates/shieldmatrix/link
       - register.kerio.com                       -> /api/kerio/updates/registration
-      - prod-update.kerio.com/checknew.php       -> /api/kerio/updates/distributive/check
-      - update.kerio.com/checknew.php            -> /api/kerio/updates/distributive/check
-      - kc-mirror.domain.net/checknew.php        -> /api/kerio/updates/distributive/check
+      - prod-update.kerio.com/checknew.php       -> /api/kerio/updates/distro/check
+      - update.kerio.com/checknew.php            -> /api/kerio/updates/distro/check
+      - kc-mirror.domain.net/checknew.php        -> /api/kerio/updates/distro/check
     """
 
     # Base path for all Kerio API routes
@@ -123,7 +123,7 @@ class HostRoutingMiddleware:
             (v.decode("latin-1") for k, v in scope["headers"] if k == b"host"),
             "",
         )
-        return host_header.split(":")[0]
+        return host_header.split(":")[0].lower()
 
     @staticmethod
     def _get_query_params(scope: Scope) -> dict[str, str]:
@@ -135,5 +135,5 @@ class HostRoutingMiddleware:
         for pair in raw_query.decode("latin-1").split("&"):
             if "=" in pair:
                 k, _, v = pair.partition("=")
-                params[k] = v
+                params.setdefault(k, v)
         return params

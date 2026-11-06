@@ -5,7 +5,7 @@ from fastapi.responses import PlainTextResponse, FileResponse, Response
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
-from app.utils.app_logging import log_event
+from app.utils.app_logging import log_event, sanitize_for_log
 
 router = APIRouter(prefix="/updates/shieldmatrix", tags=["shieldmatrix"])
 
@@ -114,7 +114,7 @@ async def get_update_file(
 ) -> Response | FileResponse:
     log_event(
         log_type=["system"],
-        message=f"ShieldMatrix | Update file request received: {request.url}",
+        message=f"ShieldMatrix | Update file request received: {sanitize_for_log(request.url)}",
         ip=client_ip,
     )
 

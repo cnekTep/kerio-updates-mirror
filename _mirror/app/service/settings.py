@@ -1,7 +1,9 @@
+import re
 import secrets
 from dataclasses import dataclass
 from datetime import date
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import HTTPException, status, BackgroundTasks
 from starlette.datastructures import FormData, UploadFile
 
@@ -32,6 +34,7 @@ class SettingsService:
         name: str,
         form: FormData,
         background_tasks: BackgroundTasks,
+        scheduler: AsyncIOScheduler | None = None,
     ) -> bool | None:
         """
         Dispatches form data to the appropriate save method by page name.
@@ -40,6 +43,7 @@ class SettingsService:
             name: Settings page name (e.g. "update", "connection")
             form: Parsed form data from the request
             background_tasks: Background tasks to be executed after the request
+            scheduler: AsyncIOScheduler for background tasks
 
         Returns:
             bool | None: True if auth settings were changed, and need to be redirected
@@ -51,7 +55,7 @@ class SettingsService:
                 detail=f"Settings page '{name}' not found",
             )
         if handler == self._save_update:
-            return await handler(form, background_tasks)
+            return await handler(form, background_tasks, scheduler)
         return await handler(form)
 
     @staticmethod
@@ -75,9 +79,11 @@ class SettingsService:
         """
         Returns a list of string values from a comma-separated form field.
         Whitespace around each item is stripped. Ignores UploadFile entries.
+
         Args:
             form: Parsed form data from the request
             key: Field name to look up
+
         Returns:
             List of non-empty stripped strings, or None if the field is absent,
             empty, or not a plain string
@@ -110,22 +116,62 @@ class SettingsService:
 
         if not username:
             raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Username is required"
+                status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Username is required"
             )
         if not password and not settings.security.password_hash:
             raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Password is required"
+                status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Password is required"
             )
         if password != password_re:
             raise HTTPException(
-                status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwords do not match"
+                status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Passwords do not match"
             )
+
+    @staticmethod
+    def _parse_hhmm(value) -> tuple[int | None, int | None]:
+        """
+        Parses a "HH:MM" string into hours and minutes.
+
+        Accepts one- or two-digit hours and minutes (e.g. "3:5", "03:05").
+        Returns a two-tuple; on any invalid input (non-string, wrong format,
+        out-of-range values) both items are None, so the result can always be
+        unpacked safely: ``hour, minute = _parse_hhmm(value)``.
+
+        Args:
+            value: Raw form value to parse (any type; non-strings yield (None, None))
+
+        Returns:
+            Tuple ``(hour, minute)`` with ints in range 0..23 / 0..59,
+            or ``(None, None)`` if the value is missing or invalid
+        """
+        m = re.fullmatch(
+            r"(\d{1,2}):(\d{1,2})", value.strip() if isinstance(value, str) else ""
+        )
+        if not m:
+            return None, None
+        h, mm = int(m[1]), int(m[2])
+        if h > 23 or mm > 59:
+            return None, None
+        return h, mm
 
     async def _save_update(
         self,
         form: FormData,
         background_tasks: BackgroundTasks,
+        scheduler: AsyncIOScheduler | None = None,
     ) -> None:
+        new_license = self._get(form, "license_number")
+        # No license in settings (None) and an empty field are the same thing
+        license_changed = new_license != (settings.updates.license_number or "")
+
+        scheduler_full_update_hour, scheduler_full_update_minute = self._parse_hhmm(
+            self._get(form, "autoupdate_time")
+        )
+        scheduler_changed = (
+            scheduler_full_update_hour != settings.app.scheduler_full_update_hour
+            or scheduler_full_update_minute != settings.app.scheduler_full_update_minute
+        )
+
         antivirus = self._get(form, "antivirus", "disabled")
         antispam = self._get(form, "antispam", "disabled")
 
@@ -155,6 +201,16 @@ class SettingsService:
         )
 
         data = {
+            "app.scheduler_full_update_hour": (
+                scheduler_full_update_hour
+                if scheduler_full_update_hour is not None
+                else settings.app.scheduler_full_update_hour
+            ),
+            "app.scheduler_full_update_minute": (
+                scheduler_full_update_minute
+                if scheduler_full_update_minute is not None
+                else settings.app.scheduler_full_update_minute
+            ),
             "updates.update_ids_3": self._bool(form, "update_ids_3"),
             "updates.update_ids_5": self._bool(form, "update_ids_5"),
             "updates.update_geoip_4": self._bool(form, "update_geoip_4"),
@@ -165,15 +221,15 @@ class SettingsService:
             ),
             "updates.update_web_filter_key": self._bool(form, "update_web_filter_key"),
             "updates.update_shieldmatrix": self._bool(form, "update_shieldmatrix"),
-            "updates.license_number": self._get(form, "license_number") or "None",
+            "updates.license_number": new_license or "None",
             "updates.license_exp_date": (
                 "None"
-                if self._get(form, "license_number") != settings.updates.license_number
+                if license_changed
                 else self._get(form, "license_exp_date") or "None"
             ),
             "updates.license_number_last_update": (
                 date.today()
-                if self._get(form, "license_number") != settings.updates.license_number
+                if license_changed
                 else settings.updates.license_number_last_update
             ),
             "updates.license_exp_date_autocheck": self._bool(
@@ -223,17 +279,30 @@ class SettingsService:
                     delete_file(cache_dir / file)
 
         # Update license expiration date (in background)
-        if (
-            settings.updates.license_exp_date_autocheck
-            and self._get(form, "license_number") != settings.updates.license_number
-        ):
+        autocheck = settings.updates.license_exp_date_autocheck or self._bool(
+            form, "license_exp_date_autocheck"
+        )
+        if new_license and license_changed and autocheck:
             background_tasks.add_task(
                 self.license_service.update_expiration_date,
-                license_number=self._get(form, "license_number"),
+                license_number=new_license,
                 notify=False,
             )
         # Update settings
         settings.bulk_update(data)
+
+        # Update scheduler in real-time (if it changed)
+        if (
+            scheduler_changed
+            and scheduler_full_update_hour is not None
+            and scheduler_full_update_minute is not None
+        ):
+            if scheduler is not None:
+                from app.utils.scheduler import reschedule_full_update
+
+                reschedule_full_update(
+                    scheduler, scheduler_full_update_hour, scheduler_full_update_minute
+                )
 
     async def _save_connection(self, form: FormData) -> None:
         priority = form.getlist("download_priority")
@@ -258,6 +327,22 @@ class SettingsService:
         password = self._get(form, "password")
         password_re = self._get(form, "password_re")
         reload = False
+
+        web_ips = self._get(form, "web_allowed_ips_list")
+        api_ips = self._get(form, "api_allowed_ips_list")
+        # Validate both lists before persisting anything, so invalid input
+        # cannot leave settings half-saved
+        invalid: list[str] = []
+        for ip_list in (web_ips, api_ips):
+            try:
+                self.nginx_acl_service.validate(ip_list)
+            except NginxACLValidationError as e:
+                invalid.extend(e.invalid)
+        if invalid:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=f"Invalid IP addresses: {', '.join(invalid)}",
+            )
 
         data: dict[str, str | bool | None] = {
             "security.api_read_token": self._get(form, "api_read_token") or None,
@@ -293,22 +378,12 @@ class SettingsService:
 
         settings.bulk_update(data)
 
-        try:
-            self.nginx_acl_service.write(
-                target="web",
-                restricted="web_allowed_ips" in form,
-                ip_list=self._get(form, "web_allowed_ips_list"),
-            )
-            self.nginx_acl_service.write(
-                target="api",
-                restricted="api_allowed_ips" in form,
-                ip_list=self._get(form, "api_allowed_ips_list"),
-            )
-        except NginxACLValidationError as e:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Invalid IP addresses: {', '.join(e.invalid)}",
-            )
+        self.nginx_acl_service.write(
+            target="web", restricted="web_allowed_ips" in form, ip_list=web_ips
+        )
+        self.nginx_acl_service.write(
+            target="api", restricted="api_allowed_ips" in form, ip_list=api_ips
+        )
 
         return reload
 

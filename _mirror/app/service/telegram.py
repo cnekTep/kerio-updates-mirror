@@ -98,8 +98,6 @@ class TelegramService:
             Sorted list of full template filenames (with extension).
         """
         templates_dir = BASE_DIR / "templates" / "telegram"
-        if not templates_dir.is_dir():
-            return []
 
         return sorted(
             p.name
@@ -173,9 +171,9 @@ class TelegramService:
         """
         Get the message thread ID from the context or settings.
         """
-        # Explicit thread from context always wins
-        if thread_id := context.get("thread_id"):
-            return thread_id
+        # An explicit thread (even None = main chat) always wins over saved settings
+        if "thread_id" in context:
+            return context["thread_id"]
 
         # Threads are disabled, so send to the main chat
         if not settings.telegram.thread_enabled:

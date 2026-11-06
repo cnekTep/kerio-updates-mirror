@@ -72,10 +72,7 @@ class GeoIPService:
             update result (e.g. "GeoIP v5 Update | Already up to date: 5.20260901").
         """
         if not settings.updates.license_number:
-            message = (
-                f"GeoIP v{version} Update | Error: "
-                f"Skipping: license key is not configured"
-            )
+            message = f"GeoIP v{version} Update | [Error] Skipping: license key is not configured"
             log_event(
                 log_type=["system", "updates", "errors"],
                 message=message,
@@ -132,9 +129,15 @@ class GeoIPService:
             copy_result: UpdateResult = await asyncio.to_thread(
                 self._copy_geoname_id_in_v5_archive,
                 archive_path=update_dir / filename,
-                notify=notify,
             )
             if not copy_result.success:
+                # Logged here, not in the worker thread: notifications need the event loop
+                log_event(
+                    log_type=["system", "errors"],
+                    message=copy_result.message,
+                    notify=notify,
+                    action_name="GeoIP Update",
+                )
                 return UpdateResult(success=False, message=copy_result.message)
 
         settings.bulk_update(
@@ -205,18 +208,27 @@ class GeoIPService:
             v4_path=update_dir / "v4.csv",
             v6_path=update_dir / "v6.csv",
             version=current_dt,
-            notify=notify,
         )
-        return UpdateResult(
-            success=combine_result.success,
-            message=combine_result.message,
-        )
+        if not combine_result.success:
+            # Logged here, not in the worker thread: notifications need the event loop
+            log_event(
+                log_type=["system", "updates", "errors"],
+                message=combine_result.message,
+                notify=notify,
+                action_name="GeoIP Update",
+            )
+            return combine_result
 
-    def _copy_geoname_id_in_v5_archive(
-        self,
-        archive_path: Path,
-        notify: bool = True,
-    ) -> UpdateResult:
+        settings.bulk_update(
+            {
+                "updates.geoip_4_version": int(current_dt),
+                "updates.geoip_4_last_update": date.today(),
+            }
+        )
+        log_event(log_type=["system", "updates"], message=combine_result.message)
+        return combine_result
+
+    def _copy_geoname_id_in_v5_archive(self, archive_path: Path) -> UpdateResult:
         """
         Repack a GeoIP v5 .tar.gz archive, copying ``geoname_id`` into
         ``registered_country_geoname_id`` for each IPv4/IPv6 block CSV.
@@ -228,9 +240,11 @@ class GeoIPService:
           - Drop rows where both columns are empty.
         All other files in the archive are copied through as-is.
 
+        Runs in a worker thread, so it must not send notifications (they need
+        the event loop): errors are only returned, the caller logs and notifies.
+
         Args:
             archive_path: Path to the downloaded .tar.gz archive (modified in place).
-            notify (bool, optional): Whether to notify on failure. Defaults to True.
 
         Returns:
             UpdateResult: success flag and a message describing the
@@ -307,14 +321,10 @@ class GeoIPService:
             return UpdateResult(success=True, message="")
 
         except Exception as e:
-            message = f"GeoIP v5 Update | Error processing archive: {e}"
-            log_event(
-                log_type=["system", "errors"],
-                message=message,
-                notify=notify,
-                action_name="GeoIP Update",
+            return UpdateResult(
+                success=False,
+                message=f"GeoIP v5 Update | Error processing archive: {e}",
             )
-            return UpdateResult(success=False, message=message)
 
         finally:
             # Always clean up the temp file
@@ -508,7 +518,6 @@ class GeoIPService:
         v4_path: Path,
         v6_path: Path,
         version: str,
-        notify: bool = True,
     ) -> UpdateResult:
         """
         Combine IPv4 and IPv6 data into a single gzipped file.
@@ -516,15 +525,17 @@ class GeoIPService:
         Reads the first two columns from each CSV (skipping headers) and
         writes them into a compressed archive named ``geoip_4_<version>.gz``.
 
+        Runs in a worker thread, so it must not send notifications or touch
+        settings: it only returns the result, the caller logs, notifies and
+        saves the new version.
+
         Args:
             v4_path: Path to the processed IPv4 CSV file.
             v6_path: Path to the processed IPv6 CSV file.
             version: Date string used in the output file name (e.g. ``"20260101"``).
-            notify (bool, optional): Whether to notify on failure. Defaults to True.
 
         Returns:
-            UpdateResult: success flag and a message describing the
-            outcome (only set on failure).
+            UpdateResult: success flag and a message describing the outcome.
         """
         output_path = settings.updates.update_dir / f"geoip_4_{version}.gz"
         temp_path = output_path.with_suffix(output_path.suffix + ".tmp")
@@ -536,12 +547,10 @@ class GeoIPService:
                 writer = csv.writer(gz_file)
                 for path in (v4_path, v6_path):
                     write_result = self._write_first_two_columns(
-                        input_path=path,
-                        writer=writer,
-                        notify=notify,
+                        input_path=path, writer=writer
                     )
                     if not write_result.success:
-                        return UpdateResult(success=False, message=write_result.message)
+                        return write_result
 
             if not temp_path.exists() or temp_path.stat().st_size == 0:
                 raise FileNotFoundError(
@@ -557,26 +566,16 @@ class GeoIPService:
                     f"{output_path.name} ({output_path.stat().st_size} bytes)"
                 ),
             )
-
-            settings.bulk_update(
-                {
-                    "updates.geoip_4_version": version,
-                    "updates.geoip_4_last_update": date.today(),
-                }
+            return UpdateResult(
+                success=True,
+                message=f"GeoIP v4 Update | Downloaded new version: 4.{version}",
             )
-            message = f"GeoIP v4 Update | Downloaded new version: 4.{version}"
-            log_event(log_type=["system", "updates"], message=message)
-            return UpdateResult(success=True, message=message)
 
         except Exception as e:
-            message = f"GeoIP v4 Update | Error during compression: {e}"
-            log_event(
-                log_type=["system", "updates", "errors"],
-                message=message,
-                notify=notify,
-                action_name="GeoIP Update",
+            return UpdateResult(
+                success=False,
+                message=f"GeoIP v4 Update | Error during compression: {e}",
             )
-            return UpdateResult(success=False, message=message)
 
         finally:
             # Always clean up the temp file
@@ -587,29 +586,25 @@ class GeoIPService:
     def _write_first_two_columns(
         input_path: Path,
         writer: "csv.writer",
-        notify: bool = True,
     ) -> UpdateResult:
         """
         Read a CSV file and write its first two columns, skipping the header.
 
+        Runs in a worker thread, so it only returns the result (no logging).
+
         Args:
             input_path: Path to the input CSV file.
             writer: CSV writer to receive the output rows.
-            notify (bool, optional): Whether to notify on failure. Defaults to True.
 
         Returns:
             UpdateResult: success flag and a message describing the
             outcome (only set on failure).
         """
         if not input_path.exists():
-            message = f"GeoIP v4 Update | File not found: {input_path}"
-            log_event(
-                log_type=["system", "errors"],
-                message=message,
-                notify=notify,
-                action_name="GeoIP Update",
+            return UpdateResult(
+                success=False,
+                message=f"GeoIP v4 Update | File not found: {input_path}",
             )
-            return UpdateResult(success=False, message=message)
 
         with open(input_path, "r", newline="", encoding="utf-8") as file:
             reader = csv.reader(file)

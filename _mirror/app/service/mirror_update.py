@@ -31,9 +31,23 @@ class MirrorUpdateService:
         # Errors raised by log_event(notify=True) inside the block are collected,
         # not emailed one by one
         with collect_error_notifications() as collected_errors:
-            overall_success, notification_message = await self._run_update_steps(
-                scheduled
-            )
+            try:
+                overall_success, notification_message = await self._run_update_steps(
+                    scheduled
+                )
+            except Exception as exc:
+                # An unexpected failure must not skip the final notification
+                overall_success = False
+                notification_message = [
+                    {
+                        "text": f"Mirror update | Unexpected error: {exc}",
+                        "success": False,
+                    }
+                ]
+                log_event(
+                    log_type=["system", "errors"],
+                    message=f"Mirror update | Unexpected error: {exc!r}",
+                )
 
         # Error -> a step failed; Warning -> all steps passed, but there were
         # intermediate errors (e.g. proxy unavailable, direct connection worked)
@@ -90,7 +104,10 @@ class MirrorUpdateService:
         log_event(log_type=["updates"], message=divider)
         message = f"License key | {settings.updates.license_number}"
 
-        if settings.updates.license_exp_date_mirror_update:
+        if (
+            settings.updates.license_exp_date_mirror_update
+            and settings.updates.license_number
+        ):
             notification_message.append(message)
             result = await self.license_service.update_expiration_date(
                 license_number=settings.updates.license_number,
@@ -299,7 +316,7 @@ class MirrorUpdateService:
         for ver in ("2", "3", "5"):
             version = getattr(settings.updates, f"ids_{ver}_version", None)
             filename = f"ids_{ver}_{version}.gz"
-            if filename:
+            if version:
                 ids_files_with_signatures.add(filename)
                 ids_files_with_signatures.add(f"{filename}.sig")
 
@@ -309,7 +326,7 @@ class MirrorUpdateService:
             version = getattr(settings.updates, f"geoip_{ver}_version", None)
             for ext in (".tar.gz", ".gz"):
                 filename = f"geoip_{ver}_{version}{ext}"
-                if filename:
+                if version:
                     geoip_files.add(filename)
 
         return update_files_static | ids_files_with_signatures | geoip_files

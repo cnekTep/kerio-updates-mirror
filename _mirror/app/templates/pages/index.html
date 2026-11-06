@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div id="content"
+    <div id="content-active"
          hx-get="/{{ active | default('web/general/main') }}"
          hx-trigger="load"
          hx-swap="innerHTML">

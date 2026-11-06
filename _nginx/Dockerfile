@@ -1,4 +1,4 @@
-FROM nginx:1.31.6-alpine
+FROM nginx:1.31.8-alpine
 
 # inotify-tools: watch config directory for changes
 # bash: required by start.sh (uses local, process substitution, etc.)

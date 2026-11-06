@@ -37,10 +37,7 @@ class WebFilterService:
         """
         if not settings.updates.license_number:
             return self._fail_and_clear_license(
-                message=(
-                    "Web Filter Key Update | Error: "
-                    "License key is not configured, web filter key removed"
-                ),
+                message="Web Filter Key Update | [Error] Skipping: license key is not configured",
                 notify=notify,
                 clear_key=False,
             )
@@ -144,12 +141,11 @@ class WebFilterService:
             action_name="Web Filter Update",
         )
 
-        update = {
-            "updates.license_number": None,
-            "updates.web_filter_key_last_update": date.today() if clear_key else None,
-        }
+        update: dict[str, str | date | None] = {"updates.license_number": None}
         if clear_key:
+            # The key changes, so its last-update date changes with it
             update["updates.web_filter_key"] = None
+            update["updates.web_filter_key_last_update"] = date.today()
         settings.bulk_update(update)
 
         if clear_key:

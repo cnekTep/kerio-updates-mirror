@@ -5,11 +5,10 @@ from app.utils.server_manager import start_single_server, start_dual_servers
 if __name__ == "__main__":
     log_event(
         log_type="system",
-        message=f"Starting Kerio Updates Mirror with Granian server",
+        message="Starting Kerio Updates Mirror with Granian server",
     )
 
-    # Apply migrations BEFORE starting the server
-    # apply_migrations()
+    # If there are migrations, run them here BEFORE starting the server
 
     try:
         if settings.has_nginx:

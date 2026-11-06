@@ -1,8 +1,10 @@
 import asyncio
 import logging
+import re
 from contextlib import contextmanager
 from contextvars import ContextVar
 from datetime import datetime
+from pathlib import Path
 from typing import Iterator
 
 from fastapi import BackgroundTasks, HTTPException
@@ -20,6 +22,9 @@ _background_notification_tasks: set[asyncio.Task] = set()
 _error_collector: ContextVar[list[str] | None] = ContextVar(
     "error_collector", default=None
 )
+
+# Control chars incl. C1 and Unicode line/paragraph separators
+_CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f-\x9f\u2028\u2029]")
 
 
 @contextmanager
@@ -106,12 +111,28 @@ def log_event(
 
 def read_last_lines(log_type: str, encoding="utf-8", lines=1000):
     """Reads the last lines from the file"""
+    if lines <= 0:
+        return ""
+    if not re.fullmatch(pattern=r"[A-Za-z0-9_-]+", string=log_type):
+        return f"File reading error: invalid log name {log_type!r}"
     try:
-        with open(f"./logs/{log_type}.log", "r", encoding=encoding) as file:
+        with open(_log_path(log_type), "r", encoding=encoding) as file:
             all_lines = file.readlines()
             return "".join(all_lines[-lines:])
     except Exception as e:
         return f"File reading error: {e}"
+
+
+def sanitize_for_log(value: object) -> str:
+    """Escape control characters so untrusted input cannot forge log lines."""
+    return _CONTROL_CHARS_RE.sub(
+        lambda m: m.group().encode("unicode_escape").decode("ascii"), str(value)
+    )
+
+
+def _log_path(log_type: str) -> Path:
+    """Build the path to a log file inside the configured log directory."""
+    return Path(settings.logging.log_dir) / f"{log_type}.log"
 
 
 def _write_log(
@@ -142,7 +163,7 @@ def _write_log(
     log_types = [log_type] if isinstance(log_type, str) else log_type
 
     for log_type in log_types:
-        with open(f"./logs/{log_type}.log", "a", encoding="utf-8") as f:
+        with open(_log_path(log_type), "a", encoding="utf-8") as f:
             f.write(log_message)
 
 

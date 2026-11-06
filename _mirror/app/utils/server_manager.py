@@ -1,37 +1,35 @@
 import multiprocessing
 import os
 import sys
+from multiprocessing.connection import wait
 from pathlib import Path
 
 from granian import Granian
 from granian.constants import Interfaces
 
-from app.config import settings
+from app.config import settings, BASE_DIR
 from app.utils.app_logging import log_event
 
+CERT_DIR = BASE_DIR.parent / "certs"
 
-def get_ssl_context(cert_dir: str = "certs") -> tuple[Path, Path] | None:
+
+def get_ssl_context(cert_dir: Path | None = None) -> tuple[Path, Path] | None:
     """
     Check for SSL certificates and return their paths.
 
     Args:
-        cert_dir: Directory containing SSL certificates (default: "certs")
+        cert_dir: Directory containing SSL certificates (default: CERT_DIR)
 
     Returns:
         Tuple with paths to certificate and key files, or None if not found
     """
-    cert_path = Path(cert_dir) / "cert.pem"
-    key_path = Path(cert_dir) / "key.pem"
+    base_dir = Path(cert_dir) if cert_dir is not None else CERT_DIR
+    cert_path = base_dir / "cert.pem"
+    key_path = base_dir / "key.pem"
 
-    if os.path.exists(cert_path) and os.path.exists(key_path):
+    if cert_path.is_file() and key_path.is_file():
         return cert_path, key_path
 
-    log_event(
-        log_type=["system", "errors"],
-        message="No certificates for HTTPS were found",
-        notify=True,
-        action_name="Starting Server",
-    )
     return None
 
 
@@ -51,8 +49,6 @@ def verify_ssl_or_exit() -> tuple[Path, Path]:
         log_event(
             log_type=["system", "errors"],
             message="Application startup aborted: SSL certificates not found",
-            notify=True,
-            action_name="Starting Server",
         )
         # Exit the application if SSL certificates are not found
         sys.exit(1)
@@ -74,44 +70,29 @@ def run_granian_server(
     # Pass the flag down via env var, since granian spawns this in a fresh process
     os.environ["RUN_SCHEDULER"] = "1" if run_scheduler else "0"
 
-    config = {
-        "target": "app.main:app",
-        "address": settings.run.host,
-        "port": port,
-        "reload": False,
-        "interface": Interfaces.ASGI,
-        "workers": 1,
-        "log_level": "debug",
-        "log_access": True,
-    }
-
-    if ssl:  # Configure SSL if requested
+    ssl_context = None
+    if ssl:
         ssl_context = get_ssl_context()
         if ssl_context is None:
             log_event(
                 log_type=["system", "errors"],
                 message="Cannot start HTTPS server without certificates",
-                notify=True,
-                action_name="Starting Server",
             )
             sys.exit(1)
-        config["ssl_cert"] = ssl_context[0]
-        config["ssl_key"] = ssl_context[1]
-        config["ssl_protocol_min"] = "tls1.2"
 
     protocol = "HTTPS" if ssl else "HTTP"
     log_event(
         log_type="system",
-        message=f"{protocol} Granian server started on port {port}",
+        message=f"Starting {protocol} Granian server on port {port}",
     )
 
-    Granian(**config).serve()
+    Granian(**_build_granian_config(port, ssl_context)).serve()
 
 
 def start_dual_granian_servers() -> (
     tuple[multiprocessing.Process, multiprocessing.Process]
 ):
-    """ "
+    """
     Start both HTTP and HTTPS Granian servers in separate processes.
 
     Returns:
@@ -123,14 +104,15 @@ def start_dual_granian_servers() -> (
     # Verify SSL certificates exist before starting servers
     verify_ssl_or_exit()
 
+    http_process = https_process = None
     try:
         http_process = multiprocessing.Process(
             target=run_granian_server,
-            args=(settings.run.dual_http_port, False, True),
+            args=(settings.run.dual_http_port, False, False),
         )
         https_process = multiprocessing.Process(
             target=run_granian_server,
-            args=(settings.run.dual_https_port, True, False),
+            args=(settings.run.dual_https_port, True, True),
         )
 
         http_process.start()
@@ -141,35 +123,60 @@ def start_dual_granian_servers() -> (
         log_event(
             log_type=["system", "errors"],
             message=f"Failed to start Granian servers: {str(err)}",
-            notify=True,
-            action_name="Starting Server",
         )
+        # Stop whatever was already started so no orphan is left behind
+        for process in (http_process, https_process):
+            if process is not None and process.is_alive():
+                process.terminate()
+                process.join()
         raise
 
 
 def start_single_server() -> None:
     """Start a single server instance (HTTP only)."""
-    Granian(
-        target="app.main:app",
-        address=settings.run.host,
-        port=settings.run.single_port,
-        interface=Interfaces.ASGI,
-        reload=False,
-        workers=1,
-        log_level="debug",
-        log_access=True,
-    ).serve()
+    Granian(**_build_granian_config(settings.run.single_port)).serve()
 
 
 def start_dual_servers() -> None:
-    """Start dual HTTP/HTTPS servers and keep them running."""
-    http_proc, https_proc = start_dual_granian_servers()
+    """Start dual HTTP/HTTPS servers; stop both if either one exits."""
+    processes = list(start_dual_granian_servers())
+    exit_code = 0
     try:
-        http_proc.join()
-        https_proc.join()
+        # Blocks until at least one server process has exited
+        wait([process.sentinel for process in processes])
+        # Servers must run until we stop them, so any exit here is unexpected
+        exit_code = 1
+        exited = [p for p in processes if p.exitcode is not None]
+        log_event(
+            log_type=["system", "errors"],
+            message="Granian server process exited unexpectedly: "
+            + ", ".join(f"pid={p.pid} code={p.exitcode}" for p in exited),
+        )
     except KeyboardInterrupt:
         print("\nShutting down servers...")
-        http_proc.terminate()
-        https_proc.terminate()
-        http_proc.join()
-        https_proc.join()
+    finally:
+        for process in processes:
+            if process.is_alive():
+                process.terminate()
+            process.join()
+    sys.exit(exit_code)
+
+
+def _build_granian_config(
+    port: int, ssl_context: tuple[Path, Path] | None = None
+) -> dict:
+    """Build Granian arguments shared by single and dual modes."""
+    config = {
+        "target": "app.main:app",
+        "address": settings.run.host,
+        "port": port,
+        "reload": False,
+        "interface": Interfaces.ASGI,
+        "workers": 1,
+        "log_level": "debug",
+        "log_access": True,
+    }
+    if ssl_context is not None:
+        config["ssl_cert"], config["ssl_key"] = ssl_context
+        config["ssl_protocol_min"] = "tls1.2"
+    return config

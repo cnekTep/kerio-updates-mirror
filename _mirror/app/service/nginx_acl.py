@@ -83,12 +83,19 @@ class NginxACLService:
 
         lines: list[str] = []
 
-        if not restricted:
+        # Fallback: with no valid entries an empty ACL would lock everyone out
+        if not restricted or not valid:
             lines.append("allow all;")
 
         lines.extend(f"allow {entry};" for entry in self._sort(valid))
 
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    def validate(self, ip_list: str) -> None:
+        """Raises NginxACLValidationError if the list contains invalid entries."""
+        _, invalid = self._validate(self._tokenize(ip_list))
+        if invalid:
+            raise NginxACLValidationError(invalid)
 
     @staticmethod
     def _parse_directive(line: str) -> str:
@@ -153,7 +160,7 @@ class NginxACLService:
             else:
                 networks.append(net)
 
-        networks.sort()
-        hosts.sort()
+        networks.sort(key=lambda n: (n.version, n))
+        hosts.sort(key=lambda h: (h.version, h))
 
         return [n.compressed for n in networks] + [h.compressed for h in hosts]

@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse, Response
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
-from app.utils.app_logging import log_event
+from app.utils.app_logging import log_event, sanitize_for_log
 
 router = APIRouter(prefix="/updates/antispam", tags=["antispam"])
 
@@ -20,7 +20,8 @@ router = APIRouter(prefix="/updates/antispam", tags=["antispam"])
         "and re-fetched when versions.id expires. "
         "versions.dat.gz is intentionally skipped to force the client to fall back to the uncompressed variant. "
         "In proxy mode, every request is forwarded directly to the upstream CDN. "
-        "Returns 404 if antispam updates are disabled or the file is not found, "
+        "Returns 400 if the file name contains illegal characters or resolves outside the cache directory, "
+        "404 if antispam updates are disabled or the file is not found, "
         "502 if the upstream CDN request fails, "
         "503 if stale versions.* files could not be evicted (retry later)."
     ),
@@ -28,6 +29,7 @@ router = APIRouter(prefix="/updates/antispam", tags=["antispam"])
     response_model=None,
     responses={
         200: {"description": "Antispam update file content"},
+        400: {"description": "Invalid file name or path"},
         404: {"description": "Antispam updates are disabled or file not found"},
         502: {"description": "Upstream CDN request failed"},
         503: {"description": "Failed to evict stale versions files, retry later"},
@@ -43,7 +45,7 @@ async def get_update_file(
 ) -> Response | FileResponse:
     log_event(
         log_type=["system"],
-        message=f"Antispam | Update file request received: {request.url}",
+        message=f"Antispam | Update file request received: {sanitize_for_log(request.url)}",
         ip=client_ip,
     )
 

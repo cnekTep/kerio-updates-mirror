@@ -43,10 +43,7 @@ class IDSService:
             update result (e.g. "IDS v3 Update | Already up to date: 3.456").
         """
         if not settings.updates.license_number:
-            message = (
-                f"IDS v{version} Update | Error: "
-                f"Skipping: license key is not configured"
-            )
+            message = f"IDS v{version} Update | [Error] Skipping: license key is not configured"
             log_event(
                 log_type=["system", "updates", "errors"],
                 message=message,

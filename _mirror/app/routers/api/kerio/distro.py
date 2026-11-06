@@ -9,12 +9,6 @@ from app.utils.app_logging import log_event
 
 router = APIRouter(prefix="/updates/distro", tags=["distro"])
 
-SELECT_IDS: dict[str, str] = {
-    "control": "kerio_control_update_file",
-    "connect_win": "kerio_connect_update_file_win",
-    "connect_deb": "kerio_connect_update_file_deb",
-}
-
 
 @router.post(
     path="/check",
@@ -42,7 +36,6 @@ SELECT_IDS: dict[str, str] = {
                 }
             },
         },
-        400: {"description": "Version fields are missing"},
         422: {"description": "Version fields present but not valid integers"},
         500: {"description": "Target update version misconfigured"},
     },
@@ -60,7 +53,7 @@ async def check_update(
 ) -> str:
     log_event(
         log_type=["system", "connections"],
-        message="Distro | Update link request received",
+        message="Distro | Update check request received",
         ip=client_ip,
     )
 
@@ -81,7 +74,7 @@ async def check_update(
     summary="Download a Kerio Control/Connect distribution file",
     description=(
         "Serves a Kerio Control/Connect distribution (.deb, .exe or .img) or "
-        "signature (.sig) file by its name."
+        "signature (.sig) file by its name. "
         "Returns 400 if the file name is invalid, 404 if the file is not found."
     ),
     status_code=status.HTTP_200_OK,

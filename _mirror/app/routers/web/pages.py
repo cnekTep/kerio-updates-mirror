@@ -203,7 +203,11 @@ async def get_logs(
 
 @router.post(path="/logs/{name}", response_class=HTMLResponse)
 async def clear_logs(request: Request, name: str):
+    if name not in LOG_SECTIONS:
+        return RedirectResponse(url="/web/404", status_code=status.HTTP_303_SEE_OTHER)
+
     delete_file(settings.logging.log_dir / f"{name}.log")
+
     return templates.TemplateResponse(
         request=request,
         name="components/log/log_lines.html",
@@ -223,9 +227,17 @@ async def get_settings(
     if name not in SETTINGS_SECTIONS:
         return RedirectResponse(url="/web/404")
 
+    if not request.headers.get("HX-Request"):
+        return templates.TemplateResponse(
+            request=request,
+            name="pages/index.html",
+            context={"active": f"web/settings/{name}"},
+        )
+
     settings_data = {
         # Update settings
         "license_number": settings.updates.license_number,
+        "autoupdate_time": f"{settings.app.scheduler_full_update_hour:02d}:{settings.app.scheduler_full_update_minute:02d}",
         "license_exp_date": settings.updates.license_exp_date,
         "license_exp_date_autocheck": settings.updates.license_exp_date_autocheck,
         "license_exp_date_mirror_update": settings.updates.license_exp_date_mirror_update,
@@ -306,13 +318,6 @@ async def get_settings(
         "thread_errors_id": settings.telegram.thread_errors_id,
     }
 
-    if not request.headers.get("HX-Request"):
-        return templates.TemplateResponse(
-            request=request,
-            name="pages/index.html",
-            context={"active": f"web/settings/{name}"},
-        )
-
     return templates.TemplateResponse(
         request=request,
         name=f"components/settings/{name}.html",
@@ -325,6 +330,11 @@ async def get_settings(
     response_class=HTMLResponse,
     status_code=status.HTTP_200_OK,
     name="get_lic_exp_date",
+    responses={
+        200: {"description": "License expiration date fetched"},
+        400: {"description": "Failed to look up the license on the Kerio side"},
+        422: {"description": "Invalid license number"},
+    },
 )
 async def get_lic_exp_date(
     request: Request,
@@ -336,7 +346,7 @@ async def get_lic_exp_date(
         expires = await license_service.get_expiration_date(license_number)
     except InvalidLicenseKeyError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(exc),
         ) from exc
     except LicenseLookupError as exc:
@@ -411,8 +421,11 @@ async def upload_distro(
 
 @router.post(
     path="/settings/{name}",
-    response_class=Response,
-    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=HTMLResponse,
+    responses={
+        200: {"description": "Settings saved, navbar refreshed"},
+        303: {"description": "Re-login required (HX-Redirect to /web/login)"},
+    },
 )
 async def save_settings(
     request: Request,
@@ -421,13 +434,14 @@ async def save_settings(
     settings_service: Annotated[SettingsService, Depends(get_settings_service)],
 ) -> Response:
     if name not in SETTINGS_SECTIONS:
-        return RedirectResponse(url="/404")
+        return RedirectResponse(url="/web/404", status_code=status.HTTP_303_SEE_OTHER)
 
     form = await request.form()
     result = await settings_service.save(
         name=name,
         form=form,
         background_tasks=background_tasks,
+        scheduler=request.app.state.scheduler
     )
     if result:
         return Response(

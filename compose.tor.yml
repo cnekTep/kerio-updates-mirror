@@ -1,7 +1,7 @@
 services:
 
   tor:
-    image: "kum_tor:v0.4.9.14"
+    image: "kum_tor:v0.4.9.15"
     build:
       context: ./_tor
     stop_signal: SIGINT

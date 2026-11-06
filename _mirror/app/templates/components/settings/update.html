@@ -16,7 +16,7 @@
                 <span class="btn-tooltip-wrap" data-tooltip="Get license expiration date">
                     <button type="button" id="get-lic-exp-date-btn" class="mb-0 w-100"
                             hx-post="{{ url_for('get_lic_exp_date') }}"
-                            hx-include="#license"
+                            hx-include="#license_number"
                             hx-target="#license_exp_date"
                             hx-swap="outerHTML"
                             hx-disabled-elt="this"
@@ -40,6 +40,17 @@
         </article>
 
         <article>
+            <header>Mirror scheduled autoupdate time</header>
+            <div class="settings-grid size-4_4-fr mt-1r">
+                <p class="pb-1r">Time:</p>
+                <input type="time" name="autoupdate_time" id="autoupdate_time"
+                       placeholder="03:00"
+                       aria-label="Mirror scheduled autoupdate time"
+                       value="{{ autoupdate_time or '' }}">
+            </div>
+        </article>
+
+        <article>
             <header>
                 IDS/IPS Snort
             </header>
@@ -49,7 +60,7 @@
                 Update IPS/IDS Snort system (Kerio Control &lt; 9.5)
             </label>
             <label>
-                <input id="update_ids_5" name="update_ids_5" type="checkbox" data-controls="ids_5"
+                <input id="update_ids_5" name="update_ids_5" type="checkbox"
                        {% if update_ids_5 %} checked {% endif %}>
                 Update IPS/IDS Snort system (Kerio Control &gt;= 9.5)
             </label>

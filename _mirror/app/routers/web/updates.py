@@ -11,9 +11,10 @@ router = APIRouter(prefix="/updates")
 
 @router.post(
     path="/full",
-    status_code=status.HTTP_202_ACCEPTED,
+    status_code=status.HTTP_303_SEE_OTHER,
+    response_class=RedirectResponse,
     summary="Start full mirror update",
-    response_description="Update started successfully",
+    response_description="Update started, redirect to the updates log page",
     name="full_mirror_update",
 )
 async def update_mirror(

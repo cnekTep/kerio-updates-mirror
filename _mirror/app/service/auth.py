@@ -90,7 +90,7 @@ class AuthService:
         except InvalidKey:
             log_event(
                 log_type=["system", "errors"],
-                message=f"AuthService | Invalid password: {password}",
+                message=f"AuthService | Invalid password for user: {username}",
                 notify=True,
                 action_name="Authentication",
             )

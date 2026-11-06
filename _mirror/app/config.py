@@ -16,14 +16,19 @@ BASE_DIR = Path(__file__).resolve().parent
 
 class AppConfig(BaseModel):
     version: str = Field(description="Application version")
-    config_reload_interval: float = Field(
+    config_reload_interval: int = Field(
+        ge=1,
         description="How often (seconds) workers poll .env mtime for changes",
     )
     scheduler_full_update_hour: int = Field(
-        description="Hour (0-23) at which the full mirror update job runs daily"
+        ge=0,
+        le=23,
+        description="Hour (0-23) at which the full mirror update job runs daily",
     )
     scheduler_full_update_minute: int = Field(
-        description="Minute (0-59) at which the full mirror update job runs daily"
+        ge=0,
+        le=59,
+        description="Minute (0-59) at which the full mirror update job runs daily",
     )
 
 
@@ -49,7 +54,7 @@ class LoggingConfig(BaseModel):
     unmatched_requests: bool = Field(description="Enable unmatched requests logging")
     log_requests_body: bool = Field(description="Log requests body in debug mode")
     log_responses_body: bool = Field(description="Log responses body in debug mode")
-    log_body_limit: int = Field(description="Log body limit in bytes")
+    log_body_limit: int = Field(ge=1, description="Log body limit in bytes")
 
     @property
     def log_level_value(self) -> int:
@@ -360,7 +365,7 @@ class Settings(BaseSettings):
             return 0.0
 
     @staticmethod
-    def _serialize_value(value: str | int | bool | list | dict) -> str:
+    def _serialize_value(value: str | int | bool | list | dict | None) -> str:
         """
         Serialize a value for storing in .env file.
         Complex types (list, dict) are JSON-encoded so pydantic-settings
@@ -395,7 +400,9 @@ class Settings(BaseSettings):
         if current_mtime != self._env_mtime:
             self.reload()
 
-    def update(self, key_path: str, value: str | int | bool | list | dict) -> None:
+    def update(
+        self, key_path: str, value: str | int | bool | list | dict | None
+    ) -> None:
         """
         Update value in .env file and reinitialize settings
 
@@ -412,7 +419,9 @@ class Settings(BaseSettings):
         )
         self.reload()
 
-    def bulk_update(self, data: dict[str, str | int | bool | list | dict]) -> None:
+    def bulk_update(
+        self, data: dict[str, str | int | bool | list | dict | None]
+    ) -> None:
         """
         Update multiple values in .env file and reinitialize settings once.
 
@@ -434,8 +443,9 @@ class Settings(BaseSettings):
         self.reload()
 
     def get_auth_setting(self) -> bool:
-        """Return the current auth setting."""
-        return self.security.auth
+        """True only when auth is enabled AND fully configured."""
+        sec = self.security
+        return bool(sec.auth and sec.username and sec.password_hash and sec.secret_key)
 
 
 settings = Settings()

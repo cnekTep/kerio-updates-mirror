@@ -8,7 +8,7 @@ from fastapi import HTTPException, Response, status
 from fastapi.responses import FileResponse
 
 from app.config import settings
-from app.utils.app_logging import log_event
+from app.utils.app_logging import log_event, sanitize_for_log
 from app.utils.file_utils import clean_directory, ensure_dir, build_file_response
 from app.utils.internet_utils import (
     download_file_with_retries,
@@ -243,7 +243,7 @@ class KerioUpdateService:
         if update_type not in self._VERSION_ENABLE_FLAGS:
             log_event(
                 log_type=["system", "errors"],
-                message=f"Unknown update type '{update_type}' parsed from file_name '{file_name}'",
+                message=f"Unknown update type '{update_type}' parsed from file_name '{sanitize_for_log(file_name)}'",
                 ip=client_ip,
                 notify=True,
                 action_name="IDS / GeoIP Update",
@@ -276,7 +276,7 @@ class KerioUpdateService:
         if file_path.suffix.lower() not in allowed_extensions:
             log_event(
                 log_type=["system", "errors"],
-                message=f"Disallowed file extension '{file_path.suffix}' for file_name '{file_name}'",
+                message=f"Disallowed file extension '{file_path.suffix}' for file_name '{sanitize_for_log(file_name)}'",
                 ip=client_ip,
                 notify=True,
                 action_name="IDS / GeoIP Update",
@@ -289,7 +289,7 @@ class KerioUpdateService:
         if not file_path.exists():
             log_event(
                 log_type=["system", "errors"],
-                message=f"File not found: '{file_path}'",
+                message=f"File not found: '{sanitize_for_log(file_path)}'",
                 ip=client_ip,
                 notify=True,
                 action_name="IDS / GeoIP Update",
@@ -302,7 +302,7 @@ class KerioUpdateService:
         if not file_path.is_file():
             log_event(
                 log_type=["system", "errors"],
-                message=f"Path is not a regular file: '{file_path}'",
+                message=f"Path is not a regular file: '{sanitize_for_log(file_path)}'",
                 ip=client_ip,
                 notify=True,
                 action_name="IDS / GeoIP Update",
@@ -357,7 +357,21 @@ class KerioUpdateService:
             )
             return UpdateResult(success=False, message=message)
 
-        data = response.json()  # Response body: {"available": bool, "url": str}
+        try:
+            data = response.json()  # Response body: {"available": bool, "url": str}
+        except ValueError:
+            data = None
+
+        if not isinstance(data, dict):
+            message = "ShieldMatrix Update | Invalid response from upstream"
+            log_event(
+                log_type=["system", "updates", "errors"],
+                message=message,
+                notify=notify,
+                action_name="ShieldMatrix Update",
+            )
+            return UpdateResult(success=False, message=message)
+
         if not data.get("available") or not data.get("url"):
             message = "ShieldMatrix Update | No URL available"
             log_event(
@@ -485,7 +499,7 @@ class KerioUpdateService:
         )
 
         path_parts = full_path.split("/", 1)
-        if len(path_parts) != 2:
+        if len(path_parts) != 2 or not path_parts[1]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid ShieldMatrix path: {full_path}",
@@ -496,6 +510,12 @@ class KerioUpdateService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Unknown ShieldMatrix proto: {proto}",
+            )
+        # Allow only plain file names: blocks '?', '#', ':', '%' and similar
+        if not re.fullmatch(r"[A-Za-z0-9._-]+", file_name):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid file name",
             )
 
         cache_dir = ensure_dir(settings.updates.update_dir / "matrix_cache" / proto)
@@ -510,7 +530,9 @@ class KerioUpdateService:
             return build_file_response(file_path=file_path)
 
         # File not cached - download from upstream
-        upstream_url = f"{settings.updates.shieldmatrix_url.rstrip('/')}/{full_path}"
+        upstream_url = (
+            f"{settings.updates.shieldmatrix_url.rstrip('/')}/{proto}/{file_name}"
+        )
         headers = {
             "user-agent": "KerioControl",
             "accept": "*/*",
@@ -525,7 +547,7 @@ class KerioUpdateService:
         if not file_path.exists():
             log_event(
                 log_type=["system", "errors"],
-                message=f"ShieldMatrix | Failed to download: {full_path}",
+                message=f"ShieldMatrix | Failed to download: {sanitize_for_log(full_path)}",
                 ip=client_ip,
                 notify=True,
                 action_name="ShieldMatrix Update",
@@ -924,7 +946,9 @@ class KerioUpdateService:
             ``FileResponse`` (cache mode) or ``Response`` (proxy mode) with file content.
 
         Raises:
-            HTTPException: 404 if antivirus updates are disabled or the file is not found,
+            HTTPException: 400 if the file name contains illegal characters or
+                           resolves outside the cache directory (cache mode only),
+                           404 if antivirus updates are disabled or the file is not found,
                            502 if the upstream request fails,
                            503 if stale ``versions.*`` files could not be evicted.
         """
@@ -985,7 +1009,9 @@ class KerioUpdateService:
             ``FileResponse`` (cache mode) or ``Response`` (proxy mode) with file content.
 
         Raises:
-            HTTPException: 404 if antispam updates are disabled or the file is not found,
+            HTTPException: 400 if the file name contains illegal characters or
+                           resolves outside the cache directory (cache mode only),
+                           404 if antispam updates are disabled or the file is not found,
                            502 if the upstream request fails,
                            503 if stale ``versions.*`` files could not be evicted.
         """
@@ -1146,7 +1172,7 @@ class KerioUpdateService:
         if "/" in file_name or "\\" in file_name or ".." in file_name:
             log_event(
                 log_type=["system", "errors"],
-                message=f"Path traversal attempt in {log_context} file_name '{file_name}'",
+                message=f"Path traversal attempt in {log_context} file_name '{sanitize_for_log(file_name)}'",
                 ip=client_ip,
                 notify=True,
                 action_name=f"{log_context} Update",
@@ -1165,7 +1191,7 @@ class KerioUpdateService:
         except (ValueError, RuntimeError):
             log_event(
                 log_type=["system", "errors"],
-                message=f"Resolved path escapes {log_context} dir for file_name '{file_name}'",
+                message=f"Resolved path escapes {log_context} dir for file_name '{sanitize_for_log(file_name)}'",
                 ip=client_ip,
                 notify=True,
                 action_name=f"{log_context} Update",
@@ -1227,6 +1253,8 @@ class KerioUpdateService:
             return "Snort Template"
         if version is None:
             return update_type.capitalize()
+        # Version may come from the client: escape control characters
+        version = sanitize_for_log(version)
         if update_type == "geoip":
             return f"GeoIP v{version}"
         return f"{update_type.upper()} v{version}"
@@ -1240,8 +1268,10 @@ class KerioUpdateService:
     ) -> None:
         """Raise HTTP 404 if the given service is disabled."""
         if not enabled:
-            message = (f"Error: Client {client_ip} try to update {service}, "
-                       f"but updates for this service are disabled in Mirror Settings")
+            message = (
+                f"Error: Client {client_ip} try to update {service}, "
+                f"but updates for this service are disabled in Mirror Settings"
+            )
             log_event(
                 log_type=["system", "errors"],
                 message=message,
@@ -1274,7 +1304,7 @@ class KerioUpdateService:
         except (IndexError, ValueError) as err:
             log_event(
                 log_type=["system", "errors"],
-                message=f"Version parse error for '{version}': {err}",
+                message=f"Version parse error for '{sanitize_for_log(version)}': {err}",
                 ip=client_ip,
                 notify=True,
                 action_name="IDS / GeoIP Update",
@@ -1306,7 +1336,7 @@ class KerioUpdateService:
         Raises:
             HTTPException: 400 if the file name cannot be parsed.
         """
-        if self._SNORT_FILENAME_RE.match(file_name):
+        if self._SNORT_FILENAME_RE.fullmatch(file_name):
             return {"type": "snort", "version": None}
 
         match = self._VERSION_FROM_FILENAME_RE.match(file_name)
@@ -1315,7 +1345,7 @@ class KerioUpdateService:
 
         log_event(
             log_type=["system", "errors"],
-            message=f"Version parse error: could not extract type/version from file_name '{file_name}'",
+            message=f"Version parse error: could not extract type/version from file_name '{sanitize_for_log(file_name)}'",
             ip=client_ip,
             notify=True,
             action_name="IDS / GeoIP Update",
@@ -1593,6 +1623,14 @@ class KerioUpdateService:
             return None
 
         new_version = response.text.strip()
+        if not new_version:
+            log_event(
+                log_type=["system", "errors"],
+                message="ShieldMatrix | Error: Empty version from upstream",
+                notify=True,
+                action_name="ShieldMatrix Update",
+            )
+            return None  # keep the old cache file untouched
 
         # Purge ipv4/ipv6 cache when a newer version is detected
         if version_cache_file.exists():

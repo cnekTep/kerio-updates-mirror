@@ -1,6 +1,6 @@
 from typing import Annotated, Any, Literal
 
-from fastapi import status, APIRouter, Depends, Form
+from fastapi import status, APIRouter, Depends, Form, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.config import settings
@@ -22,6 +22,24 @@ router = APIRouter(prefix="/notifications")
         200: {
             "description": "Test email sent",
             "content": {"application/json": {"example": {"detail": "Test email sent"}}},
+        },
+        400: {
+            "description": "SMTP is not configured (host, port, from address or recipients are missing)",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "SMTP host is not configured"}
+                }
+            },
+        },
+        500: {
+            "description": "Failed to send the email (connection error, authentication error, etc.)",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Failed to send email: [Errno 111] Connection refused"
+                    }
+                }
+            },
         },
     },
 )
@@ -79,6 +97,28 @@ async def send_test_email(
                 "application/json": {"example": {"detail": "Test message sent"}}
             },
         },
+        400: {
+            "description": (
+                "Telegram is not configured (bot token or chat ID is missing), "
+                "the template does not exist, or a thread was chosen "
+                "but its thread ID is empty"
+            ),
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Telegram bot token is not configured"}
+                }
+            },
+        },
+        500: {
+            "description": "Failed to send the message (all connection attempts failed, API error, etc.)",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Failed to send Telegram message: all connection attempts failed"
+                    }
+                }
+            },
+        },
     },
 )
 async def send_test_telegram(
@@ -86,8 +126,8 @@ async def send_test_telegram(
     bot_api_url: Annotated[str, Form()] = "",
     bot_token: Annotated[str, Form()] = "",
     chat_id: Annotated[str, Form()] = "",
-    thread_updates_id: Annotated[str, Form()] = "",
-    thread_errors_id: Annotated[str, Form()] = "",
+    thread_updates_id: Annotated[int | None, Form()] = None,
+    thread_errors_id: Annotated[int | None, Form()] = None,
     target: Annotated[Literal["", "updates", "errors"], Form()] = "",
 ) -> dict[str, Any]:
     # Build config from the raw (unsaved) values currently sitting in the form,
@@ -98,25 +138,32 @@ async def send_test_telegram(
         chat_id=chat_id or None,
     )
 
+    # Pick the thread explicitly from the form; None means the main chat.
+    # Without an explicit thread_id the service would fall back to the saved settings.
+    thread_id = {"updates": thread_updates_id, "errors": thread_errors_id}.get(target)
+
     context = {
         "action_name": "Test message from Kerio Updates Mirror",
         "status": "success",
         "message": "If you received this message, your Telegram settings are working correctly.",
+        "thread_id": thread_id,
     }
 
     if target == "updates":
-        context.update(
-            {
-                "action_name": "Test message from Kerio Updates Mirror in Updates Thread",
-                "thread_id": thread_updates_id,
-            }
+        context["action_name"] = (
+            "Test message from Kerio Updates Mirror in Updates Thread"
         )
     elif target == "errors":
-        context.update(
-            {
-                "action_name": "Test message from Kerio Updates Mirror in Errors Thread",
-                "thread_id": thread_errors_id,
-            }
+        context["action_name"] = (
+            "Test message from Kerio Updates Mirror in Errors Thread"
+        )
+
+    # A thread was chosen but its ID is empty: refuse instead of silently
+    # sending to the main chat under a "... Thread" title
+    if target and thread_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Thread ID is not specified",
         )
 
     # Send a test message synchronously to verify current Telegram configuration

@@ -17,7 +17,6 @@
                  data-controlled-by="email_settings_block" data-effect="hidden"
                  {% if not email_enabled %} data-hidden {% endif %}>
                 <div class="settings-grid size-5-fr mt-1r"
-                     data-controlled-by="email_settings" data-effect="aria-disabled"
                      aria-disabled="{% if email_enabled %} false {% else %} true {% endif %}">
                     <p class="pb-1r">Email to:</p>
                     <input type="text" name="email_to" id="email_to"
@@ -139,9 +138,8 @@
                     <summary class="mb-05r">Telegram settings</summary>
                     <hr>
                     <div class="settings-grid size-5-fr mt-1r"
-                         data-controlled-by="telegram_settings" data-effect="aria-disabled"
                          aria-disabled="{% if telegram_enabled %} false {% else %} true {% endif %}">
-                        <p class="pb-1r">Bot token:</p>
+                        <p>Bot token:</p>
                         <input type="text" name="bot_token" id="bot_token" class="mb-0"
                                placeholder="123456789:AAExampleTokenFromBotFather"
                                aria-label="Bot token"
@@ -149,9 +147,8 @@
                     </div>
 
                     <div class="settings-grid size-5-fr mt-1r"
-                         data-controlled-by="telegram_settings" data-effect="aria-disabled"
                          aria-disabled="{% if telegram_enabled %} false {% else %} true {% endif %}">
-                        <p class="pb-1r">Chat ID:</p>
+                        <p>Chat ID:</p>
                         <input type="text" name="chat_id" id="chat_id" class="mb-0"
                                placeholder="-1001234567890 or @chat_name"
                                aria-label="Chat ID"
@@ -159,7 +156,6 @@
                     </div>
 
                     <div class="settings-grid size-5-fr mt-1r"
-                         data-controlled-by="telegram_settings" data-effect="aria-disabled"
                          aria-disabled="{% if telegram_enabled %} false {% else %} true {% endif %}">
                         <p class="pb-1r">API URL:</p>
                         <input type="text" name="bot_api_url" id="bot_api_url"
@@ -191,7 +187,7 @@
                             />
                         </div>
                         <div class="settings-grid size-4_5-fr-9 gap-0_5">
-                            <p class="pb-1r">Errors:</p>
+                            <p>Errors:</p>
                             <input type="number" name="thread_errors_id"
                                    id="thread_errors_id" class="mb-0"
                                    placeholder="Enter errors thread ID"

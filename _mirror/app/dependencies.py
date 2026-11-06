@@ -40,8 +40,22 @@ api_key_header = APIKeyHeader(
 # =============================================================================
 # Service providers
 #
-# Simple factory functions that build service instances from current settings.
+# Async factories that build service instances from current settings. They do
+# no I/O, so they run directly in the event loop (no threadpool hop).
+#
+# Services come in two kinds:
+#   * Leaf      - contains no other services; created by a plain constructor
+#                 call (or from settings values). One factory per service.
+#   * Composite - assembled from other services. Two ways to wire the parts:
+#       - via Depends(): FastAPI resolves the parts and caches them within one
+#         request. Works only when FastAPI itself calls the factory.
+#       - by hand inside the factory: needed when the factory is also awaited
+#         directly outside FastAPI (e.g. by the scheduler), where Depends()
+#         parameters would not be resolved.
 # =============================================================================
+
+
+# ----- Leaf services -----------------------------------------------------------
 
 
 async def get_kerio_update_service() -> KerioUpdateService:
@@ -49,31 +63,33 @@ async def get_kerio_update_service() -> KerioUpdateService:
     return KerioUpdateService()
 
 
-async def get_mirror_update_service() -> MirrorUpdateService:
-    """Get MirrorUpdateService instance."""
-    return MirrorUpdateService(
-        geoip_service=GeoIPService(),
-        ids_service=IDSService(),
-        kerio_update_service=KerioUpdateService(),
-        web_filter_service=WebFilterService(),
-        license_service=LicenseService(kerio_update_service=KerioUpdateService()),
-    )
+async def get_distro_service() -> DistroService:
+    """Get DistroService instance."""
+    return DistroService()
 
 
-async def get_license_service() -> LicenseService:
-    """Get LicenseService instance."""
-    return LicenseService(
-        kerio_update_service=KerioUpdateService(),
-    )
-
-
-def get_nginx_acl_service() -> NginxACLService:
+async def get_nginx_acl_service() -> NginxACLService:
     """Get NginxACLService instance."""
     return NginxACLService()
 
 
-def get_auth_service() -> AuthService:
-    """Get AuthService instance."""
+async def get_email_service() -> EmailService:
+    """Get EmailService instance."""
+    return EmailService()
+
+
+async def get_telegram_service() -> TelegramService:
+    """Get TelegramService instance."""
+    return TelegramService()
+
+
+async def get_auth_service() -> AuthService:
+    """
+    Get AuthService instance.
+
+    Leaf service: built from settings values, which are read on every call,
+    so changes after settings.reload() are picked up.
+    """
     return AuthService(
         enabled=settings.security.auth,
         username=settings.security.username,
@@ -82,19 +98,36 @@ def get_auth_service() -> AuthService:
     )
 
 
-async def get_distro_service() -> DistroService:
-    """Get DistroService instance."""
-    return DistroService()
+# ----- Composite services ------------------------------------------------------
 
 
-def get_email_service() -> EmailService:
-    """Get EmailService instance."""
-    return EmailService()
+async def get_license_service(
+    kerio_update_service: Annotated[
+        KerioUpdateService, Depends(get_kerio_update_service)
+    ],
+) -> LicenseService:
+    """Get LicenseService instance (composite: wired via Depends())."""
+    return LicenseService(
+        kerio_update_service=kerio_update_service,
+    )
 
 
-def get_telegram_service() -> TelegramService:
-    """Get TelegramService instance."""
-    return TelegramService()
+async def get_mirror_update_service() -> MirrorUpdateService:
+    """
+    Get MirrorUpdateService instance (composite: wired by hand).
+
+    Has no Depends() parameters on purpose: it is also awaited directly by the
+    scheduler (outside of FastAPI), where dependencies would not be resolved.
+    All sub-services share one KerioUpdateService instance.
+    """
+    kerio_update_service = KerioUpdateService()
+    return MirrorUpdateService(
+        geoip_service=GeoIPService(),
+        ids_service=IDSService(),
+        kerio_update_service=kerio_update_service,
+        web_filter_service=WebFilterService(),
+        license_service=LicenseService(kerio_update_service=kerio_update_service),
+    )
 
 
 async def get_settings_service(
@@ -103,7 +136,7 @@ async def get_settings_service(
     distro_service: Annotated[DistroService, Depends(get_distro_service)],
     license_service: Annotated[LicenseService, Depends(get_license_service)],
 ) -> SettingsService:
-    """Get SettingsService instance."""
+    """Get SettingsService instance (composite: wired via Depends())."""
     return SettingsService(
         nginx_acl_service=nginx_acl_service,
         auth_service=auth_service,
@@ -120,7 +153,7 @@ async def get_settings_service(
 # =============================================================================
 
 
-def require_auth(
+async def require_auth(
     request: Request,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> bool:
@@ -148,7 +181,7 @@ def require_auth(
     )
 
 
-def require_write_token(
+async def require_write_token(
     api_key: Annotated[str | None, Depends(api_key_header)],
 ) -> None:
     """
@@ -163,7 +196,7 @@ def require_write_token(
     )
 
 
-def require_read_token(
+async def require_read_token(
     api_key: Annotated[str | None, Depends(api_key_header)],
 ) -> None:
     """
@@ -223,7 +256,7 @@ def _verify_api_key(
 # =============================================================================
 
 
-def get_client_ip(request: Request) -> str | None:
+async def get_client_ip(request: Request) -> str | None:
     """
     Dependency that extracts the client's IP address from the request.
 

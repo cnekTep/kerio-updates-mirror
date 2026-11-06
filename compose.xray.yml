@@ -1,7 +1,7 @@
 services:
 
   xray:
-    image: "kum_xray:v26.3.27"
+    image: "kum_xray:v26.10.31"
     build:
       context: ./_xray
     stop_signal: SIGINT

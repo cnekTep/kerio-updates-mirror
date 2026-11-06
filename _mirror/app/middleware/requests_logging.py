@@ -1,11 +1,10 @@
 import time
 
-import anyio
 from fastapi import Request, Response, status
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from app.config import settings
-from app.utils.app_logging import log_event
+from app.utils.app_logging import log_event, sanitize_for_log
 from app.utils.logging_utils import safe_body_str
 
 
@@ -50,9 +49,9 @@ class RequestsLoggingMiddleware:
             headers = dict(request.headers)
             log_event(
                 log_type="debug",
-                message=f"|CONNECT| Full URL: {request.url} "
-                f"Path: {request.url.path} "
-                f"Host header: {request.headers.get('host', 'N/A')} "
+                message=f"|CONNECT| Full URL: {sanitize_for_log(request.url)} "
+                f"Path: {sanitize_for_log(request.url.path)} "
+                f"Host header: {sanitize_for_log(request.headers.get('host', 'N/A'))} "
                 f"Client IP: {client_ip} "
                 f"Headers: {headers}",
             )
@@ -87,9 +86,8 @@ class RequestsLoggingMiddleware:
             if not body_replayed:
                 body_replayed = True
                 return {"type": "http.request", "body": body_bytes, "more_body": False}
-            # No more data - suspend forever (ASGI convention for exhausted stream)
-            await anyio.sleep(float("inf"))
-            return {}  # unreachable, but satisfies the type checker
+
+            return await receive()
 
         # --- Wrap send to intercept response without touching body ---
         start = time.perf_counter()
@@ -111,7 +109,7 @@ class RequestsLoggingMiddleware:
                     for k, v in message.get("headers", [])
                 }
 
-            elif message["type"] == "http.response.body":
+            elif message["type"] in ("http.response.body", "http.response.pathsend"):
                 chunk = message.get("body", b"")
                 if chunk:
                     resp_total_size += len(chunk)
@@ -145,9 +143,9 @@ class RequestsLoggingMiddleware:
             process_ms = (time.perf_counter() - start) * 1000
             log_event(
                 log_type="debug",
-                message=f"|response| {request.method} {request.url.path} "
+                message=f"|response| {request.method} {sanitize_for_log(request.url.path)} "
                 f"ERROR time_ms={process_ms:.2f} "
-                f"error={type(e).__name__}: {str(e)}",
+                f"error={type(e).__name__}: {sanitize_for_log(e)}",
             )
             raise
 
@@ -181,14 +179,14 @@ def _log_if_unmatched(scope: Scope, status_code: int | None) -> None:
 
     request = Request(scope)
     client_ip = request.client.host if request.client else "unknown"
-    user_agent = request.headers.get("user-agent", "unknown")
-    referer = request.headers.get("referer", "-")
-    forwarded_for = request.headers.get("x-forwarded-for", "-")
-    content_length = request.headers.get("content-length", "0")
+    user_agent = sanitize_for_log(request.headers.get("user-agent", "unknown"))
+    referer = sanitize_for_log(request.headers.get("referer", "-"))
+    forwarded_for = sanitize_for_log(request.headers.get("x-forwarded-for", "-"))
+    content_length = sanitize_for_log(request.headers.get("content-length", "0"))
 
     log_event(
         log_type="unmatched_requests",
-        message=f"{request.method} {request.url} status={status_code} "
+        message=f"{request.method} {sanitize_for_log(request.url)} status={status_code} "
         f"from {client_ip} x_forwarded_for={forwarded_for} "
         f"referer={referer} content_length={content_length} "
         f"user_agent={user_agent}",
@@ -199,7 +197,8 @@ def _log_request(request: Request, body_bytes: bytes, body_too_large: bool):
     """Log request details."""
     client_ip = request.client.host if request.client else "unknown"
     content_type = request.headers.get("content-type")
-    user_agent = request.headers.get("user-agent", "unknown")
+    content_type_log = sanitize_for_log(content_type or "none")
+    user_agent = sanitize_for_log(request.headers.get("user-agent", "unknown"))
 
     req_body_snip = (
         safe_body_str(
@@ -218,10 +217,10 @@ def _log_request(request: Request, body_bytes: bytes, body_too_large: bool):
 
     log_event(
         log_type="debug",
-        message=f"|request| {request.method} {request.url} from {client_ip} "
+        message=f"|request| {request.method} {sanitize_for_log(request.url)} from {client_ip} "
         f"user_agent={user_agent} "
         f"query={query} path_params={path_params} "
-        f"content_type={content_type or 'none'} body_size={len(body_bytes)} "
+        f"content_type={content_type_log} body_size={len(body_bytes)} "
         f"headers={headers} body={req_body_snip}",
     )
 
@@ -251,7 +250,7 @@ def _log_response(
 
     log_event(
         log_type="debug",
-        message=f"|response| {request.method} {request.url} "
+        message=f"|response| {request.method} {sanitize_for_log(request.url)} "
         f"status={status_code} time_ms={process_ms:.2f} "
         f"content_type={content_type or 'none'} body_size={body_total_size} "
         f"headers={headers} body={resp_body_snip}",

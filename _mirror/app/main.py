@@ -32,6 +32,9 @@ async def lifespan(app: FastAPI):
             scheduler = create_scheduler()
             scheduler.start()
 
+        # Expose scheduler so that services can reschedule jobs at runtime
+        app.state.scheduler = scheduler
+
         yield
 
     finally:  # Shutdown

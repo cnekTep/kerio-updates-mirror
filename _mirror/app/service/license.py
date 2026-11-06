@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from datetime import date
 from random import randint
 
 from app.config import settings
@@ -62,9 +63,8 @@ class LicenseService:
 
         try:
             expiration_date = await self.get_expiration_date(license_number)
-        except LicenseLookupError as exc:
-            return self._fail(str(exc), notify=True)
         except Exception as exc:
+            # Always notify: a failed license lookup needs attention regardless of `notify`
             return self._fail(str(exc), notify=True)
 
         if scheduled:
@@ -117,6 +117,13 @@ class LicenseService:
         if not expires:
             raise LicenseLookupError("No expiration date received")
 
+        try:
+            parsed = date.fromisoformat(expires)
+        except (ValueError, TypeError):
+            parsed = None
+        if parsed is None or parsed.isoformat() != expires:
+            raise LicenseLookupError(f"Unexpected expiration date format: {expires!r}")
+
         return expires
 
     @staticmethod
@@ -131,7 +138,7 @@ class LicenseService:
         Raises:
             InvalidLicenseKeyError: If the format is invalid.
         """
-        if not LICENSE_KEY_PATTERN.match(license_key):
+        if not LICENSE_KEY_PATTERN.fullmatch(license_key):
             raise InvalidLicenseKeyError(
                 "Invalid license key format. Expected format: NNNNN-XXXXX-XXXXX"
             )

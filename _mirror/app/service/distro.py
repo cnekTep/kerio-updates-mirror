@@ -1,5 +1,6 @@
 import json
 import re
+import uuid
 from pathlib import Path
 
 from cryptography.hazmat.backends import default_backend
@@ -9,14 +10,14 @@ from fastapi import HTTPException, UploadFile, status
 from fastapi.responses import FileResponse, Response
 
 from app.config import settings
-from app.utils.app_logging import log_event
+from app.utils.app_logging import log_event, sanitize_for_log
 from app.utils.file_utils import ensure_dir, build_file_response
 
 _FILENAME_PATTERN = re.compile(
     r"^kerio-(?:control-upgrade|connect)"  # product name (add more if needed)
     r"-(\d+\.\d+\.\d+-\d+)"  # version-build, e.g. 10.0.9-10320
     r"(?:-[a-zA-Z0-9]+)*"  # optional suffixes like linux, win64, etc.
-    r"\.(?:deb|img|exe)$"  # allowed extensions
+    r"\.(?:deb|img|exe)\Z"  # allowed extensions
 )
 _SAFE_FILENAME_PATTERN = re.compile(r"[^A-Za-z0-9_.\-]+")
 
@@ -27,6 +28,17 @@ _DISTRO_TYPE_BY_EXTENSION: dict[str, str] = {
     ".deb": "connect_deb",
 }
 
+# Map distro type to (file name prefix, extension). Shared by upload validation
+# and listing, so an upload can't be accepted that listing would never show.
+_TYPE_RULES: dict[str, tuple[str, str]] = {
+    "control": ("kerio-control-upgrade", ".img"),
+    "connect_win": ("kerio-connect", ".exe"),
+    "connect_deb": ("kerio-connect", ".deb"),
+}
+
+# Signing key location (relative to the working directory)
+_SIGNING_KEY_PATH = Path("certs/key.pem")
+
 # Read/hash the upload in fixed-size chunks instead of loading it fully into
 # memory - distro images can be several hundred MB.
 _UPLOAD_CHUNK_SIZE = 1024 * 1024  # 1 MiB
@@ -34,6 +46,10 @@ _UPLOAD_CHUNK_SIZE = 1024 * 1024  # 1 MiB
 # Sent when updates are disabled, the caller isn't Kerio Control, or the
 # client is already on the latest version.
 NO_UPDATE_RESPONSE = "--INFO--\nReminderId='1'\nReminderAuth='1'\nVersion='0'"
+
+
+class InvalidDistroFilenameError(Exception):
+    """The uploaded file name does not match the expected distro format."""
 
 
 class DistroService:
@@ -66,7 +82,10 @@ class DistroService:
         """
         try:
             filename, distro_type = await self._store_and_sign_file(file=file)
-        except ValueError as exc:
+        except InvalidDistroFilenameError as exc:
+            # Only the file name check maps to 400; any other failure
+            # (e.g. a broken signing key, disk error) is a server-side error
+            # and is handled by the generic handler below
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
             ) from exc
@@ -100,17 +119,10 @@ class DistroService:
         Returns:
             Sorted list of distribution filenames.
         """
-        # Map distro type to (prefix, suffix) filter rules
-        type_rules = {
-            "control": ("kerio-control-upgrade", ".img"),
-            "connect_win": ("kerio-connect", ".exe"),
-            "connect_deb": ("kerio-connect", ".deb"),
-        }
-
-        if distro_type not in type_rules:
+        if distro_type not in _TYPE_RULES:
             return []
 
-        prefix, suffix = type_rules[distro_type]
+        prefix, suffix = _TYPE_RULES[distro_type]
 
         distro_dir = settings.updates.update_dir / "distros"
         try:
@@ -184,31 +196,6 @@ class DistroService:
             product_label = "Kerio Control"
             info_url = "https://support.keriocontrol.gfi.com"
         elif prod_code == "KMS":
-            # Kerio Connect ships for multiple platforms, but only two are
-            # actually supported here: Windows, and Linux via a .deb package.
-            # Anything else (macOS, other Linux packaging, unrecognized
-            # platform strings) is treated as unsupported.
-            if os_platform == "WIN64.64":
-                update_file = settings.updates.kerio_connect_update_file_win
-                update_version = settings.updates.kerio_connect_update_version_win
-                build_number_variant = "win"
-            elif os_platform == "LINUX.X64" and installation_type == "deb":
-                update_file = settings.updates.kerio_connect_update_file_deb
-                update_version = settings.updates.kerio_connect_update_version_deb
-                build_number_variant = "deb"
-            else:
-                log_event(
-                    log_type=["system", "connections", "errors"],
-                    message=(
-                        f"Distro | Update check received (KMS): unsupported platform "
-                        f"os_platform={os_platform!r} installation_type={installation_type!r}"
-                    ),
-                    ip=client_ip,
-                    notify=True,
-                    action_name="Distributive Update",
-                )
-                return NO_UPDATE_RESPONSE
-
             enabled = settings.updates.update_kerio_connect_distro
             versions_file = settings.updates.kerio_connect_distro_versions_file
             product_label = "Kerio Connect"
@@ -230,13 +217,37 @@ class DistroService:
             )
             return NO_UPDATE_RESPONSE
 
+        if prod_code == "KMS":
+            # Kerio Connect ships for multiple platforms, but only two are
+            # actually supported here: Windows, and Linux via a .deb package.
+            # Anything else (macOS, other Linux packaging, unrecognized
+            # platform strings) is treated as unsupported.
+            if os_platform == "WIN64.64":
+                update_file = settings.updates.kerio_connect_update_file_win
+                update_version = settings.updates.kerio_connect_update_version_win
+                build_number_variant = "win"
+            elif os_platform == "LINUX.X64" and installation_type == "deb":
+                update_file = settings.updates.kerio_connect_update_file_deb
+                update_version = settings.updates.kerio_connect_update_version_deb
+                build_number_variant = "deb"
+            else:
+                log_event(
+                    log_type=["system", "connections", "errors"],
+                    message=(
+                        f"Distro | Update check received (KMS): unsupported platform "
+                        f"os_platform={os_platform!r} installation_type={installation_type!r}"
+                    ),
+                    ip=client_ip,
+                    action_name="Distributive Update",
+                )
+                return NO_UPDATE_RESPONSE
+
         if None in (prod_major, prod_minor, prod_build, prod_build_number):
             log_event(
                 log_type=["system", "connections", "errors"],
                 message=f"Distro | Update check received ({prod_code}): missing version fields - "
                 f"{prod_major}.{prod_minor}.{prod_build} (build number: {prod_build_number})",
                 ip=client_ip,
-                notify=True,
                 action_name="Distributive Update",
             )
             return NO_UPDATE_RESPONSE
@@ -257,10 +268,20 @@ class DistroService:
                 product_label=product_label,
                 build_number_variant=build_number_variant,
             )
-        except RuntimeError as exc:
+            # Converted inside the try: a bad value in the mapping file must end
+            # up as a logged, notified 500 rather than an unhandled error
+            available_version = (
+                int(update_info["prod_major"]),
+                int(update_info["prod_minor"]),
+                int(update_info["prod_build"]),
+                int(update_info["prod_build_number"]),
+            )
+        except (OSError, ValueError, KeyError, TypeError, RuntimeError) as exc:
+            # OSError: missing/unreadable file; ValueError covers invalid JSON
+            # and non-numeric values; TypeError: unexpected JSON structure
             log_event(
                 log_type=["system", "errors"],
-                message=f"Distro Update | Error: Failed to parse version from config ({prod_code}): {exc}",
+                message=f"Distro Update | Error: Failed to resolve target version ({prod_code}): {exc!r}",
                 ip=client_ip,
                 notify=True,
                 action_name="Distributive Update",
@@ -271,19 +292,13 @@ class DistroService:
             ) from exc
 
         current_version = (prod_major, prod_minor, prod_build, prod_build_number)
-        available_version = (
-            int(update_info["prod_major"]),
-            int(update_info["prod_minor"]),
-            int(update_info["prod_build"]),
-            int(update_info["prod_build_number"]),
-        )
         if current_version >= available_version:
             return NO_UPDATE_RESPONSE
 
         package_code = (
-            f"{prod_code}:{update_info['prod_major'].zfill(3)}."
-            f"{update_info['prod_minor'].zfill(3)}."
-            f"{update_info['prod_build'].zfill(5)}.T.000.000"
+            f"{prod_code}:{str(update_info['prod_major']).zfill(3)}."
+            f"{str(update_info['prod_minor']).zfill(3)}."
+            f"{str(update_info['prod_build']).zfill(5)}.T.000.000"
         )
         base_url = "http://kerio-updates-mirror.local/api/kerio/updates/distro/files"
         download_url = f"{base_url}/{update_file}"
@@ -332,9 +347,8 @@ class DistroService:
         ):
             log_event(
                 log_type=["system", "errors"],
-                message=f"Invalid distro file_name format: '{file_name}'",
+                message=f"Invalid distro file_name format: '{sanitize_for_log(file_name)}'",
                 ip=client_ip,
-                notify=True,
                 action_name="Distributive Update",
             )
             raise HTTPException(
@@ -364,7 +378,6 @@ class DistroService:
                 log_type=["system", "errors"],
                 message=f"Distro update file not found: '{file_path}'",
                 ip=client_ip,
-                notify=True,
                 action_name="Distributive Update",
             )
             raise HTTPException(
@@ -382,10 +395,13 @@ class DistroService:
 
         The upload is streamed to a temporary file while a SHA-256 digest is
         computed on the fly, so the whole image is never held in memory at
-        once. The temp file is only published under its final name (and the
-        detached signature only written) once signing succeeds, so a failed
-        or interrupted upload never leaves a servable-but-unsigned image
-        behind.
+        once. Both the image and its signature are written under unique
+        temporary names and published only after the whole upload was read and
+        signed. The signature is published first: if publishing the image then
+        fails, the leftover signature is harmless (listing requires the image),
+        whereas the reverse order could leave a servable-but-unsigned image.
+        Unique temporary names keep concurrent uploads of the same file name
+        from writing into one temp file.
 
         Args:
             file: Uploaded distribution image.
@@ -394,17 +410,26 @@ class DistroService:
             The stored (sanitized) filename, and the distro type it belongs to.
 
         Raises:
-            ValueError: If the filename does not match the expected format.
+            InvalidDistroFilenameError: If the filename does not match the
+                expected format, or its product prefix doesn't fit its extension.
         """
         filename = self._secure_filename(file.filename or "")
         version = self.extract_version(filename=filename)
         if version is None:
-            raise ValueError("Invalid filename format")
+            raise InvalidDistroFilenameError("Invalid filename format")
 
         distro_type = _DISTRO_TYPE_BY_EXTENSION[Path(filename).suffix]
+        prefix, _ = _TYPE_RULES[distro_type]
+        if not filename.startswith(prefix):
+            # e.g. kerio-connect-*.img: would be signed but never listed
+            raise InvalidDistroFilenameError("Invalid filename format")
+
         distro_dir = ensure_dir(settings.updates.update_dir / "distros")
         file_path = distro_dir / filename
-        temp_path = file_path.with_name(file_path.name + ".tmp")
+        sig_path = file_path.with_name(file_path.name + ".sig")
+        token = uuid.uuid4().hex
+        temp_path = distro_dir / f".{filename}.{token}.tmp"
+        temp_sig_path = distro_dir / f".{filename}.{token}.sig.tmp"
 
         try:
             digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
@@ -413,13 +438,14 @@ class DistroService:
                     out_file.write(chunk)
                     digest.update(chunk)
 
-            signature = self._sign_digest(digest=digest.finalize())
+            temp_sig_path.write_bytes(self._sign_digest(digest=digest.finalize()))
 
-            temp_path.replace(file_path)  # Atomic publish, only after a full read
-            file_path.with_name(file_path.name + ".sig").write_bytes(signature)
+            # Atomic publishes, only after a full read and successful signing
+            temp_sig_path.replace(sig_path)
+            temp_path.replace(file_path)
         finally:
-            if temp_path.exists():
-                temp_path.unlink()
+            temp_path.unlink(missing_ok=True)
+            temp_sig_path.unlink(missing_ok=True)
 
         return filename, distro_type
 
@@ -451,7 +477,7 @@ class DistroService:
         Returns:
             Detached PKCS#1 v1.5 signature bytes.
         """
-        with open("certs/key.pem", "rb") as key_file:
+        with open(_SIGNING_KEY_PATH, "rb") as key_file:
             private_key = serialization.load_pem_private_key(
                 data=key_file.read(), password=None, backend=default_backend()
             )

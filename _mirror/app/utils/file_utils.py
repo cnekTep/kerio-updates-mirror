@@ -7,6 +7,9 @@ from fastapi.responses import FileResponse, Response
 
 from app.config import settings
 
+UPDATE_FILES_DIR = Path(f"/mirror/{settings.updates.update_dir}")
+INTERNAL_PREFIX = "/internal-update-files"
+
 
 def ensure_dir(path: Path) -> Path:
     # Ensure directory exists and create it if it doesn't
@@ -33,13 +36,16 @@ def build_file_response(file_path: Path) -> Response | FileResponse:
     or by delegating actual byte transfer to nginx (X-Accel-Redirect),
     depending on whether the app is running behind nginx.
     """
-    if not file_path.exists():
-        raise HTTPException(status_code=404)
+    # Resolve ".." and symlinks first, then make sure the file stays inside the base dir
+    base_dir = UPDATE_FILES_DIR.resolve()
+    resolved = file_path.resolve()
+    if not resolved.is_relative_to(base_dir) or not resolved.is_file():
+        raise HTTPException(status_code=404, detail="File not found")
 
     if not settings.has_nginx:
         # No nginx in front - app must serve the bytes itself
         return FileResponse(
-            path=file_path,
+            path=resolved,
             media_type="application/octet-stream",
             filename=file_path.name,
         )
@@ -47,8 +53,9 @@ def build_file_response(file_path: Path) -> Response | FileResponse:
     # Behind nginx - hand off actual file transfer to it.
     # Path relative to base_dir, since app and nginx mount the same
     # underlying directory at different container paths.
-    relative_path = file_path.relative_to("/mirror/update_files")
-    internal_path = f"/internal-update-files/{relative_path.as_posix()}"
+    relative_path = resolved.relative_to(base_dir)
+    # nginx treats the value as a URI, so it must be percent-encoded
+    internal_path = f"{INTERNAL_PREFIX}/{quote(relative_path.as_posix())}"
 
     encoded_name = quote(file_path.name)
     headers = {

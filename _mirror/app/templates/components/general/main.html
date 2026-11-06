@@ -7,7 +7,8 @@
             <tr>
                 <td>License number</td>
                 <td>{{ license_number }}</td>
-                <td class="bb-table ta-center" data-tooltip="{{ license_number_tooltip }}"
+                <td class="bb-table ta-center"
+                    {% if license_number_tooltip %} data-tooltip="{{ license_number_tooltip }}" {% endif %}
                     {% if license_date_is_expiring %} style="color: red;" {% endif %}>
                     {{ license_display_date or "No information" }}
                 </td>
@@ -22,35 +23,35 @@
             {% if update_ids_3 or update_ids_5 %}
             <tr>
                 <td>IDS 2 version</td>
-                <td>{{ '2.' if ids_2_version }}{{ ids_2_version }}</td>
+                <td>{{ '2.' if ids_2_version }}{{ ids_2_version or "No information" }}</td>
                 <td class="ta-center">{{ ids_2_last_update or "No information" }}</td>
             </tr>
             {% endif %}
             {% if update_ids_3 %}
             <tr>
                 <td>IDS 3 version</td>
-                <td>{{ '3.' if ids_3_version }}{{ ids_3_version }}</td>
+                <td>{{ '3.' if ids_3_version }}{{ ids_3_version or "No information" }}</td>
                 <td class="ta-center">{{ ids_3_last_update or "No information" }}</td>
             </tr>
             {% endif %}
             {% if update_ids_5 %}
             <tr>
                 <td>IDS 5 version</td>
-                <td>{{ '5.' if ids_5_version }}{{ ids_5_version }}</td>
+                <td>{{ '5.' if ids_5_version }}{{ ids_5_version or "No information" }}</td>
                 <td class="ta-center">{{ ids_5_last_update or "No information" }}</td>
             </tr>
             {% endif %}
             {% if update_geoip_4 %}
             <tr>
                 <td>GeoIP 4 version</td>
-                <td>{{ geoip_4_version }}</td>
+                <td>{{ geoip_4_version or "No information" }}</td>
                 <td class="ta-center">{{ geoip_4_last_update or "No information" }}</td>
             </tr>
             {% endif %}
             {% if update_geoip_5 %}
             <tr>
                 <td>GeoIP 5 version</td>
-                <td>{{ geoip_5_version }}</td>
+                <td>{{ geoip_5_version or "No information" }}</td>
                 <td class="ta-center">{{ geoip_5_last_update or "No information" }}</td>
             </tr>
             {% endif %}

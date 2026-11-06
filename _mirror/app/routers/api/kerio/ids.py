@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse, PlainTextResponse, Response
 
 from app.dependencies import get_kerio_update_service, get_client_ip
 from app.service.kerio_update import KerioUpdateService
-from app.utils.app_logging import log_event
+from app.utils.app_logging import log_event, sanitize_for_log
 
 router = APIRouter(prefix="/updates/ids", tags=["ids"])
 
@@ -27,7 +27,7 @@ router = APIRouter(prefix="/updates/ids", tags=["ids"])
                 "text/plain": {
                     "example": (
                         "0:5.114\n"
-                        "full:https://kerio-updates-mirror.local/api/kerio/updates/ids/files/ids_5_114.gz"
+                        "full:http://kerio-updates-mirror.local/api/kerio/updates/ids/files/ids_5_114.gz"
                     )
                 }
             },
@@ -46,7 +46,7 @@ async def get_update_link(
 ) -> str:
     log_event(
         log_type=["system", "connections"],
-        message=f"IDS v{version} | Update link request received",
+        message=f"IDS v{sanitize_for_log(version)} | Update link request received",
         ip=client_ip,
     )
 
@@ -82,7 +82,7 @@ async def get_update_file(
 ) -> Response | FileResponse:
     log_event(
         log_type=["system"],
-        message=f"IDS | Update file request received: {request.url}",
+        message=f"IDS | Update file request received: {sanitize_for_log(request.url)}",
         ip=client_ip,
     )
 
