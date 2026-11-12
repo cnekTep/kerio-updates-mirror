@@ -5,10 +5,10 @@
     <title>{% block title %}Kerio Updates Mirror{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', path='img/shield.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/pico.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}">
-    <script src="{{ url_for('static', path='js/htmx.min.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}?v={{ app_version }}">
+    <script src="{{ url_for('static', path='js/htmx-2.0.11.min.js') }}" defer></script>
     <script src="{{ url_for('static', path='js/sortable.min.js') }}" defer></script>
-    <script src="{{ url_for('static', path='js/main.js') }}" defer></script>
+    <script src="{{ url_for('static', path='js/main.js') }}?v={{ app_version }}" defer></script>
 </head>
 
 <body>

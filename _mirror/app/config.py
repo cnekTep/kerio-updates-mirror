@@ -464,5 +464,5 @@ templates = Jinja2Templates(
     context_processors=[theme_context],
 )
 # Add version to templates
-templates.env.globals["version"] = settings.app.version
+templates.env.globals["app_version"] = settings.app.version
 templates.env.globals["get_auth"] = settings.get_auth_setting

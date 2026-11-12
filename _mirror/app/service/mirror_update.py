@@ -11,7 +11,7 @@ from app.service.kerio_update import KerioUpdateService
 from app.service.license import LicenseService
 from app.service.web_filter import WebFilterService
 from app.utils.app_logging import log_event, collect_error_notifications
-from app.utils.file_utils import clean_directory
+from app.utils.file_utils import clean_directory, cleanup_stale_part_files
 from app.utils.service_types import NotificationLine, UpdateResult
 
 
@@ -296,6 +296,15 @@ class MirrorUpdateService:
                 log_type=["system", "updates"],
                 message="Antivirus update files directory cleaned",
             )
+
+        # clean_directory does not enter sub-directories, so temporary files of
+        # interrupted downloads in matrix_cache (killed process, restart) are removed
+        # separately. Fresh files belong to running downloads and are left alone.
+        cleanup_stale_part_files(settings.updates.update_dir / "matrix_cache")
+        log_event(
+            log_type=["system", "updates"],
+            message="ShieldMatrix cache temporary files cleaned",
+        )
 
     @staticmethod
     def _get_update_files_to_keep() -> set[str]:

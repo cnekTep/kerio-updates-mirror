@@ -1,6 +1,7 @@
 import asyncio
 import contextlib
 import os
+import tempfile
 import time
 import traceback
 from contextvars import ContextVar
@@ -12,6 +13,7 @@ from socksio.exceptions import ProtocolError as SocksProtocolError
 
 from app.config import settings
 from app.utils.app_logging import log_event
+from app.utils.file_utils import PART_SUFFIX
 from app.utils.logging_utils import safe_body_str
 
 # Context variable to store request start time
@@ -21,6 +23,12 @@ _request_start_time: ContextVar[float] = ContextVar("request_start_time", defaul
 # locked by an antivirus, the search indexer or a reader, so PermissionError is retried
 _REPLACE_ATTEMPTS = 5
 _REPLACE_RETRY_DELAY = 0.2  # seconds, multiplied by the attempt number
+
+# tempfile creates files as 0600, but finished cache files must stay readable by other
+# processes/containers (e.g. nginx), as they were with a plain open(). Has no effect
+# on Windows, where only the read-only flag is honoured, and is skipped silently on
+# filesystems without POSIX permissions
+_CACHE_FILE_MODE = 0o644
 
 
 class _LocalFileError(Exception):
@@ -450,23 +458,38 @@ async def _save_response(
     response: httpx.Response, save_path: str, chunk_size: int
 ) -> None:
     """
-    Stream the response body to save_path through a temporary file.
+    Stream the response body to save_path through a unique temporary file.
 
-    The target is replaced only after a complete download, so a failed attempt never
-    leaves a partial file and never destroys an existing one.
+    The temporary file has a random name, so concurrent downloads of the same target
+    never share it. The target is replaced only after a complete download, so a failed
+    attempt never leaves a partial file and never destroys an existing one.
 
     Raises:
         _LocalFileError: if the file cannot be written locally
         (network errors are raised as they are)
     """
-    tmp_path = f"{save_path}.part"
     loop = asyncio.get_running_loop()
 
-    try:
-        with _local_io():
-            file = open(tmp_path, "wb")
+    # The temporary file lives next to the target, so os.replace stays atomic
+    # (same filesystem)
+    with _local_io():
+        file = tempfile.NamedTemporaryFile(
+            mode="wb",
+            prefix=f".{os.path.basename(save_path)}.",
+            suffix=PART_SUFFIX,
+            dir=os.path.dirname(os.path.abspath(save_path)),
+            delete=False,
+        )
+    tmp_path = file.name
 
+    try:
         with file:
+            # Give the file regular permissions before it becomes the final one.
+            # Best effort: some filesystems (SMB/CIFS, FAT mounts) do not support
+            # chmod, and that must not fail the download
+            with contextlib.suppress(OSError):
+                os.chmod(tmp_path, _CACHE_FILE_MODE)
+
             async for chunk in response.aiter_bytes(chunk_size=chunk_size):
                 # file.write() is a blocking call, so run each write in the default
                 # executor to avoid blocking the event loop on large downloads.

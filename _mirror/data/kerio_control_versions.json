@@ -1,4 +1,39 @@
 {
+  "10.0.1-9439": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "1",
+    "prod_build_number": "10195",
+    "description": "Kerio Control 10.0.1 build 9439"
+  },
+  "10.0.1-9380": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "1",
+    "prod_build_number": "10136",
+    "description": "Kerio Control 10.0.1 build 9380"
+  },
+  "10.0.1-9299": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "1",
+    "prod_build_number": "10060",
+    "description": "Kerio Control 10.0.1 build 9299"
+  },
+  "10.0.1-9279": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "1",
+    "prod_build_number": "10040",
+    "description": "Kerio Control 10.0.1 build 9279"
+  },
+  "10.0.0-8935": {
+    "prod_major": "10",
+    "prod_minor": "0",
+    "prod_build": "0",
+    "prod_build_number": "9677",
+    "description": "Kerio Control 10.0.0 build 8935"
+  },
   "9.6.1-9306": {
     "prod_major": "9",
     "prod_minor": "6",
