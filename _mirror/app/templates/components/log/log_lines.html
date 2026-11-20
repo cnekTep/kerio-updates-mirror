@@ -1,5 +1,2 @@
-<ul class="mb-0">
-    {% for line in log.splitlines() %}
-    <li><small>{{ line }}</small></li>
-    {% endfor %}
-</ul>
+{% set lines = log.splitlines() %}
+{% include "components/log/log_items.html" %}

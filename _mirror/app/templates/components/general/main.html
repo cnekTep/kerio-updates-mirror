@@ -64,10 +64,8 @@
             <summary>Manual update check</summary>
             <button id="manual-update-check-btn"
                     hx-post="{{ url_for('full_mirror_update') }}"
-                    hx-target="#article-main"
-                    hx-push-url="true"
-                    hx-swap="innerHTML"
-                    hx-trigger="click"
+                    hx-target="#content"
+                    hx-push-url="/web/logs/updates"
             >
                 Run check
             </button>

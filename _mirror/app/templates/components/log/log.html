@@ -1,12 +1,16 @@
 <div class="container layout log-layout" id="log-component">
     <article id="log-content">
-        {% include "components/log/log_lines.html" %}
+        <ul id="log-list" class="mb-0">
+            {% include "components/log/log_lines.html" %}
+        </ul>
     </article>
 
     <aside>
         <div>
             <label>
-                <input id="auto-refresh" type="checkbox">
+                <input id="auto-refresh" type="checkbox"
+                       data-stream-url="{{ request.url.path }}/stream"
+                >
                 Auto-refresh
             </label>
             <label>
@@ -15,19 +19,15 @@
             </label>
             <button id="refresh-btn"
                     hx-get="{{ request.url.path }}"
-                    hx-target="#log-content"
-                    hx-swap="innerHTML"
+                    hx-target="#log-list"
                     hx-vals='{"partial": "true"}'
-                    hx-trigger="click"
             >
                 Refresh
             </button>
             <hr>
             <button id="clear-log-btn"
                     hx-post="{{ request.url.path }}"
-                    hx-target="#log-content"
-                    hx-swap="innerHTML"
-                    hx-trigger="click"
+                    hx-target="#log-list"
             >
                 Clear log
             </button>

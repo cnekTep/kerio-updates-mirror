@@ -2,12 +2,13 @@
 <html lang="en" data-theme="{{ theme }}">
 <head>
     <meta charset="UTF-8">
+    <meta name="htmx-config" content='{"noSwap": [204, 304, "4xx", "5xx"]}'>
     <title>{% block title %}Kerio Updates Mirror{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', path='img/shield.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/pico.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/main.css') }}?v={{ app_version }}">
-    <script src="{{ url_for('static', path='js/htmx-2.0.11.min.js') }}" defer></script>
-    <script src="{{ url_for('static', path='js/sortable.min.js') }}" defer></script>
+    <script src="{{ url_for('static', path='js/htmax-4.0.2.min.js') }}" defer></script>
+    <script src="{{ url_for('static', path='js/sortable-1.15.7.min.js') }}" defer></script>
     <script src="{{ url_for('static', path='js/main.js') }}?v={{ app_version }}" defer></script>
 </head>
 

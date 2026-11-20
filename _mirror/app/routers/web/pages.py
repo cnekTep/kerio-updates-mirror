@@ -1,3 +1,5 @@
+import asyncio
+import itertools
 import secrets
 from datetime import date
 from typing import Annotated, Literal
@@ -13,8 +15,14 @@ from fastapi import (
     UploadFile,
     File,
     BackgroundTasks,
+    Header,
 )
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import (
+    HTMLResponse,
+    RedirectResponse,
+    Response,
+    StreamingResponse,
+)
 
 from app.config import templates, settings
 from app.dependencies import (
@@ -36,7 +44,7 @@ from app.service.license import (
 from app.service.nginx_acl import NginxACLService
 from app.service.settings import SettingsService
 from app.service.telegram import TelegramService
-from app.utils.app_logging import read_last_lines
+from app.utils.app_logging import read_last_lines, read_new_lines
 from app.utils.file_utils import delete_file
 
 router = APIRouter(dependencies=[Depends(require_auth)])
@@ -50,6 +58,39 @@ SELECT_IDS: dict[str, str] = {
     "connect_win": "kerio_connect_update_file_win",
     "connect_deb": "kerio_connect_update_file_deb",
 }
+
+STREAM_POLL_SECONDS = 1.0
+STREAM_KEEPALIVE_SECONDS = 15.0
+CLIENT_ID_PATTERN = r"^[A-Za-z0-9_-]{1,64}$"
+
+# Latest stream token per browser tab; an older stream of the same tab ends itself
+_stream_counter = itertools.count(1)
+_active_streams: dict[str, int] = {}
+
+
+def render_page(request: Request, template: str, context: dict | None = None):
+    """Render a component as a bare fragment for htmx requests, or wrapped in the full page otherwise."""
+    ctx = context or {}
+
+    # History restore must always get the full page
+    is_fragment = bool(request.headers.get("HX-Request")) and not request.headers.get(
+        "HX-History-Restore-Request"
+    )
+
+    if is_fragment:
+        response = templates.TemplateResponse(
+            request=request, name=template, context=ctx
+        )
+    else:
+        response = templates.TemplateResponse(
+            request=request,
+            name="pages/page.html",
+            context={**ctx, "component": template},
+        )
+
+    # Same URL returns different HTML for htmx and full-page requests
+    response.headers["Vary"] = "HX-Request"
+    return response
 
 
 def _active_priority() -> list[str]:
@@ -113,6 +154,13 @@ def _get_license_display_data(
     }
 
 
+def _sse_message(html: str, event_id: int) -> str:
+    """Format an HTML fragment as one SSE message with a byte-offset id."""
+    # Every line of an SSE message must be prefixed with "data:"
+    data = "\n".join(f"data: {part}" for part in html.splitlines() if part.strip())
+    return f"id: {event_id}\n{data}\n\n"
+
+
 @router.get(path="/", response_class=HTMLResponse, name="main_page")
 async def index():
     return RedirectResponse(url="/web/general/main")
@@ -120,11 +168,7 @@ async def index():
 
 @router.get(path="/404", response_class=HTMLResponse)
 async def not_found(request: Request):
-    if not request.headers.get("HX-Request"):
-        return templates.TemplateResponse(
-            request=request, name="pages/index.html", context={"active": "web/404"}
-        )
-    return templates.TemplateResponse(request=request, name="components/404.html")
+    return render_page(request=request, template="components/404.html")
 
 
 @router.get(path="/general/{name}", response_class=HTMLResponse)
@@ -132,45 +176,40 @@ async def general(request: Request, name: str):
     if name not in GENERAL_SECTIONS:
         return RedirectResponse(url="/web/404")
 
-    if not request.headers.get("HX-Request"):
-        return templates.TemplateResponse(
-            request=request,
-            name="pages/index.html",
-            context={"active": f"web/general/{name}"},
-        )
-
     license_display_data = _get_license_display_data(
         license_last_update=settings.updates.license_number_last_update,
         license_exp_date=settings.updates.license_exp_date,
         days_to_expiration=settings.updates.license_expiration_days,
     )
 
-    return templates.TemplateResponse(
+    general_context = {
+        "license_number": settings.updates.license_number,
+        "license_display_date": license_display_data["lic_display_date"],
+        "license_number_tooltip": license_display_data["lic_number_tooltip"],
+        "license_date_is_expiring": license_display_data["lic_date_is_expiring"],
+        "update_web_filter_key": settings.updates.update_web_filter_key,
+        "web_filter_key": settings.updates.web_filter_key,
+        "web_filter_key_last_update": settings.updates.web_filter_key_last_update,
+        "ids_2_version": settings.updates.ids_2_version,
+        "ids_2_last_update": settings.updates.ids_2_last_update,
+        "update_ids_3": settings.updates.update_ids_3,
+        "ids_3_version": settings.updates.ids_3_version,
+        "ids_3_last_update": settings.updates.ids_3_last_update,
+        "update_ids_5": settings.updates.update_ids_5,
+        "ids_5_version": settings.updates.ids_5_version,
+        "ids_5_last_update": settings.updates.ids_5_last_update,
+        "update_geoip_4": settings.updates.update_geoip_4,
+        "geoip_4_version": settings.updates.geoip_4_version,
+        "geoip_4_last_update": settings.updates.geoip_4_last_update,
+        "update_geoip_5": settings.updates.update_geoip_5,
+        "geoip_5_version": settings.updates.geoip_5_version,
+        "geoip_5_last_update": settings.updates.geoip_5_last_update,
+    }
+
+    return render_page(
         request=request,
-        name=f"components/general/{name}.html",
-        context={
-            "license_number": settings.updates.license_number,
-            "license_display_date": license_display_data["lic_display_date"],
-            "license_number_tooltip": license_display_data["lic_number_tooltip"],
-            "license_date_is_expiring": license_display_data["lic_date_is_expiring"],
-            "update_web_filter_key": settings.updates.update_web_filter_key,
-            "web_filter_key": settings.updates.web_filter_key,
-            "web_filter_key_last_update": settings.updates.web_filter_key_last_update,
-            "ids_2_version": settings.updates.ids_2_version,
-            "ids_2_last_update": settings.updates.ids_2_last_update,
-            "update_ids_3": settings.updates.update_ids_3,
-            "ids_3_version": settings.updates.ids_3_version,
-            "ids_3_last_update": settings.updates.ids_3_last_update,
-            "update_ids_5": settings.updates.update_ids_5,
-            "ids_5_version": settings.updates.ids_5_version,
-            "ids_5_last_update": settings.updates.ids_5_last_update,
-            "update_geoip_4": settings.updates.update_geoip_4,
-            "geoip_4_version": settings.updates.geoip_4_version,
-            "geoip_4_last_update": settings.updates.geoip_4_last_update,
-            "update_geoip_5": settings.updates.update_geoip_5,
-            "geoip_5_version": settings.updates.geoip_5_version,
-            "geoip_5_last_update": settings.updates.geoip_5_last_update,
-        },
+        template=f"components/general/{name}.html",
+        context=general_context,
     )
 
 
@@ -183,22 +222,98 @@ async def get_logs(
     if name not in LOG_SECTIONS:
         return RedirectResponse(url="/web/404")
 
-    if not request.headers.get("HX-Request"):
-        return templates.TemplateResponse(
-            request=request,
-            name="pages/index.html",
-            context={"active": f"web/logs/{name}"},
-        )
-
-    log = read_last_lines(log_type=name, lines=settings.user.log_lines)
+    log_context = {"log": read_last_lines(log_type=name, lines=settings.user.log_lines)}
 
     if partial:
         return templates.TemplateResponse(
-            request=request, name="components/log/log_lines.html", context={"log": log}
+            request=request, name="components/log/log_lines.html", context=log_context
         )
-    return templates.TemplateResponse(
-        request=request, name="components/log/log.html", context={"log": log}
+
+    return render_page(
+        request=request, template="components/log/log.html", context=log_context
     )
+
+
+@router.get(path="/logs/{name}/stream", name="stream_logs")
+async def stream_logs(
+    request: Request,
+    name: str,
+    client: Annotated[str, Query(pattern=CLIENT_ID_PATTERN)],
+    last_event_id: Annotated[str | None, Header()] = None,
+):
+    if name not in LOG_SECTIONS:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    items_template = templates.get_template("components/log/log_items.html")
+    lines_template = templates.get_template("components/log/log_lines.html")
+    resume = bool(last_event_id and last_event_id.isascii() and last_event_id.isdigit())
+
+    token = next(_stream_counter)
+    _active_streams[client] = token  # Supersedes the previous stream of this tab
+
+    async def event_stream():
+        try:
+            if resume:
+                offset = int(last_event_id)
+            else:
+                all_lines, offset = await asyncio.to_thread(read_new_lines, name, 0)
+                # [-0:] would return the whole list, so non-positive values need an explicit check
+                # (same behavior as read_last_lines)
+                limit = settings.user.log_lines
+                tail = all_lines[-limit:] if limit > 0 else []
+                snapshot = lines_template.render(log="\n".join(tail))
+                yield _sse_message(
+                    f'<hx-partial hx-target="#log-list" hx-swap="innerHTML">{snapshot}</hx-partial>',
+                    offset,
+                )
+
+            idle = 0.0
+            while not await request.is_disconnected():
+                if _active_streams.get(client) != token:
+                    # Newer stream took over (or stop was requested): close for good, no reconnect
+                    yield "event: superseded\ndata: bye\n\n"
+                    return
+
+                lines, offset = await asyncio.to_thread(read_new_lines, name, offset)
+                if lines:
+                    yield _sse_message(items_template.render(lines=lines), offset)
+                    idle = 0.0
+                else:
+                    idle += STREAM_POLL_SECONDS
+                    if idle >= STREAM_KEEPALIVE_SECONDS:
+                        yield ": keepalive\n\n"
+                        idle = 0.0
+                await asyncio.sleep(STREAM_POLL_SECONDS)
+        finally:
+            # Only the owner of the current token may clear the entry
+            if _active_streams.get(client) == token:
+                del _active_streams[client]
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },  # "no" disables nginx buffering
+    )
+
+
+@router.delete(
+    path="/logs/{name}/stream",
+    status_code=status.HTTP_204_NO_CONTENT,
+    name="stop_log_stream",
+)
+async def stop_log_stream(
+    name: str,
+    client: Annotated[str, Query(pattern=CLIENT_ID_PATTERN)],
+) -> Response:
+    if name not in LOG_SECTIONS:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    # Make any running stream of this tab end itself on its next poll
+    _active_streams.pop(client, None)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post(path="/logs/{name}", response_class=HTMLResponse)
@@ -227,14 +342,7 @@ async def get_settings(
     if name not in SETTINGS_SECTIONS:
         return RedirectResponse(url="/web/404")
 
-    if not request.headers.get("HX-Request"):
-        return templates.TemplateResponse(
-            request=request,
-            name="pages/index.html",
-            context={"active": f"web/settings/{name}"},
-        )
-
-    settings_data = {
+    settings_context = {
         # Update settings
         "license_number": settings.updates.license_number,
         "autoupdate_time": f"{settings.app.scheduler_full_update_hour:02d}:{settings.app.scheduler_full_update_minute:02d}",
@@ -318,10 +426,10 @@ async def get_settings(
         "thread_errors_id": settings.telegram.thread_errors_id,
     }
 
-    return templates.TemplateResponse(
+    return render_page(
         request=request,
-        name=f"components/settings/{name}.html",
-        context={**settings_data},
+        template=f"components/settings/{name}.html",
+        context=settings_context,
     )
 
 
@@ -423,8 +531,13 @@ async def upload_distro(
     path="/settings/{name}",
     response_class=HTMLResponse,
     responses={
-        200: {"description": "Settings saved, navbar refreshed"},
-        303: {"description": "Re-login required (HX-Redirect to /web/login)"},
+        200: {
+            "description": (
+                "Settings saved: returns the refreshed navbar (OOB), "
+                "or an empty response with HX-Redirect to /web/login when re-login is required"
+            )
+        },
+        303: {"description": "Unknown settings section, redirect to /web/404"},
     },
 )
 async def save_settings(
@@ -441,17 +554,17 @@ async def save_settings(
         name=name,
         form=form,
         background_tasks=background_tasks,
-        scheduler=request.app.state.scheduler
+        scheduler=request.app.state.scheduler,
     )
     if result:
         return Response(
-            status_code=status.HTTP_303_SEE_OTHER,
+            status_code=status.HTTP_200_OK,
             headers={"HX-Redirect": "/web/login"},
         )
     return templates.TemplateResponse(
         request=request,
         name="partials/navbar.html",
-        context={"auth": settings.security.auth},
+        context={"auth": settings.security.auth, "oob": True},
     )
 
 

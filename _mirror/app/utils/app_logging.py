@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import re
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -25,6 +26,8 @@ _error_collector: ContextVar[list[str] | None] = ContextVar(
 
 # Control chars incl. C1 and Unicode line/paragraph separators
 _CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f-\x9f\u2028\u2029]")
+# Log names are used as file names, so only a safe charset is allowed
+_LOG_NAME_RE = re.compile(r"[A-Za-z0-9_-]+")
 
 
 @contextmanager
@@ -109,11 +112,34 @@ def log_event(
             task.add_done_callback(_background_notification_tasks.discard)
 
 
+def read_new_lines(log_type: str, offset: int) -> tuple[list[str], int]:
+    """Read complete lines appended after the byte offset; return (lines, new_offset)."""
+    if not _LOG_NAME_RE.fullmatch(log_type):
+        return [], 0
+
+    try:
+        with open(_log_path(log_type), "rb") as f:
+            size = f.seek(0, os.SEEK_END)
+            if size < offset:  # File was truncated or recreated (e.g. log cleared)
+                offset = 0
+            f.seek(offset)
+            chunk = f.read()
+    except FileNotFoundError:
+        return [], 0
+
+    # Consume only complete lines; a partially written last line waits for the next poll
+    end = chunk.rfind(b"\n")
+    if end == -1:
+        return [], offset
+    text = chunk[: end + 1].decode("utf-8", errors="replace")
+    return text.splitlines(), offset + end + 1
+
+
 def read_last_lines(log_type: str, encoding="utf-8", lines=1000):
     """Reads the last lines from the file"""
     if lines <= 0:
         return ""
-    if not re.fullmatch(pattern=r"[A-Za-z0-9_-]+", string=log_type):
+    if not _LOG_NAME_RE.fullmatch(log_type):
         return f"File reading error: invalid log name {log_type!r}"
     try:
         with open(_log_path(log_type), "r", encoding=encoding) as file:

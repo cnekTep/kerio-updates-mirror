@@ -2,12 +2,14 @@
 // Constants
 // ========================
 
-const AUTO_REFRESH_INTERVAL = 5; // seconds
+// Unique per page load; lets the server keep a single log stream per browser tab
+const TAB_ID = Math.random().toString(36).slice(2) + Date.now().toString(36);
 const STORAGE_KEYS = {
     theme: "theme",
     autoRefresh: "log-auto-refresh",
     autoScroll: "log-auto-scroll",
 };
+
 
 // ========================
 // Helpers
@@ -34,6 +36,7 @@ function bindCheckbox(el, storageKey, onChange) {
         onChange?.(el.checked);
     });
 }
+
 
 // ========================
 // Theme toggle
@@ -70,19 +73,82 @@ document.getElementById("themeToggle")?.setAttribute(
     currentTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"
 );
 
-// ========================
-// Log page: Auto-refresh & Auto-scroll
-// ========================
 
-function setAutoRefresh(enabled) {
-    const refreshBtn = document.getElementById("refresh-btn");
-    // Guard: button may not exist on all pages
-    if (!refreshBtn) return;
-    refreshBtn.setAttribute(
-        "hx-trigger",
-        enabled ? `every ${AUTO_REFRESH_INTERVAL}s, click` : "click"
-    );
-    htmx.process(refreshBtn);
+// ========================
+// Log page: live stream (SSE), Auto-refresh & Auto-scroll
+// ========================
+//
+// How the stream works:
+//  - Every page load gets its own TAB_ID; the server keeps ONE stream per TAB_ID.
+//  - Opening a new stream with the same TAB_ID makes the server end the previous
+//    one with a "superseded" event (hx-sse:close turns that into a final close,
+//    so the extension does not reconnect).
+//  - A "stop" request ends the stream without opening a new one. It is needed
+//    because removing the stream element does not reliably close the connection.
+//  - Message ids are byte offsets; the extension sends the last one as
+//    Last-Event-ID on reconnect, so the server can resume without a snapshot.
+
+// URL of the stream this tab may have open on the server (null = none)
+let activeStreamUrl = null;
+
+// Resolves when the last "stop" request has reached the server
+let pendingStop = Promise.resolve();
+
+/** Asks the server to end this tab's stream and forgets about it */
+function stopStream() {
+    // Nothing to stop if this tab never opened a stream
+    if (!activeStreamUrl) return;
+
+    // DELETE ends the stream state on the server; same URL as the stream itself
+    pendingStop = fetch(`${activeStreamUrl}?client=${TAB_ID}`, {method: "DELETE"}).catch(() => {
+    });
+    activeStreamUrl = null;
+}
+
+/** Adds the hidden element that makes the sse extension open the connection */
+function openStream(url) {
+    activeStreamUrl = url;
+
+    const el = document.createElement("div");
+    el.id = "log-stream";
+    el.hidden = true;
+    el.setAttribute("hx-sse:connect", `${url}?client=${TAB_ID}`);
+    el.setAttribute("hx-sse:close", "superseded"); // Final close, no reconnect
+    el.setAttribute("hx-target", "#log-list");
+    el.setAttribute("hx-swap", "beforeend");
+
+    document.getElementById("log-component")?.appendChild(el);
+    // Needed for swaps; on a full page load see the setTimeout in the Boot section
+    htmx.process(el);
+}
+
+/** Opens or closes the log stream according to the Auto-refresh checkbox */
+async function setAutoRefresh(enabled) {
+    const url = document.getElementById("auto-refresh")?.dataset.streamUrl;
+    if (!url) return;
+
+    document.getElementById("log-stream")?.remove();
+
+    if (!enabled) {
+        stopStream();
+        return;
+    }
+
+    // Wait so a late "stop" cannot kill the stream we are about to open
+    await pendingStop;
+
+    // State may have changed while waiting
+    if (!document.getElementById("auto-refresh")?.checked) return;
+    if (document.getElementById("log-stream")) return;
+
+    openStream(url);
+}
+
+/** Ends the stream when the log page was swapped out for a non-log page */
+function stopStreamIfLeftLogPage() {
+    // Switching between logs keeps #log-component, and the new stream
+    // supersedes the old one, so only a real exit needs an explicit stop
+    if (!document.getElementById("log-component")) stopStream();
 }
 
 function initLogControls() {
@@ -108,6 +174,7 @@ function initLogControls() {
         if (checked) scrollToBottom();
     });
 }
+
 
 // ========================
 // Toggle controls (data-attribute driven)
@@ -173,6 +240,7 @@ function initToggleControls(root = document) {
     });
 }
 
+
 // ========================
 // Sortable (drag-and-drop priority lists)
 // ========================
@@ -227,24 +295,41 @@ function initSortableSync() {
     });
 }
 
+
 // ========================
 // Save settings notification
 // ========================
 
 /**
- * Shows a temporary dialog with a success or error message after a form POST.
- * Dialog is looked up on each request so it works with HTMX partial rendering.
+ * Builds a readable message for client-side request failures (no server response).
+ * Returns null when the failure is not recognized.
  */
-document.addEventListener("htmx:afterRequest", (e) => {
-    // Guard: only handle form POST requests
-    if (e.detail.requestConfig.verb !== "post") return;
+function describeRequestError(detail) {
+    const raw = [detail.ctx?.status, detail.error?.name, detail.error?.message]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
 
-    // Guard: if the server triggered a redirect, the page is about to
-    // navigate away, so showing the dialog would just cause a flash
-    if (e.detail.xhr.getResponseHeader("HX-Redirect")) return;
+    if (raw.includes("timeout")) return "Request timed out";
+    if (raw.includes("abort")) return "Request was cancelled";
+    // Chrome: "Failed to fetch", Firefox: "NetworkError...", Safari: "Load failed"
+    if (/failed to fetch|networkerror|load failed/.test(raw)) {
+        return "Network error: server is unreachable";
+    }
+    return null;
+}
+
+/**
+ * Shows a temporary dialog with a success or error message after a form POST.
+ * Dialog is looked up on each call so it works with HTMX partial rendering.
+ *
+ * @param {boolean} ok - whether the request succeeded
+ * @param {string|undefined} elId - id of the element that triggered the request
+ * @param {string} [responseText] - raw response body, used to extract error details
+ */
+function showSaveDialog(ok, elId, responseText = "", errorMessage = null) {
     // Guard: skip elements that shouldn't trigger the save dialog
-    if (e.detail.elt.id === "api-read-token-generate-btn") return;
-    if (e.detail.elt.id === "api-write-token-generate-btn") return;
+    if (elId === "api-read-token-generate-btn" || elId === "api-write-token-generate-btn") return;
 
     const saveDialog = document.getElementById("save-dialog");
     const saveDialogMessage = document.getElementById("save-dialog-message");
@@ -252,16 +337,15 @@ document.addEventListener("htmx:afterRequest", (e) => {
     // Guard: dialog may not exist on all pages
     if (!saveDialog || !saveDialogMessage) return;
 
-    const ok = e.detail.successful;
     const isDistroUpload =
-        e.detail.elt.id === "distro-control-upload" ||
-        e.detail.elt.id === "distro-connect-upload";
-    const isLicenseExpDate = e.detail.elt.id === "get-lic-exp-date-btn";
-    const isTestEmail = e.detail.elt.id === "test-email-btn";
+        elId === "distro-control-upload" || elId === "distro-connect-upload";
+    const isLicenseExpDate = elId === "get-lic-exp-date-btn";
+    const isTestEmail = elId === "test-email-btn";
     const isTelegramEmail =
-        e.detail.elt.id === "test-telegram-btn" ||
-        e.detail.elt.id === "test-telegram-updates-btn" ||
-        e.detail.elt.id === "test-telegram-errors-btn";
+        elId === "test-telegram-btn" ||
+        elId === "test-telegram-updates-btn" ||
+        elId === "test-telegram-errors-btn";
+
     if (ok) {
         if (isDistroUpload) {
             saveDialogMessage.textContent = "✓ File successfully uploaded and signed";
@@ -274,11 +358,21 @@ document.addEventListener("htmx:afterRequest", (e) => {
         } else {
             saveDialogMessage.textContent = "✓ Settings saved";
         }
+    } else if (errorMessage) {
+        // Client-side failure (timeout, network error): there is no server response to parse
+        saveDialogMessage.textContent = `✗ ${errorMessage}`;
     } else {
         // Try to extract detail message from JSON response (e.g. 422 validation error)
         try {
-            const body = JSON.parse(e.detail.xhr.responseText);
-            saveDialogMessage.textContent = `✗ ${body.detail ?? "Failed to save settings"}`;
+            const body = JSON.parse(responseText);
+            const detail = body.detail;
+
+            // FastAPI returns a list of {loc, msg, ...} objects for validation errors
+            const text = Array.isArray(detail)
+                ? detail.map((d) => `${d.loc?.slice(1).join(".")}: ${d.msg}`).join("; ")
+                : detail;
+
+            saveDialogMessage.textContent = `✗ ${text ?? "Failed to save settings"}`;
         } catch {
             const fallback = isLicenseExpDate
                 ? "Failed to fetch license expiration date"
@@ -293,21 +387,63 @@ document.addEventListener("htmx:afterRequest", (e) => {
     // Auto-close after 2s for success, 4s for errors
     clearTimeout(saveDialog._hideTimer);
     saveDialog._hideTimer = setTimeout(() => saveDialog.close(), ok ? 2000 : 4000);
+}
+
+// Fires after any response (including 4xx/5xx), but not on network errors or timeouts
+document.addEventListener("htmx:after:request", (e) => {
+    const ctx = e.detail.ctx;
+
+    // Guard: only handle POST requests
+    if (ctx.request?.method?.toLowerCase() !== "post") return;
+
+    // Guard: if the server triggered a redirect, the page is about to
+    // navigate away, so showing the dialog would just cause a flash
+    if (ctx.response?.headers?.get("HX-Redirect")) return;
+
+    const status = ctx.response?.status ?? 0;
+    showSaveDialog(status >= 200 && status < 400, ctx.sourceElement?.id, ctx.text);
 });
+
+// Network errors and timeouts never reach htmx:after:request - report them here
+document.addEventListener("htmx:error", (e) => {
+    const ctx = e.detail.ctx;
+    if (ctx?.request?.method?.toLowerCase() !== "post") return;
+
+    showSaveDialog(
+        false,
+        ctx.sourceElement?.id ?? e.detail.elt?.id,
+        "",
+        describeRequestError(e.detail)
+    );
+});
+
+
+// ========================
+// Sidebar: active link
+// ========================
+
+/** Marks the sidebar link that matches the current path with aria-current */
+function updateSidebarCurrent() {
+    const path = window.location.pathname;
+    document.querySelectorAll("aside nav a").forEach((a) => {
+        a.toggleAttribute("aria-current", a.getAttribute("href") === path);
+    });
+}
+
 
 // ========================
 // Boot
 // ========================
 
 document.addEventListener("DOMContentLoaded", () => {
-    initLogControls();
-    initToggleControls(document);
+    // Deferred on purpose: on a full page load htmx scans the document itself,
+    // and starting the stream earlier makes it process the stream element twice
+    // (two connections, the second supersedes the first). Check Network after F5
+    // if the script order ever changes.
+    setTimeout(initLogControls, 0);
 
-    // Update aria-current on sidebar links based on current path
-    const path = window.location.pathname;
-    document.querySelectorAll("aside nav a").forEach((a) => {
-        a.toggleAttribute("aria-current", a.getAttribute("href") === path);
-    });
+    initToggleControls(document);
+    updateSidebarCurrent();
 
     // Guard: SortableJS may not be loaded on all pages
     if (typeof Sortable !== "undefined") {
@@ -316,24 +452,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-document.addEventListener("htmx:afterSettle", (e) => {
-    const target = e.detail.target;
+document.addEventListener("htmx:after:swap", (e) => {
+    stopStreamIfLeftLogPage();
 
-    // Update aria-current on sidebar links based on current path
-    const path = window.location.pathname;
-    document.querySelectorAll("aside nav a").forEach((a) => {
-        a.toggleAttribute("aria-current", a.getAttribute("href") === path);
-    });
+    // Fall back to document for swaps without a target (all init functions are idempotent)
+    const target = e.detail.ctx?.target ?? document;
+
+    updateSidebarCurrent();
 
     // Scroll to bottom when log content updates and auto-scroll is enabled
-    if (document.getElementById("auto-scroll")?.checked && target?.id === "log-content") {
+    if (document.getElementById("auto-scroll")?.checked && target.id === "log-list") {
         scrollToBottom();
     }
 
-    // Re-initialize log controls only if the relevant panel was swapped in
-    // (avoids duplicate event listeners on unrelated swaps)
-    const isLogPanel = target?.id === "log-content" || target?.querySelector?.("#auto-refresh") !== null;
-    if (isLogPanel) initLogControls();
+    // Safe to call on every swap: it returns early if controls are missing or already initialized
+    initLogControls();
 
     // Scope toggle init to the swapped subtree, not the whole document
     initToggleControls(target);

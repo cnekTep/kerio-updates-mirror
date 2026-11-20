@@ -1,6 +1,6 @@
 [project]
 name = "kerio-updates-mirror"
-version = "3.6.3"
+version = "3.6.4"
 requires-python = ">=3.15.2"
 dependencies = [
     "aiosmtplib>=5.1.3",

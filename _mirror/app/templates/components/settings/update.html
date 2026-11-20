@@ -2,8 +2,8 @@
 <article>
     <form id="article"
           hx-post="{{ request.url.path }}"
-          hx-target="#article"
-          hx-swap="none">
+          hx-swap="none"
+    >
         <article>
             <header>
                 License
@@ -19,9 +19,9 @@
                             hx-include="#license_number"
                             hx-target="#license_exp_date"
                             hx-swap="outerHTML"
-                            hx-disabled-elt="this"
-                            hx-on::before-request="this.setAttribute('aria-busy', 'true')"
-                            hx-on::after-request="this.removeAttribute('aria-busy')">
+                            hx-disable="this"
+                            hx-on::before:request="this.setAttribute('aria-busy', 'true')"
+                            hx-on::finally:request="this.removeAttribute('aria-busy')">
                         Check
                     </button>
                 </span>
@@ -255,10 +255,15 @@
                     <label for="distro-control-upload" class="settings-margin-left">Upload new file:</label>
                     <input id="distro-control-upload" class="mb-0" name="distro_file"
                            type="file" accept=".img"
+                           form="upload-control-form"
                            hx-post="{{ request.url_for('upload_distro') }}"
                            hx-encoding="multipart/form-data"
                            hx-trigger="change"
-                           hx-indicator="#distro-control-upload-indicator">
+                           hx-swap="none"
+                           hx-config='{"timeout": 600000}'
+                           hx-on::finally:request="this.value = ''"
+                           hx-indicator="#distro-control-upload-indicator"
+                    >
                 </div>
                 <div id="distro-control-upload-indicator" class="htmx-indicator settings-margin-left" aria-busy="true">
                     Uploading and signing file...
@@ -287,10 +292,15 @@
                     <label for="distro-connect-upload" class="settings-margin-left">Upload new file:</label>
                     <input id="distro-connect-upload" class="mb-0" name="distro_file"
                            type="file" accept=".exe,.deb"
+                           form="upload-connect-form"
                            hx-post="{{ request.url_for('upload_distro') }}"
                            hx-encoding="multipart/form-data"
                            hx-trigger="change"
-                           hx-indicator="#distro-connect-upload-indicator">
+                           hx-swap="none"
+                           hx-config='{"timeout": 600000}'
+                           hx-on::finally:request="this.value = ''"
+                           hx-indicator="#distro-connect-upload-indicator"
+                    >
                 </div>
                 <div id="distro-connect-upload-indicator" class="htmx-indicator settings-margin-left" aria-busy="true">
                     Uploading and signing file...
@@ -306,4 +316,8 @@
 
         <button class="mb-0" type="submit">Save settings</button>
     </form>
+
+    <!-- Carriers for file inputs: keeps uploads out of the main settings form -->
+    <form id="upload-control-form" hidden></form>
+    <form id="upload-connect-form" hidden></form>
 </article>

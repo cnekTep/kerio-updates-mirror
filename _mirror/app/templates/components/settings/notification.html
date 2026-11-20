@@ -1,8 +1,8 @@
 <article>
     <form id="article"
           hx-post="{{ request.url.path }}"
-          hx-target="#article"
-          hx-swap="none">
+          hx-swap="none"
+    >
 
         <article>
             <header>Email</header>
@@ -100,7 +100,8 @@
                     </label>
 
                     <button type="button" id="test-email-btn" class="secondary mb-0 w-100"
-                            hx-post="{{ url_for('send_test_email') }}">
+                            hx-post="{{ url_for('send_test_email') }}"
+                            hx-swap="none">
                         Check
                     </button>
                 </details>
@@ -184,6 +185,7 @@
                                    id="test-telegram-updates-btn"
                                    hx-post="{{ url_for('send_test_telegram') }}"
                                    hx-vals='{"target": "updates"}'
+                                   hx-swap="none"
                             />
                         </div>
                         <div class="settings-grid size-4_5-fr-9 gap-0_5">
@@ -197,6 +199,7 @@
                                    id="test-telegram-errors-btn"
                                    hx-post="{{ url_for('send_test_telegram') }}"
                                    hx-vals='{"target": "errors"}'
+                                   hx-swap="none"
                             />
                         </div>
                     </div>
@@ -204,7 +207,9 @@
                     <button type="button" id="test-telegram-btn" class="secondary mb-0 w-100"
                             data-controlled-by="telegram_threads_block" data-effect="hidden-on-check"
                             {% if thread_enabled %} hidden {% endif %}
-                            hx-post="{{ url_for('send_test_telegram') }}">
+                            hx-post="{{ url_for('send_test_telegram') }}"
+                            hx-swap="none"
+                    >
                     Check
                     </button>
                 </details>

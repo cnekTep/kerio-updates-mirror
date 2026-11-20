@@ -1,6 +1,6 @@
 <header class="site-header">
     <div class="container">
-        <nav id="navbar" hx-swap-oob="true" class="nav">
+        <nav id="navbar" {% if oob %} hx-swap-oob="true" {% endif %} class="nav">
             <div class="logo">
                 <img src="{{ url_for('static', path='img/shield.png') }}" width="64" alt="">
                 <a href="{{ url_for('main_page') }}">Kerio Updates Mirror</a>

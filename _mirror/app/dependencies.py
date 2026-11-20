@@ -159,8 +159,10 @@ async def require_auth(
 ) -> bool:
     """
     Dependency that protects a route. Skips the check entirely when auth is
-    disabled in settings. HTMX requests get an HX-Redirect header instead of
-    a standard Location redirect, since HTMX does not follow those automatically.
+    disabled in settings. For HTMX requests a regular redirect would make fetch
+    follow it and swap the login page into the target element, so they get an
+    HX-Redirect header instead (a full-page navigation). Headers on 3xx responses
+    are ignored by htmx 4, hence the 200 status.
     """
     if not auth_service.enabled:
         return True
