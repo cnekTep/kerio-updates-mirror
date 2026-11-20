@@ -44,6 +44,16 @@ aside {
     grid-template-columns: 1fr var(--sidebar-width);
 }
 
+/* Allow grid item to shrink below its content width */
+.log-layout > article {
+    min-width: 0;
+}
+
+/* Break long unbroken strings (URLs, hashes) at any point if needed */
+#log-list li {
+    overflow-wrap: anywhere;
+}
+
 .login-layout {
     display: flex;
     align-items: center;
