@@ -29,11 +29,14 @@
                                 {% set path = "web/" + prefix + "/" + slug %}
                                 <li>
                                     <a class="secondary"
+                                       id="nav-{{ prefix }}-{{ slug }}"
                                        href="/{{ path }}"
                                        hx-get="/{{ path }}"
                                        hx-target="#content"
                                        hx-push-url="true"
                                        hx-swap="innerHTML"
+                                       hx-on:click="take('aria-current', 'aside nav a')"
+                                       {% if request.url.path == '/' + path %} aria-current="true" {% endif %}
                                     >
                                         {{ label }}
                                     </a>

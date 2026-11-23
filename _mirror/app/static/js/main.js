@@ -5,9 +5,7 @@
 // Unique per page load; lets the server keep a single log stream per browser tab
 const TAB_ID = Math.random().toString(36).slice(2) + Date.now().toString(36);
 const STORAGE_KEYS = {
-    theme: "theme",
     autoRefresh: "log-auto-refresh",
-    autoScroll: "log-auto-scroll",
 };
 
 
@@ -15,13 +13,12 @@ const STORAGE_KEYS = {
 // Helpers
 // ========================
 
-/** Scrolls to the bottom of the page smoothly */
+/** Scrolls to the bottom of the page smoothly. Used by hx-on handlers in log.html */
 const scrollToBottom = () =>
     window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
 
 /** Thin wrapper around localStorage for cleaner access */
 const store = {
-    get: (key) => localStorage.getItem(key),
     getBool: (key) => localStorage.getItem(key) === "true",
     set: (key, value) => localStorage.setItem(key, String(value)),
 };
@@ -39,43 +36,7 @@ function bindCheckbox(el, storageKey, onChange) {
 
 
 // ========================
-// Theme toggle
-// ========================
-/**
- * Applies theme to <html>, persists it in a cookie so the server
- * can render the correct theme on the next page load (no FOUC),
- * and updates the toggle button title.
- */
-function applyTheme(theme) {
-    const html = document.documentElement;
-    html.dataset.theme = theme;
-
-    // Persist theme in a cookie (read by the server on next request).
-    // 1 year expiry, available on all paths.
-    document.cookie = `theme=${theme}; path=/; max-age=31536000; samesite=lax`;
-
-    // Guard: button may not exist on all pages
-    document.getElementById("themeToggle")?.setAttribute(
-        "title",
-        theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-    );
-}
-
-document.getElementById("themeToggle")?.addEventListener("click", () => {
-    applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
-});
-
-// Theme is already applied server-side via the data-theme attribute
-// (no flash, no JS needed on load) - just sync the button title here.
-const currentTheme = document.documentElement.dataset.theme || "dark";
-document.getElementById("themeToggle")?.setAttribute(
-    "title",
-    currentTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-);
-
-
-// ========================
-// Log page: live stream (SSE), Auto-refresh & Auto-scroll
+// Log page: live stream (SSE) & Auto-refresh
 // ========================
 //
 // How the stream works:
@@ -151,12 +112,12 @@ function stopStreamIfLeftLogPage() {
     if (!document.getElementById("log-component")) stopStream();
 }
 
+/** Restores the saved Auto-refresh state and wires the checkbox (once per element) */
 function initLogControls() {
     const autoRefresh = document.getElementById("auto-refresh");
-    const autoScroll = document.getElementById("auto-scroll");
 
-    // Guard: both controls must exist on this page
-    if (!autoRefresh || !autoScroll) return;
+    // Guard: the control must exist on this page
+    if (!autoRefresh) return;
 
     // Guard against duplicate listeners on repeated HTMX swaps
     if (autoRefresh.dataset.logInitialized) return;
@@ -164,135 +125,10 @@ function initLogControls() {
 
     // Restore saved state
     autoRefresh.checked = store.getBool(STORAGE_KEYS.autoRefresh);
-    autoScroll.checked = store.getBool(STORAGE_KEYS.autoScroll);
 
     setAutoRefresh(autoRefresh.checked);
-    if (autoScroll.checked) scrollToBottom();
 
     bindCheckbox(autoRefresh, STORAGE_KEYS.autoRefresh, setAutoRefresh);
-    bindCheckbox(autoScroll, STORAGE_KEYS.autoScroll, (checked) => {
-        if (checked) scrollToBottom();
-    });
-}
-
-
-// ========================
-// Toggle controls (data-attribute driven)
-// ========================
-
-/**
- * Applies an effect to a target element based on its data-effect value.
- * Supports multiple space-separated effects: e.g. data-effect="disabled aria-disabled"
- *   "disabled"        - sets/removes the disabled property; resets checkboxes when disabling
- *   "aria-disabled"   - sets aria-disabled to "true" or "false"
- *   "hidden"          - toggles data-hidden attribute (allows CSS transitions)
- *   "hidden-on-check" - sets the native hidden property when the checkbox is checked
- *                       (inverse of "hidden"; removes the element from layout completely)
- *   "readonly"        - sets/removes the readOnly property (for input/textarea elements)
- *
- * @param {Element} target
- * @param {boolean} active - true when the parent checkbox is checked
- */
-function applyEffect(target, active) {
-    const effects = (target.dataset.effect || "").split(" ");
-    if (effects.includes("disabled")) {
-        target.disabled = !active;
-        // Reset only checkboxes (fieldset and other inputs are left as-is)
-        if (!active && target.type === "checkbox") target.checked = false;
-    }
-    if (effects.includes("aria-disabled")) {
-        target.setAttribute("aria-disabled", String(!active));
-    }
-    if (effects.includes("hidden")) {
-        // Use data-hidden attribute instead of display:none to allow CSS transitions
-        target.toggleAttribute("data-hidden", !active);
-    }
-    if (effects.includes("hidden-on-check")) {
-        // Native hidden attribute removes the element from layout completely
-        target.hidden = active;
-    }
-    if (effects.includes("readonly")) {
-        // readOnly is only meaningful on input/textarea; harmless no-op elsewhere
-        target.readOnly = !active;
-    }
-}
-
-/**
- * Scans root for all [data-controls] checkboxes and wires them to their
- * dependents ([data-controlled-by="<group>"][data-effect="<effect>"]).
- * Scoped to root to avoid re-scanning the entire document on every HTMX swap.
- * No manual config needed - relationships are declared entirely in HTML.
- *
- * @param {Document|Element} root
- */
-function initToggleControls(root = document) {
-    root.querySelectorAll("[data-controls]").forEach((toggle) => {
-        // Guard against duplicate listeners on repeated HTMX swaps
-        if (toggle.dataset.toggleInitialized) return;
-        toggle.dataset.toggleInitialized = "true";
-
-        const group = toggle.dataset.controls;
-        const targets = document.querySelectorAll(`[data-controlled-by="${group}"]`);
-
-        toggle.addEventListener("change", () => {
-            targets.forEach((target) => applyEffect(target, toggle.checked));
-        });
-    });
-}
-
-
-// ========================
-// Sortable (drag-and-drop priority lists)
-// ========================
-
-/**
- * Initializes SortableJS on all .sortable elements found within root.
- * Guards against double-init on repeated HTMX swaps.
- *
- * @param {Document|Element} root
- */
-function initSortable(root) {
-    root.querySelectorAll(".sortable").forEach((el) => {
-        if (el.dataset.sortableInitialized) return;
-        el.dataset.sortableInitialized = "true";
-
-        new Sortable(el, {
-            animation: 150,
-            ghostClass: "sortable-ghost",
-        });
-    });
-}
-
-/**
- * Syncs the sortable priority list with connection method checkboxes.
- * Checking a method appends it to the list; unchecking removes it.
- * Only runs on pages that have both [data-sort-key] checkboxes and #sortable-priority.
- */
-function initSortableSync() {
-    const list = document.getElementById("sortable-priority");
-    // Guard: only runs on the connection settings page
-    if (!list) return;
-
-    document.querySelectorAll("[data-sort-key]").forEach((checkbox) => {
-        if (checkbox.dataset.sortSyncInitialized) return;
-        checkbox.dataset.sortSyncInitialized = "true";
-
-        const key = checkbox.dataset.sortKey;
-
-        checkbox.addEventListener("change", () => {
-            if (checkbox.checked) {
-                // Append a new item using the human-readable label
-                const label = checkbox.dataset.sortLabel || key;
-                const item = document.createElement("div");
-                item.className = "sortable-item";
-                item.dataset.key = key;
-                item.innerHTML = `<input type="hidden" name="download_priority" value="${key}">${label}`;
-                list.appendChild(item);
-            } else {
-                list.querySelector(`[data-key="${key}"]`)?.remove();
-            }
-        });
-    });
 }
 
 
@@ -419,19 +255,6 @@ document.addEventListener("htmx:error", (e) => {
 
 
 // ========================
-// Sidebar: active link
-// ========================
-
-/** Marks the sidebar link that matches the current path with aria-current */
-function updateSidebarCurrent() {
-    const path = window.location.pathname;
-    document.querySelectorAll("aside nav a").forEach((a) => {
-        a.toggleAttribute("aria-current", a.getAttribute("href") === path);
-    });
-}
-
-
-// ========================
 // Boot
 // ========================
 
@@ -441,39 +264,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // (two connections, the second supersedes the first). Check Network after F5
     // if the script order ever changes.
     setTimeout(initLogControls, 0);
-
-    initToggleControls(document);
-    updateSidebarCurrent();
-
-    // Guard: SortableJS may not be loaded on all pages
-    if (typeof Sortable !== "undefined") {
-        initSortable(document);
-        initSortableSync();
-    }
 });
 
-document.addEventListener("htmx:after:swap", (e) => {
+document.addEventListener("htmx:after:swap", () => {
     stopStreamIfLeftLogPage();
-
-    // Fall back to document for swaps without a target (all init functions are idempotent)
-    const target = e.detail.ctx?.target ?? document;
-
-    updateSidebarCurrent();
-
-    // Scroll to bottom when log content updates and auto-scroll is enabled
-    if (document.getElementById("auto-scroll")?.checked && target.id === "log-list") {
-        scrollToBottom();
-    }
 
     // Safe to call on every swap: it returns early if controls are missing or already initialized
     initLogControls();
-
-    // Scope toggle init to the swapped subtree, not the whole document
-    initToggleControls(target);
-
-    // Guard: SortableJS may not be loaded on all pages
-    if (typeof Sortable !== "undefined") {
-        initSortable(target);
-        initSortableSync();
-    }
 });

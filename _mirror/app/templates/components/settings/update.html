@@ -69,25 +69,25 @@
         <article>
             <header>GeoIP</header>
             <label>
-                <input id="update_geoip_4" name="update_geoip_4" type="checkbox" data-controls="geoip_4"
+                <input id="update_geoip_4" name="update_geoip_4" type="checkbox"
                        {% if update_geoip_4 %} checked {% endif %}>
                 Update GeoIP database files (Kerio Control &lt; 9.4.5)
             </label>
             <label class="settings-margin-left"
-                   data-controlled-by="geoip_4" data-effect="aria-disabled"
-                   aria-disabled="{% if update_geoip_4 %} false {% else %}true{% endif %}">
+                   :aria-disabled="String(!q('#update_geoip_4').checked)"
+                   aria-disabled="{% if update_geoip_4 %} false {% else %} true {% endif %}">
                 <input id="geoip_custom_url" name="geoip_custom_url" type="checkbox"
                        {% if geoip_custom_url %} checked {% endif %}>
                 Use GitHub as a source for GeoIP database updates
             </label>
             <label>
-                <input id="update_geoip_5" name="update_geoip_5" type="checkbox" data-controls="geoip_5"
+                <input id="update_geoip_5" name="update_geoip_5" type="checkbox"
                        {% if update_geoip_5 %} checked {% endif %}>
                 Update GeoIP database files (Kerio Control &gt;= 9.6.0)
             </label>
             <label class="settings-margin-left"
-                   data-controlled-by="geoip_5" data-effect="aria-disabled"
-                   aria-disabled="{% if update_geoip_5 %} false {% else %}true{% endif %}">
+                   :aria-disabled="String(!q('#update_geoip_5').checked)"
+                   aria-disabled="{% if update_geoip_5 %} false {% else %} true {% endif %}">
                 <input id="geoip_5_copy_geoname_id" name="geoip_5_copy_geoname_id" type="checkbox"
                        {% if geoip_5_copy_geoname_id %} checked {% endif %}>
                 Modify GeoIP database (geoname_id and registered_country_geoname_id columns are swapped)
@@ -98,21 +98,21 @@
             <header>Web Filter</header>
             <label>
                 <input id="update_web_filter_key" name="update_web_filter_key" type="checkbox"
-                       data-controls="web_filter"
-                       {% if update_web_filter_key %}checked{% endif %}>
+                       {% if update_web_filter_key %} checked {% endif %}>
                 Update Kerio Control Web Filter Content Filtering Subsystem Key
             </label>
             <div class="settings-grid size-12-fr">
                 <label class="settings-margin-left"
-                       data-controlled-by="web_filter" data-effect="aria-disabled"
-                       aria-disabled="{% if update_web_filter_key %} false {% else %}true{% endif %}">
+                       :aria-disabled="String(!q('#update_web_filter_key').checked)"
+                       aria-disabled="{% if update_web_filter_key %} false {% else %} true {% endif %}">
                     <input id="forced_web_filter_key" name="forced_web_filter_key" type="checkbox"
                            {% if forced_web_filter_key %} checked {% endif %}>
                     Use manual key:
                 </label>
                 <input class="mb-0" type="text" name="forced_web_filter_key_value"
                        placeholder="Enter Web Filter key" aria-label="Web Filter key"
-                       data-controlled-by="web_filter" data-effect="readonly aria-disabled"
+                       :?readonly="!q('#update_web_filter_key').checked"
+                       :aria-disabled="String(!q('#update_web_filter_key').checked)"
                        {% if not update_web_filter_key %} readonly aria-disabled="true" {% endif %}
                        {% if forced_web_filter_key %} value="{{ forced_web_filter_key }}" {% endif %}>
             </div>
@@ -240,11 +240,11 @@
             <header>Software Update</header>
             <label>
                 <input id="update_kerio_control_distro" name="update_kerio_control_distro" type="checkbox"
-                       data-controls="kerio_control_distro"
                        {% if update_kerio_control_distro %} checked {% endif %}>
                 Update Kerio Control distributive
             </label>
-            <div data-controlled-by="kerio_control_distro" data-effect="hidden"
+            <div class="collapsible"
+                 :?data-hidden="!q('#update_kerio_control_distro').checked"
                  {% if not update_kerio_control_distro %} data-hidden {% endif %}>
                 <div class="form-group settings-grid size-12-fr">
                     <label for="kerio_control_update_file" class="settings-margin-left">Select the update file:</label>
@@ -272,11 +272,11 @@
 
             <label>
                 <input id="update_kerio_connect_distro" name="update_kerio_connect_distro" type="checkbox"
-                       data-controls="kerio_connect_distro"
                        {% if update_kerio_connect_distro %} checked {% endif %}>
                 Update Kerio Connect distributive
             </label>
-            <div data-controlled-by="kerio_connect_distro" data-effect="hidden"
+            <div class="collapsible"
+                 :?data-hidden="!q('#update_kerio_connect_distro').checked"
                  {% if not update_kerio_connect_distro %} data-hidden {% endif %}>
                 <div class="form-group settings-grid size-12-fr">
                     <label for="kerio_connect_update_file_win" class="settings-margin-left">Windows version:</label>

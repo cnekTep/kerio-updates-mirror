@@ -1,4 +1,5 @@
-<div class="container layout log-layout" id="log-component">
+<div class="container layout log-layout" id="log-component"
+     hx-on::after:swap="if (q('#auto-scroll').checked && event.detail.ctx.target?.id === 'log-list') scrollToBottom()">
     <article id="log-content">
         <ul id="log-list" class="mb-0">
             {% include "components/log/log_lines.html" %}
@@ -14,7 +15,9 @@
                 Auto-refresh
             </label>
             <label>
-                <input id="auto-scroll" type="checkbox">
+                <input id="auto-scroll" type="checkbox"
+                       hx-live="if (!local.data.restored) { this.checked = localStorage.getItem('log-auto-scroll') === 'true'; if (this.checked) window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); local.data.restored = true }"
+                       hx-on:change="localStorage.setItem('log-auto-scroll', this.checked); if (this.checked) scrollToBottom()">
                 Auto-scroll
             </label>
             <button id="refresh-btn"

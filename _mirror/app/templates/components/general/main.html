@@ -66,6 +66,7 @@
                     hx-post="{{ url_for('full_mirror_update') }}"
                     hx-target="#content"
                     hx-push-url="/web/logs/updates"
+                    hx-on:click="q('#nav-logs-updates').take('aria-current', 'aside nav a')"
             >
                 Run check
             </button>

@@ -4,7 +4,16 @@
           hx-swap="none"
     >
 
-        <article>
+        <article hx-on:change="
+            if (event.target.dataset.sortKey) {
+                const key = event.target.dataset.sortKey;
+                if (event.target.checked) {
+                    q('#sortable-priority').insert('end', `<div class='sortable-item' data-key='${key}'><input type='hidden' name='download_priority' value='${key}'>${event.target.dataset.sortLabel}</div>`);
+                } else {
+                    document.querySelector(`#sortable-priority [data-key='${key}']`)?.remove();
+                }
+            }
+        ">
             <header>Connection methods</header>
             <label>
                 <input id="direct" name="direct" type="checkbox"
@@ -30,14 +39,13 @@
             <label>
                 <input id="proxy" name="proxy" type="checkbox"
                        data-sort-key="proxy" data-sort-label="Proxy"
-                       data-controls="proxy_settings"
-                       {% if proxy %}checked{% endif %}>
+                       {% if proxy %} checked {% endif %}>
                 <span>Proxy server</span>
                 (<small>Use a configured proxy</small>)
             </label>
-            <div id="proxy_settings" class="settings-margin-left mt-1r"
-                 data-controlled-by="proxy_settings" data-effect="hidden"
-                 {% if not proxy %}data-hidden{% endif %}>
+            <div id="proxy_settings" class="collapsible settings-margin-left mt-1r"
+                 :?data-hidden="!q('#proxy').checked"
+                 {% if not proxy %} data-hidden {% endif %}>
                 <fieldset class="mb-0" role="group">
                     <select id="proxy_type" name="proxy_type">
                         <option value="http"
@@ -61,7 +69,8 @@
 
         <article>
             <header>Connection priority</header>
-            <div id="sortable-priority" class="sortable">
+            <div id="sortable-priority" class="sortable"
+                 hx-live="if (!local.data.sortable) { new Sortable(this, {animation: 150, ghostClass: 'sortable-ghost'}); local.data.sortable = true }">
                 {% for method in download_priority %}
                 {%- set labels = {"direct": "Direct connection", "xray": "Xray", "tor": "TOR", "proxy": "Proxy"} %}
                 <div class="sortable-item" data-key="{{ method }}">

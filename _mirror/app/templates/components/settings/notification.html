@@ -8,13 +8,12 @@
             <header>Email</header>
             <label class="mb-0">
                 <input id="email_enabled" name="email_enabled" type="checkbox"
-                       data-controls="email_settings_block"
                        {% if email_enabled %} checked {% endif %}>
                 Enable email notifications
             </label>
 
-            <div id="email_settings_block" class="mb-0"
-                 data-controlled-by="email_settings_block" data-effect="hidden"
+            <div id="email_settings_block" class="collapsible mb-0"
+                 :?data-hidden="!q('#email_enabled').checked"
                  {% if not email_enabled %} data-hidden {% endif %}>
                 <div class="settings-grid size-5-fr mt-1r"
                      aria-disabled="{% if email_enabled %} false {% else %} true {% endif %}">
@@ -112,13 +111,12 @@
             <header>Telegram</header>
             <label class="mb-0">
                 <input id="telegram_enabled" name="telegram_enabled" type="checkbox"
-                       data-controls="telegram_settings_block"
                        {% if telegram_enabled %} checked {% endif %}>
                 Enable Telegram notifications
             </label>
 
-            <div id="telegram_settings_block" class="mb-0"
-                 data-controlled-by="telegram_settings_block" data-effect="hidden"
+            <div id="telegram_settings_block" class="collapsible mb-0"
+                 :?data-hidden="!q('#telegram_enabled').checked"
                  {% if not telegram_enabled %} data-hidden {% endif %}>
                 <div class="form-group settings-grid size-5-fr mt-1r">
                     <label for="telegram_template" class="pb-1r">Template:</label>
@@ -167,13 +165,12 @@
 
                     <label>
                         <input id="telegram_threads_enabled" name="telegram_threads_enabled" type="checkbox"
-                               data-controls="telegram_threads_block"
                                {% if thread_enabled %} checked {% endif %}>
                         Enable Telegram threads
                     </label>
 
-                    <div id="telegram_threads_block" class="mb-0 mt-1r"
-                         data-controlled-by="telegram_threads_block" data-effect="hidden"
+                    <div id="telegram_threads_block" class="collapsible mb-0 mt-1r"
+                         :?data-hidden="!q('#telegram_threads_enabled').checked"
                          {% if not thread_enabled %} data-hidden {% endif %}>
                         <div class="settings-grid size-4_5-fr-9 gap-0_5">
                             <p class="pb-1r">Updates:</p>
@@ -205,7 +202,7 @@
                     </div>
 
                     <button type="button" id="test-telegram-btn" class="secondary mb-0 w-100"
-                            data-controlled-by="telegram_threads_block" data-effect="hidden-on-check"
+                            :?hidden="q('#telegram_threads_enabled').checked"
                             {% if thread_enabled %} hidden {% endif %}
                             hx-post="{{ url_for('send_test_telegram') }}"
                             hx-swap="none"

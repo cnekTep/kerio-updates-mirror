@@ -117,7 +117,7 @@ aside nav details ul {
     margin-left: 0 !important;
 }
 
-aside nav details ul li a[aria-current] {
+aside nav details ul li a[aria-current="true"] {
     border-color: var(--pico-primary);
     color: var(--pico-primary-hover);
     font-weight: 600;
@@ -238,14 +238,15 @@ article details ul li a {
     margin-left: 40px;
 }
 
-/* Smooth show/hide for data-effect="hidden" elements */
-[data-effect="hidden"] {
+
+/* Smooth show/hide for collapsible blocks (hx-live :?data-hidden binding) */
+.collapsible {
     overflow: hidden;
     opacity: 1;
     transition: max-height 0.3s ease, opacity 0.3s ease;
 }
 
-[data-effect="hidden"][data-hidden] {
+.collapsible[data-hidden] {
     max-height: 0;
     opacity: 0;
     pointer-events: none;

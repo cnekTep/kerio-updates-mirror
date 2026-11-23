@@ -8,13 +8,12 @@
             <header>Web interface</header>
             <label>
                 <input id="auth" name="auth" type="checkbox"
-                       data-controls="auth_block"
-                       {% if auth %}checked{% endif %}>
+                       {% if auth %} checked {% endif %}>
                 Use authentication
             </label>
-            <div id="auth_block" class="mt-1r"
-                 data-controlled-by="auth_block" data-effect="hidden"
-                 {% if not auth %}data-hidden{% endif %}>
+            <div id="auth_block" class="collapsible mt-1r"
+                 :?data-hidden="!q('#auth').checked"
+                 {% if not auth %} data-hidden {% endif %}>
                 <fieldset class="mb-0" role="group">
                     <input name="username" placeholder="Username"
                            value="{{ username or '' }}">
@@ -27,13 +26,12 @@
             <hr>
             <label {% if not has_nginx %} aria-disabled="true" {% endif %}>
                 <input id="web_allowed_ips" name="web_allowed_ips" type="checkbox"
-                       data-controls="web_allowed_ips_block"
-                       {% if web_allowed_ips %}checked{% endif %}>
+                       {% if web_allowed_ips %} checked {% endif %}>
                 Restrict access to the web interface by IP
             </label>
-            <div id="web_allowed_ips_block" class="mt-1r"
-                 data-controlled-by="web_allowed_ips_block" data-effect="hidden"
-                 {% if not web_allowed_ips %}data-hidden{% endif %}>
+            <div id="web_allowed_ips_block" class="collapsible mt-1r"
+                 :?data-hidden="!q('#web_allowed_ips').checked"
+                 {% if not web_allowed_ips %} data-hidden {% endif %}>
                 <textarea class="mb-0" name="web_allowed_ips_list"
                           placeholder="Example: 192.168.1.1, 192.168.2.2, 192.168.3.0/24"
                           aria-label="Web allowed IPs"
@@ -45,13 +43,12 @@
             <header>API / Kerio updates</header>
             <label {% if not has_nginx %} aria-disabled="true" {% endif %}>
                 <input id="api_allowed_ips" name="api_allowed_ips" type="checkbox"
-                       data-controls="api_allowed_ips_block"
-                       {% if api_allowed_ips %}checked{% endif %}>
+                       {% if api_allowed_ips %} checked {% endif %}>
                 Restrict access to the API / Kerio updates by IP
             </label>
-            <div id="api_allowed_ips_block" class="mt-1r"
-                 data-controlled-by="api_allowed_ips_block" data-effect="hidden"
-                 {% if not api_allowed_ips %}data-hidden{% endif %}>
+            <div id="api_allowed_ips_block" class="collapsible mt-1r"
+                 :?data-hidden="!q('#api_allowed_ips').checked"
+                 {% if not api_allowed_ips %} data-hidden {% endif %}>
                 <textarea class="mb-0" name="api_allowed_ips_list"
                           placeholder="Example: 192.168.1.1, 192.168.2.2, 192.168.3.0/24"
                           aria-label="API allowed IPs"
